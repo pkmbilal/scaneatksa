@@ -33,8 +33,9 @@ import {
   LogOut,
   ShieldUser,
   Pizza,
-  Search,
   Gauge,
+  Headset,
+  House,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -135,6 +136,14 @@ export default function Navbar() {
           <div className="flex items-center gap-6">
             <p>
               <Link
+                href="/about"
+                className="text-md font-semibold hover:text-primary transition-colors"
+              >
+                About
+              </Link>
+            </p>
+            <p>
+              <Link
                 href="/#how-it-works"
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
@@ -147,6 +156,14 @@ export default function Navbar() {
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
                 Restaurants
+              </Link>
+            </p>
+            <p>
+              <Link
+                href="/contact"
+                className="text-md font-semibold hover:text-primary transition-colors"
+              >
+                Contact
               </Link>
             </p>
           </div>
@@ -351,6 +368,15 @@ export default function Navbar() {
                     </>
                   )}
                   <Link
+                    href="/about"
+                    onClick={() => setMobileOpen(false)}
+                    className={mobileLinkClass(isActive("/about"))}
+                  >
+                    <House className="h-5 w-5 text-primary" />
+                    About
+                  </Link>
+
+                  <Link
                     href="/restaurants"
                     onClick={() => setMobileOpen(false)}
                     className={mobileLinkClass(isActive("/restaurants"))}
@@ -368,6 +394,15 @@ export default function Navbar() {
                       <Gauge color="#00c951" size={20} />
                     </span>
                     How It Works
+                  </Link>
+
+                  <Link
+                    href="/contact"
+                    onClick={() => setMobileOpen(false)}
+                    className={mobileLinkClass(isActive("/restaurants"))}
+                  >
+                    <Headset className="h-5 w-5 text-primary" />
+                    Contact
                   </Link>
                 </div>
               </div>
