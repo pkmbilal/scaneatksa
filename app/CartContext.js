@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import {
@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator'
 import { TriangleAlert, Store, ShoppingCart } from 'lucide-react'
 
 const CartContext = createContext()
+const CART_STORAGE_KEY = 'scaneat:cart:v1'
 
 function getRestaurantKey(r) {
   if (!r) return null
@@ -44,13 +45,59 @@ export function CartProvider({ children }) {
 
   const [cartItems, setCartItems] = useState([])
   const [restaurant, setRestaurant] = useState(null)
+  const [cartReady, setCartReady] = useState(false)
 
   // Dialog state (custom shadcn popup)
   const [conflictOpen, setConflictOpen] = useState(false)
   const [conflictInfo, setConflictInfo] = useState(null)
 
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(CART_STORAGE_KEY)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        const savedItems = Array.isArray(parsed?.cartItems)
+          ? parsed.cartItems.filter(
+              (item) =>
+                item?.id &&
+                Number.isFinite(Number(item?.price)) &&
+                Number.isInteger(Number(item?.quantity)) &&
+                Number(item.quantity) > 0
+            )
+          : []
+
+        if (savedItems.length > 0 && parsed?.restaurant) {
+          setCartItems(savedItems)
+          setRestaurant(normalizeRestaurant(parsed.restaurant))
+        }
+      }
+    } catch {
+      window.localStorage.removeItem(CART_STORAGE_KEY)
+    } finally {
+      setCartReady(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!cartReady) return
+
+    if (cartItems.length === 0 || !restaurant) {
+      window.localStorage.removeItem(CART_STORAGE_KEY)
+      return
+    }
+
+    window.localStorage.setItem(
+      CART_STORAGE_KEY,
+      JSON.stringify({ cartItems, restaurant })
+    )
+  }, [cartItems, restaurant, cartReady])
+
   // Add item to cart (✅ single restaurant enforcement)
   const addToCart = (item, restaurantInfo) => {
+    if (item?.is_available === false || item?.is_sold_out === true) {
+      return { ok: false, reason: 'ITEM_UNAVAILABLE' }
+    }
+
     const incomingRestaurant = normalizeRestaurant(restaurantInfo)
     const incomingKey = getRestaurantKey(incomingRestaurant)
     const currentKey = getRestaurantKey(restaurant)
@@ -151,6 +198,7 @@ export function CartProvider({ children }) {
         clearCart,
         totalPrice,
         totalItems,
+        cartReady,
       }}
     >
       {children}

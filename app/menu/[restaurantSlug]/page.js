@@ -7,6 +7,20 @@ import FavoriteButton from "@/components/FavoriteButton";
 import TableCodePersist from "@/components/TableCodePersist";
 import { Phone } from "lucide-react";
 
+function Pill({ children, className = "" }) {
+  return (
+    <span
+      className={[
+        "inline-flex items-center rounded-full border px-3 py-1 text-xs md:text-sm font-semibold",
+        "border-white/20 bg-black/30 text-white backdrop-blur",
+        className,
+      ].join(" ")}
+    >
+      {children}
+    </span>
+  );
+}
+
 export default async function MenuPage({ params, searchParams }) {
   const supabase = supabaseServer();
 
@@ -33,7 +47,7 @@ export default async function MenuPage({ params, searchParams }) {
 
   if (restaurantError) console.error("restaurants error:", restaurantError);
 
-  if (!restaurant) {
+  if (!restaurant || restaurant.is_active === false) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold">Restaurant not found</h1>
@@ -60,23 +74,13 @@ export default async function MenuPage({ params, searchParams }) {
 
   if (itemsError) console.error("menu_items error:", itemsError);
 
-  const menuItems = itemsError ? [] : items || [];
+  const menuItems = itemsError
+    ? []
+    : (items || []).filter((item) => item.is_available !== false);
   const cityName = restaurant?.city?.name || "";
 
   const cuisinePills =
     restaurant?.restaurant_cuisines?.map((rc) => rc?.cuisine?.name).filter(Boolean) || [];
-
-  const Pill = ({ children, className = "" }) => (
-    <span
-      className={[
-        "inline-flex items-center rounded-full border px-3 py-1 text-xs md:text-sm font-semibold",
-        "border-white/20 bg-black/30 text-white backdrop-blur",
-        className,
-      ].join(" ")}
-    >
-      {children}
-    </span>
-  );
 
   return (
     <div className="min-h-screen">
