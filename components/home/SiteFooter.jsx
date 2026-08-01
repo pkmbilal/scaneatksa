@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function SiteFooter({ data }) {
   return (
-    <footer className="border-t border-slate-200 bg-white py-14">
+    <footer className="border-t border-slate-200 bg-white pt-14 pb-8">
       <div className="mx-auto max-w-7xl px-4">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
@@ -42,7 +42,18 @@ export default function SiteFooter({ data }) {
         </div>
 
         <div className="mt-10 border-t border-slate-200 pt-6 text-center text-sm text-slate-500">
-          {data.copyright}
+          <p>{data.copyright}</p>
+          <p className="mt-2">
+            Designed by{" "}
+            <a
+              href="https://codesudio.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium transition hover:text-emerald-600"
+            >
+              codesudio
+            </a>
+          </p>
         </div>
       </div>
     </footer>
