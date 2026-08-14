@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "@/app/CartContext";
 import { useRouter } from "next/navigation";
 
@@ -18,6 +18,9 @@ import {
   MapPin,
   Bike,
   UtensilsCrossed,
+  Copy,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -31,6 +34,39 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
+function normalizeSaudiWhatsAppNumber(value) {
+  let digits = String(value || "").replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("05") && digits.length === 10) {
+    digits = "966" + digits.slice(1);
+  } else if (digits.startsWith("5") && digits.length === 9) {
+    digits = "966" + digits;
+  }
+  return digits;
+}
+
+function createCheckoutReference() {
+  const stamp = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return "SE-" + stamp + "-" + random;
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
 export default function CartPage() {
   const {
     cartItems,
@@ -39,6 +75,7 @@ export default function CartPage() {
     removeFromCart,
     totalPrice,
     clearCart,
+    cartReady,
   } = useCart();
 
   const [tableCode, setTableCode] = useState(null);
@@ -50,7 +87,9 @@ export default function CartPage() {
   const [notes, setNotes] = useState("");
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState("");
-  const [placedOrderId, setPlacedOrderId] = useState("");
+  const [whatsappOpened, setWhatsAppOpened] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const checkoutSnapshotRef = useRef(null);
 
   const router = useRouter();
 
@@ -143,14 +182,27 @@ export default function CartPage() {
   }, [restaurant?.slug, isDineIn, tableCode]);
 
   const restaurantPhone = useMemo(() => {
-    const raw = restaurant?.phone ?? "";
-    const digits = String(raw).replace(/\D/g, "");
-    return digits || "";
+    return normalizeSaudiWhatsAppNumber(restaurant?.phone);
   }, [restaurant?.phone]);
 
-  const generateWhatsAppMessage = () => {
+  const getCheckoutSnapshot = () => {
+    if (!checkoutSnapshotRef.current) {
+      checkoutSnapshotRef.current = {
+        reference: createCheckoutReference(),
+        createdAt: new Date(),
+      };
+    }
+    return checkoutSnapshotRef.current;
+  };
+
+  const generateWhatsAppMessage = (resolvedTableNumber = tableNumber) => {
+    const checkout = getCheckoutSnapshot();
     let message = `*NEW ORDER*\n`;
     message += `━━━━━━━━━━━━━━\n`;
+    message += `*Reference:* ${checkout.reference}\n`;
+    message += `*Time:* ${checkout.createdAt.toLocaleString("en-SA", {
+      timeZone: "Asia/Riyadh",
+    })}\n`;
 
     // Restaurant + type
     if (restaurant?.name) message += `*Restaurant:* ${restaurant.name}\n`;
@@ -165,7 +217,7 @@ export default function CartPage() {
 
     // Table (dine-in)
     if (isDineIn) {
-      message += `*Table:* ${tableNumber ? `Table ${tableNumber}` : "Table ?"}\n`;
+      message += `*Table:* ${resolvedTableNumber ? `Table ${resolvedTableNumber}` : "Table ?"}\n`;
     }
 
     // Customer details (online)
@@ -201,7 +253,7 @@ export default function CartPage() {
     return encodeURIComponent(message);
   };
 
-  const handleWhatsAppOrder = () => {
+  const handleWhatsAppOrder = async () => {
     const err = validateBeforePlace();
     if (err) {
       setPlaceError(err);
@@ -217,32 +269,103 @@ export default function CartPage() {
 
     setPlaceError("");
     setPlacing(true);
+    setCopied(false);
 
-    const message = generateWhatsAppMessage();
-    const whatsappUrl = `https://wa.me/${restaurantPhone}?text=${message}`;
+    const popup = window.open("", "_blank");
+    if (popup) popup.opener = null;
 
-    // ✅ Use a real <a> click (more reliable than window.open; avoids popup blocker)
     try {
-      const a = document.createElement("a");
-      a.href = whatsappUrl;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    } catch {
-      // fallback: navigate in the same tab if needed
-      window.location.href = whatsappUrl;
-      return;
-    }
+      const response = await fetch("/api/checkout/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          restaurantSlug: restaurant.slug,
+          channel: isDineIn ? "dine_in" : channel,
+          tableCode: isDineIn ? tableCode : null,
+          items: cartItems.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+          })),
+        }),
+      });
 
-    // ✅ Clear cart + redirect (current tab)
-    setTimeout(() => {
-      clearCart();
-      router.push("/restaurants");
+      const data = await response.json();
+      if (!response.ok) {
+        popup?.close();
+        setPlaceError(data?.error || "Unable to validate your cart.");
+        return;
+      }
+
+      const currentById = new Map(
+        cartItems.map((item) => [String(item.id), item]),
+      );
+      const menuChanged = data.items.some((item) => {
+        const current = currentById.get(String(item.id));
+        return (
+          !current ||
+          current.name !== item.name ||
+          Number(current.price) !== Number(item.price)
+        );
+      });
+
+      if (menuChanged) {
+        popup?.close();
+        setPlaceError(
+          "The menu changed while you were ordering. Return to the menu and review your cart.",
+        );
+        return;
+      }
+
+      const validatedPhone = normalizeSaudiWhatsAppNumber(
+        data?.restaurant?.phone,
+      );
+      if (!validatedPhone) {
+        popup?.close();
+        setPlaceError(
+          "WhatsApp ordering is unavailable because the restaurant phone number isn’t set.",
+        );
+        return;
+      }
+
+      const message = generateWhatsAppMessage(data.tableNumber);
+      const whatsappUrl = `https://wa.me/${validatedPhone}?text=${message}`;
+      checkoutSnapshotRef.current.message = decodeURIComponent(message);
+
+      if (data.tableNumber) setTableNumber(data.tableNumber);
+      setWhatsAppOpened(true);
+
+      if (popup) {
+        popup.location.replace(whatsappUrl);
+      } else {
+        window.location.href = whatsappUrl;
+      }
+    } catch {
+      popup?.close();
+      setPlaceError(
+        "We couldn’t open WhatsApp. Check your connection or copy the order instead.",
+      );
+    } finally {
       setPlacing(false);
-    }, 0);
+    }
+  };
+
+  const handleCopyOrder = async () => {
+    try {
+      const message =
+        checkoutSnapshotRef.current?.message ||
+        decodeURIComponent(generateWhatsAppMessage());
+      checkoutSnapshotRef.current.message = message;
+      await copyText(message);
+      setCopied(true);
+      setPlaceError("");
+    } catch {
+      setPlaceError("Your browser blocked copying. Please select and copy the order manually.");
+    }
+  };
+
+  const handleConfirmSent = () => {
+    clearCart();
+    router.push("/restaurants");
   };
 
   const handleDec = (item) => {
@@ -257,7 +380,8 @@ export default function CartPage() {
     setTableCode(null);
     setTableNumber(null); // ✅ clear resolved number too
     setPlaceError("");
-    setPlacedOrderId("");
+    setWhatsAppOpened(false);
+    checkoutSnapshotRef.current = null;
   };
 
   const validateBeforePlace = () => {
@@ -266,13 +390,20 @@ export default function CartPage() {
       return "Restaurant is missing. Please go back and open menu again.";
     if (!cartItems?.length) return "Your cart is empty.";
 
+    if (!isDineIn && !restaurant?.pickup_available && !restaurant?.delivery_available) {
+      return "This restaurant has not enabled online ordering.";
+    }
+
+    const customerPhoneDigits = normalizeSaudiWhatsAppNumber(customerPhone);
+
     if (!isDineIn && channel === "delivery") {
-      if (!customerPhone.trim())
-        return "Please enter phone number for delivery.";
+      if (customerPhoneDigits.length < 9 || customerPhoneDigits.length > 15)
+        return "Please enter a valid phone number for delivery.";
       if (!deliveryAddress.trim()) return "Please enter delivery address.";
     }
     if (!isDineIn && channel === "pickup") {
-      if (!customerPhone.trim()) return "Please enter phone number for pickup.";
+      if (customerPhoneDigits.length < 9 || customerPhoneDigits.length > 15)
+        return "Please enter a valid phone number for pickup.";
     }
 
     if (isDineIn && !tableCode) {
@@ -281,6 +412,17 @@ export default function CartPage() {
 
     return "";
   };
+
+  if (!cartReady) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] bg-muted/30 flex items-center justify-center">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          Restoring your cart…
+        </div>
+      </div>
+    );
+  }
 
   if (!cartItems?.length) {
     return (
@@ -611,22 +753,61 @@ export default function CartPage() {
                   <p className="text-sm text-destructive">{placeError}</p>
                 )}
 
-                {placedOrderId && (
-                  <p className="text-sm text-green-600">
-                    ✅ Order placed! Order ID: {placedOrderId}
-                  </p>
-                )}
+                <div className="grid gap-2">
+                  <Button
+                    size="lg"
+                    className="w-full hover:bg-green-600 text-white cursor-pointer"
+                    onClick={handleWhatsAppOrder}
+                    disabled={!restaurantPhone || placing}
+                  >
+                    {placing ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <MessageCircle className="h-4 w-4" />
+                    )}
+                    {placing ? "Checking menu…" : "Continue on WhatsApp"}
+                  </Button>
 
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full bg-primary hover:bg-green-600 text-white hover:text-white cursor-pointer"
-                  onClick={handleWhatsAppOrder}
-                  disabled={!restaurantPhone}
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  Order via WhatsApp
-                </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleCopyOrder}
+                  >
+                    {copied ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                    {copied ? "Order copied" : "Copy order text"}
+                  </Button>
+                </div>
+
+                {whatsappOpened && (
+                  <div
+                    className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950"
+                    role="status"
+                  >
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                      <div>
+                        <p className="text-sm font-semibold">WhatsApp opened</p>
+                        <p className="mt-1 text-xs leading-5 text-emerald-800">
+                          Your cart is still here. Clear it only after you send the message.
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 w-full border-emerald-300 bg-white hover:bg-emerald-100"
+                      onClick={handleConfirmSent}
+                    >
+                      I sent it — clear my cart
+                    </Button>
+                  </div>
+                )}
 
                 {!restaurantPhone && (
                   <p className="text-xs text-muted-foreground">
