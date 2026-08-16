@@ -50,7 +50,11 @@ export default function Navbar() {
   const pathname = usePathname();
 
   // ✅ compute this early, but DON'T return yet (hooks must run first)
-  const hideNavbar = pathname?.startsWith("/auth/") || pathname?.startsWith("/dashboard/admin");
+  const hideNavbar =
+    pathname?.startsWith("/auth/") ||
+    pathname?.startsWith("/dashboard/admin") ||
+    pathname?.startsWith("/dashboard/owner") ||
+    pathname?.startsWith("/dashboard/customer");
 
   useEffect(() => {
     // ✅ if navbar is hidden, don't do auth/profile loading

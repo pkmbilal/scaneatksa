@@ -1,23 +1,27 @@
 'use client'
 
-// Left sidebar nav for the admin dashboard. Structure/behavior ported from
-// TailAdmin's layout/AppSidebar.tsx (github.com/TailAdmin/free-nextjs-admin-dashboard):
-// same collapse/hover/mobile-open mechanics and menu-item styling. Simplified
-// vs. the original — our nav is a flat list of dashboard sections (no
-// sub-menus), and items switch the existing `activeTab` state instead of
-// routing, since the underlying page still renders everything client-side.
+// Left sidebar nav shared by all role dashboards (admin/owner/customer).
+// Structure/behavior ported from TailAdmin's layout/AppSidebar.tsx
+// (github.com/TailAdmin/free-nextjs-admin-dashboard): same collapse/hover/
+// mobile-open mechanics and menu-item styling. Simplified vs. the original —
+// our nav is a flat list of dashboard sections (no sub-menus), and items
+// switch the page's `activeTab` state instead of routing, since each
+// dashboard still renders everything client-side.
 
 import Image from 'next/image'
-import { useAdminSidebar } from '@/context/AdminSidebarContext'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useDashboardSidebar } from '@/context/DashboardSidebarContext'
 
-export default function AdminSidebar({ navItems, activeTab, onSelectTab }) {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useAdminSidebar()
+export default function DashboardSidebar({ navItems, activeTab, onSelectTab, siteNavItems }) {
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useDashboardSidebar()
+  const pathname = usePathname()
 
   const showLabels = isExpanded || isHovered || isMobileOpen
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-[999] border-r border-gray-200
+      className={`fixed flex flex-col top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-[999] border-r border-gray-200
         ${isExpanded || isMobileOpen ? 'w-[290px]' : isHovered ? 'w-[290px]' : 'w-[90px]'}
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0`}
@@ -72,6 +76,40 @@ export default function AdminSidebar({ navItems, activeTab, onSelectTab }) {
                 })}
               </ul>
             </div>
+
+            {siteNavItems && siteNavItems.length > 0 && (
+              <div>
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                    !showLabels ? 'lg:justify-center' : 'justify-start'
+                  }`}
+                >
+                  {showLabels ? 'Navigation' : '•••'}
+                </h2>
+
+                <ul className="flex flex-col gap-1">
+                  {siteNavItems.map((item) => {
+                    const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
+                    const Icon = item.icon
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={`menu-item group cursor-pointer ${
+                            isActive ? 'menu-item-active' : 'menu-item-inactive'
+                          } ${!showLabels ? 'lg:justify-center' : 'lg:justify-start'}`}
+                        >
+                          <span className={isActive ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}>
+                            <Icon className="size-5" />
+                          </span>
+                          {showLabels && <span className="menu-item-text">{item.label}</span>}
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
           </div>
         </nav>
       </div>

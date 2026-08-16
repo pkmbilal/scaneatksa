@@ -167,9 +167,10 @@ section[id] {
 }
 
 /* ---------------------------------------------------------------------- */
-/* TailAdmin tokens/utilities — scoped to the admin dashboard             */
-/* (/dashboard/admin). New token names only; nothing here overrides an    */
-/* existing color/utility, so the rest of the site is unaffected.         */
+/* TailAdmin tokens/utilities — used by the role dashboards               */
+/* (/dashboard/admin, /dashboard/owner, /dashboard/customer). New token   */
+/* names only; nothing here overrides an existing color/utility, so the   */
+/* rest of the site is unaffected.                                        */
 /* ---------------------------------------------------------------------- */
 @theme {
   --breakpoint-2xsm: 375px;

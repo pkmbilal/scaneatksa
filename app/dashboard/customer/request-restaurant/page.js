@@ -161,7 +161,7 @@ export default function RequestRestaurantPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="mx-auto max-w-5xl px-4 py-10">
           <Card className="border-muted/60">
             <CardContent className="py-14">
@@ -177,7 +177,7 @@ export default function RequestRestaurantPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="mx-auto max-w-5xl px-4 py-8 md:py-10">
         {/* Header */}
         <div className="mb-8">

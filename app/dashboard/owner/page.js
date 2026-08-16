@@ -9,25 +9,36 @@ import {
   getCurrentUser,
   getUserProfile,
   getUserRestaurant,
-  signOut,
 } from "@/lib/auth/client";
 
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+  LayoutDashboard,
+  UtensilsCrossed,
+  Tags,
+  QrCode,
+  Receipt,
+  Store,
+  TriangleAlert,
+  CheckCircle,
+  House,
+  Pizza,
+  Gauge,
+  Headset,
+} from "lucide-react";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { QrCode, Receipt, TriangleAlert, Trash2, CheckCircle } from "lucide-react";
+import { DashboardSidebarProvider } from "@/context/DashboardSidebarContext";
+import DashboardSidebar from "@/components/dashboard/shared/DashboardSidebar";
+import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
+import DashboardBackdrop from "@/components/dashboard/shared/DashboardBackdrop";
+import DashboardMain from "@/components/dashboard/shared/DashboardMain";
+import StatCard from "@/components/dashboard/shared/StatCard";
 
-import OwnerDashboardHeader from "@/components/dashboard/owner/OwnerDashboardHeader";
-import OwnerStats from "@/components/dashboard/owner/OwnerStats";
-import RestaurantInfoCard from "@/components/dashboard/owner/RestaurantInfoCard";
-import OwnerMenuTabs from "@/components/dashboard/owner/OwnerMenuTabs";
-
-// ✅ NEW components
+import OverviewTab from "@/components/dashboard/owner/tabs/OverviewTab";
+import MenuItemsTab from "@/components/dashboard/owner/tabs/MenuItemsTab";
+import CategoriesTab from "@/components/dashboard/owner/tabs/CategoriesTab";
+import RestaurantTab from "@/components/dashboard/owner/tabs/RestaurantTab";
 import OwnerTablesQrTab from "@/components/dashboard/owner/OwnerTablesQrTab";
 import OwnerOrdersTab from "@/components/dashboard/owner/OwnerOrdersTab";
 
@@ -61,6 +72,7 @@ export default function OwnerDashboardPage() {
   const [generatingTables, setGeneratingTables] = useState(false);
 
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
   const router = useRouter();
 
   // ✅ Dialog States
@@ -257,11 +269,6 @@ export default function OwnerDashboardPage() {
     setCategoryToDelete(null);
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    router.push("/auth/login");
-  };
-
   const handleGenerateTables = async () => {
     if (!restaurant?.id) return;
 
@@ -322,10 +329,10 @@ export default function OwnerDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">Loading dashboard…</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">Loading owner dashboard...</p>
         </div>
       </div>
     );
@@ -333,7 +340,7 @@ export default function OwnerDashboardPage() {
 
   if (!restaurant) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <Card className="max-w-md w-full">
           <CardHeader>
             <CardTitle>No Restaurant Found</CardTitle>
@@ -344,55 +351,115 @@ export default function OwnerDashboardPage() {
     );
   }
 
+  const navItems = [
+    { key: "overview", label: "Overview", icon: LayoutDashboard },
+    { key: "items", label: "Menu Items", icon: UtensilsCrossed },
+    { key: "categories", label: "Categories", icon: Tags },
+    { key: "tables", label: "Tables & QR", icon: QrCode },
+    { key: "orders", label: "Orders", icon: Receipt, count: orders.length },
+    { key: "restaurant", label: "Restaurant", icon: Store },
+  ];
+
+  const siteNavItems = [
+    { label: "About", href: "/about", icon: House },
+    { label: "How It Works", href: "/#how-it-works", icon: Gauge },
+    { label: "Restaurants", href: "/restaurants", icon: Pizza },
+    { label: "Contact", href: "/contact", icon: Headset },
+  ];
+
+  const tabTitles = {
+    overview: "Overview",
+    items: "Menu Items",
+    categories: "Categories",
+    tables: "Tables & QR",
+    orders: "Orders",
+    restaurant: "Restaurant",
+  };
+
+  const menuActions = {
+    toggleAvailability,
+    toggleSoldOut,
+    deleteItem,
+    renameCategory,
+    deleteCategory,
+    reloadItems: () => loadMenuItems(restaurant.id),
+    reloadCategories: () => loadCategories(restaurant.id),
+  };
+
   return (
-    <div className="min-h-screen bg-muted/30">
-      <OwnerDashboardHeader restaurant={restaurant} onLogout={handleLogout} />
-
-      <div className="max-w-7xl mx-auto px-4 py-5 space-y-5">
-        <OwnerStats menuItems={menuItems} />
-        <RestaurantInfoCard restaurant={restaurant} />
-
-        {/* ✅ your existing Menu/Categories tabs unchanged */}
-        <OwnerMenuTabs
-          restaurant={restaurant}
-          menuItems={menuItems}
-          categories={categories}
-          categoryMap={categoryMap}
-          actions={{
-            toggleAvailability,
-            toggleSoldOut,
-            deleteItem,
-            renameCategory,
-            deleteCategory,
-            reloadItems: () => loadMenuItems(restaurant.id),
-            reloadCategories: () => loadCategories(restaurant.id),
-          }}
+    <DashboardSidebarProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
+        <DashboardSidebar
+          navItems={navItems}
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          siteNavItems={siteNavItems}
         />
+        <DashboardBackdrop />
 
-        {/* ✅ Tables & Orders tabs */}
-        <Tabs defaultValue="tables" className="w-full">
-          <div className="flex items-center justify-between gap-3">
-            <TabsList className="w-fit">
-              <TabsTrigger value="tables" className="gap-2">
-                <QrCode className="h-4 w-4" />
-                Tables & QR
-              </TabsTrigger>
-            </TabsList>
+        <DashboardMain
+          header={
+            <DashboardHeader
+              user={user}
+              profile={profile}
+              homeHref="/dashboard/owner"
+              homeLabel="Owner Dashboard"
+            />
+          }
+        >
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:gap-6 mb-6">
+            <StatCard icon={UtensilsCrossed} label="Menu Items" value={menuItems.length} tint="brand" />
+            <StatCard icon={Tags} label="Categories" value={categories.length} tint="gray" />
+            <StatCard icon={QrCode} label="Tables" value={tables.length} tint="success" />
+            <StatCard icon={Receipt} label="Orders" value={orders.length} tint="warning" />
           </div>
 
-          <TabsContent value="tables" className="mt-4">
-            <OwnerTablesQrTab
-              restaurant={restaurant}
-              tables={tables}
-              tablesLoading={tablesLoading}
-              tableCount={tableCount}
-              setTableCount={setTableCount}
-              generatingTables={generatingTables}
-              onGenerateTables={handleGenerateTables}
-              onRefreshTables={() => loadTables(restaurant.id)}
-            />
-          </TabsContent>
-        </Tabs>
+          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="p-6">
+              <h2 className="text-lg font-bold text-gray-800 dark:text-white/90 mb-6">{tabTitles[activeTab]}</h2>
+
+              {activeTab === "overview" && <OverviewTab restaurant={restaurant} menuItems={menuItems} />}
+
+              {activeTab === "items" && (
+                <MenuItemsTab
+                  restaurant={restaurant}
+                  menuItems={menuItems}
+                  categories={categories}
+                  categoryMap={categoryMap}
+                  actions={menuActions}
+                />
+              )}
+
+              {activeTab === "categories" && (
+                <CategoriesTab restaurant={restaurant} categories={categories} actions={menuActions} />
+              )}
+
+              {activeTab === "tables" && (
+                <OwnerTablesQrTab
+                  restaurant={restaurant}
+                  tables={tables}
+                  tablesLoading={tablesLoading}
+                  tableCount={tableCount}
+                  setTableCount={setTableCount}
+                  generatingTables={generatingTables}
+                  onGenerateTables={handleGenerateTables}
+                  onRefreshTables={() => loadTables(restaurant.id)}
+                />
+              )}
+
+              {activeTab === "orders" && (
+                <OwnerOrdersTab
+                  restaurant={restaurant}
+                  orders={orders}
+                  ordersLoading={ordersLoading}
+                  onRefreshOrders={() => loadOrders(restaurant.id)}
+                />
+              )}
+
+              {activeTab === "restaurant" && <RestaurantTab restaurant={restaurant} />}
+            </div>
+          </div>
+        </DashboardMain>
       </div>
 
       {/* ✅ Delete Item Dialog */}
@@ -456,6 +523,6 @@ export default function OwnerDashboardPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </DashboardSidebarProvider>
   );
 }

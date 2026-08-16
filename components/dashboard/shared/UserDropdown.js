@@ -1,8 +1,10 @@
 'use client'
 
 // Ported from TailAdmin's components/header/UserDropdown.tsx, wired to the
-// real signed-in admin (profile/sign-out) instead of demo data. Reuses the
+// real signed-in user (profile/sign-out) instead of demo data. Reuses the
 // project's existing Avatar component (same initials pattern as Navbar.js).
+// Shared by all role dashboards — `homeHref`/`homeLabel` point back at the
+// caller's own dashboard route.
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -12,7 +14,12 @@ import { signOut } from '@/lib/auth/client'
 import { Dropdown } from './ui/Dropdown'
 import { DropdownItem } from './ui/DropdownItem'
 
-export default function UserDropdown({ user, profile }) {
+export default function UserDropdown({
+  user,
+  profile,
+  homeHref = '/dashboard',
+  homeLabel = 'Dashboard',
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
 
@@ -31,7 +38,7 @@ export default function UserDropdown({ user, profile }) {
         .toUpperCase()
         .slice(0, 2)
     }
-    return user?.email?.[0]?.toUpperCase() || 'A'
+    return user?.email?.[0]?.toUpperCase() || 'U'
   }
 
   const handleSignOut = async () => {
@@ -54,7 +61,7 @@ export default function UserDropdown({ user, profile }) {
         </Avatar>
 
         <span className="hidden sm:block mr-1 font-medium text-theme-sm">
-          {profile?.full_name || 'Admin'}
+          {profile?.full_name || homeLabel}
         </span>
 
         <ChevronDown
@@ -71,7 +78,7 @@ export default function UserDropdown({ user, profile }) {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {profile?.full_name || 'Admin'}
+            {profile?.full_name || homeLabel}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
             {user?.email}
@@ -83,10 +90,10 @@ export default function UserDropdown({ user, profile }) {
             <DropdownItem
               onItemClick={closeDropdown}
               tag="a"
-              href="/dashboard/admin"
+              href={homeHref}
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              Admin Dashboard
+              {homeLabel}
             </DropdownItem>
           </li>
         </ul>

@@ -1,6 +1,7 @@
 // Metric/KPI card, styled after TailAdmin's components/ecommerce/EcommerceMetrics.tsx.
+// Shared by all role dashboards.
 
-export default function AdminStatCard({ icon: Icon, label, value, tint = 'gray' }) {
+export default function StatCard({ icon: Icon, label, value, tint = 'gray' }) {
   const tints = {
     gray: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-white/90',
     warning: 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-400',

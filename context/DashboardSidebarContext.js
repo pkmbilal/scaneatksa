@@ -1,23 +1,24 @@
 'use client'
 
-// Layout-only state for the admin dashboard's left sidebar (expand/collapse,
+// Layout-only state for a dashboard's left sidebar (expand/collapse,
 // hover-to-expand, mobile open/close). Ported from TailAdmin's
 // SidebarContext.tsx (github.com/TailAdmin/free-nextjs-admin-dashboard).
-// Scoped to /dashboard/admin — provider is only mounted on that page.
+// Shared across all role dashboards (/dashboard/admin, /dashboard/owner,
+// /dashboard/customer) — each page mounts its own provider instance.
 
 import { createContext, useContext, useState, useEffect } from 'react'
 
-const AdminSidebarContext = createContext(undefined)
+const DashboardSidebarContext = createContext(undefined)
 
-export function useAdminSidebar() {
-  const context = useContext(AdminSidebarContext)
+export function useDashboardSidebar() {
+  const context = useContext(DashboardSidebarContext)
   if (!context) {
-    throw new Error('useAdminSidebar must be used within an AdminSidebarProvider')
+    throw new Error('useDashboardSidebar must be used within a DashboardSidebarProvider')
   }
   return context
 }
 
-export function AdminSidebarProvider({ children }) {
+export function DashboardSidebarProvider({ children }) {
   const [isExpanded, setIsExpanded] = useState(true)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -39,7 +40,7 @@ export function AdminSidebarProvider({ children }) {
   const toggleMobileSidebar = () => setIsMobileOpen((prev) => !prev)
 
   return (
-    <AdminSidebarContext.Provider
+    <DashboardSidebarContext.Provider
       value={{
         isExpanded: isMobile ? false : isExpanded,
         isMobileOpen,
@@ -50,6 +51,6 @@ export function AdminSidebarProvider({ children }) {
       }}
     >
       {children}
-    </AdminSidebarContext.Provider>
+    </DashboardSidebarContext.Provider>
   )
 }
