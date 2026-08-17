@@ -8,13 +8,8 @@ export default function FavoritesCard({ favorites = [], onRemove }) {
 
   return (
     <div>
-      <h3 className="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-white/90">
-        <Heart className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-        Favorite Restaurants
-      </h3>
-
       {items.length === 0 ? (
-        <div className="mt-4 rounded-xl border border-gray-200 p-6 text-center dark:border-gray-800">
+        <div className="rounded-xl border border-gray-200 p-6 text-center dark:border-gray-800">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
             <Heart className="h-6 w-6" />
           </div>
@@ -31,7 +26,7 @@ export default function FavoritesCard({ favorites = [], onRemove }) {
           </Link>
         </div>
       ) : (
-        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {items.map((fav) => {
             // support both possible shapes
             const r = fav?.restaurant || fav?.restaurants;

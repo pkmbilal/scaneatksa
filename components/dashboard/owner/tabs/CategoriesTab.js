@@ -2,19 +2,13 @@
 
 // Categories tab content for the owner dashboard's sidebar+tabs layout.
 // Split out of the old OwnerMenuTabs.js. Renders the existing categories
-// panel/dialog unchanged.
+// panel unchanged. The "Add Category" action now lives in the page-level
+// section header.
 
-import AddCategoryDialog from "@/components/dashboard/owner/dialogs/AddCategoryDialog";
 import CategoriesPanel from "@/components/dashboard/owner/CategoriesPanel";
 
-export default function CategoriesTab({ restaurant, categories, actions }) {
+export default function CategoriesTab({ categories, actions }) {
   return (
-    <div>
-      <div className="flex justify-end mb-4">
-        <AddCategoryDialog restaurantId={restaurant.id} onAdded={actions.reloadCategories} />
-      </div>
-
-      <CategoriesPanel categories={categories} onRename={actions.renameCategory} onDelete={actions.deleteCategory} />
-    </div>
+    <CategoriesPanel categories={categories} onRename={actions.renameCategory} onDelete={actions.deleteCategory} />
   );
 }

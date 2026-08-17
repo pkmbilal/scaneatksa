@@ -1,6 +1,6 @@
 'use client'
 
-import { ClipboardList, Clock, CheckCircle2, XCircle } from 'lucide-react'
+import { Clock, CheckCircle2, XCircle } from 'lucide-react'
 
 const statusTint = {
   pending: 'bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400',
@@ -36,12 +36,7 @@ export default function RequestsCard({ requests }) {
 
   return (
     <div>
-      <h3 className="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-white/90">
-        <ClipboardList className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-        Your Restaurant Requests
-      </h3>
-
-      <div className={`mt-4 space-y-3 ${scrollClass}`}>
+      <div className={`space-y-3 ${scrollClass}`}>
         {requests.map((request) => (
           <div
             key={request.id}

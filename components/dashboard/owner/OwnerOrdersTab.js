@@ -13,7 +13,7 @@ const orderStatusTint = {
 
 const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap";
 
-export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onRefreshOrders }) {
+export default function OwnerOrdersTab({ restaurant, orders, ordersLoading }) {
   const formatDate = (iso) => {
     try {
       return new Date(iso).toLocaleString();
@@ -24,28 +24,12 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onRe
 
   return (
     <div>
-      <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">Recent Orders</h3>
-      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        Dine-in orders will show a table number. Online orders show pickup/delivery.
-      </p>
-
-      <div className="mt-4 flex gap-2">
-        <button
-          type="button"
-          onClick={onRefreshOrders}
-          disabled={ordersLoading}
-          className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
-        >
-          {ordersLoading ? "Refreshing..." : "Refresh Orders"}
-        </button>
-      </div>
-
       {ordersLoading ? (
-        <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading orders…</div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">Loading orders…</div>
       ) : orders.length === 0 ? (
         <div className="py-12 text-center text-gray-500 dark:text-gray-400">No orders yet.</div>
       ) : (
-        <div className="mt-4 space-y-3">
+        <div className="space-y-3">
           {orders.map((o) => {
             const tableNum = o?.restaurant_tables?.table_number;
             const where =

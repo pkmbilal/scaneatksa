@@ -30,12 +30,7 @@ export default function OwnerTablesQrTab({
 
   return (
     <div>
-      <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">Tables & QR Codes</h3>
-      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        Generate table QR codes so orders automatically show &ldquo;Table 5&rdquo;.
-      </p>
-
-      <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="flex-1">
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
             Number of tables

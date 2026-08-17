@@ -10,6 +10,7 @@ import DashboardHeader from '@/components/dashboard/shared/DashboardHeader'
 import DashboardBackdrop from '@/components/dashboard/shared/DashboardBackdrop'
 import DashboardMain from '@/components/dashboard/shared/DashboardMain'
 import StatCard from '@/components/dashboard/shared/StatCard'
+import TabSectionHeader from '@/components/dashboard/shared/TabSectionHeader'
 
 import OverviewTab from '@/components/dashboard/customer/tabs/OverviewTab'
 import FavoritesTab from '@/components/dashboard/customer/tabs/FavoritesTab'
@@ -96,6 +97,12 @@ export default function CustomerDashboardPage() {
     requests: 'My Requests',
   }
 
+  const tabDescriptions = {
+    overview: 'Your account details and quick actions.',
+    favorites: "Restaurants you've saved for quick access.",
+    requests: 'Track the status of your restaurant ownership requests.',
+  }
+
   return (
     <DashboardSidebarProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
@@ -125,10 +132,10 @@ export default function CustomerDashboardPage() {
             </div>
           )}
 
+          <TabSectionHeader title={tabTitles[activeTab]} description={tabDescriptions[activeTab]} />
+
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="p-6">
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white/90 mb-6">{tabTitles[activeTab]}</h2>
-
               {activeTab === 'overview' && <OverviewTab user={user} profile={profile} />}
 
               {activeTab === 'favorites' && (

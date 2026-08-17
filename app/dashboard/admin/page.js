@@ -35,6 +35,7 @@ import DashboardHeader from '@/components/dashboard/shared/DashboardHeader'
 import DashboardBackdrop from '@/components/dashboard/shared/DashboardBackdrop'
 import DashboardMain from '@/components/dashboard/shared/DashboardMain'
 import StatCard from '@/components/dashboard/shared/StatCard'
+import TabSectionHeader from '@/components/dashboard/shared/TabSectionHeader'
 import PendingRequestsTab from '@/components/dashboard/admin/tabs/PendingRequestsTab'
 import AllRequestsTab from '@/components/dashboard/admin/tabs/AllRequestsTab'
 import UsersTab from '@/components/dashboard/admin/tabs/UsersTab'
@@ -578,6 +579,15 @@ export default function AdminDashboard() {
     cuisines: 'Cuisines',
   }
 
+  const tabDescriptions = {
+    pending: 'Restaurant owner requests waiting for your approval.',
+    all: 'Full history of restaurant requests and their outcomes.',
+    users: 'Manage roles and account status for every user.',
+    restaurants: 'All approved restaurants on the platform.',
+    cities: 'Manage the cities customers can select when browsing restaurants.',
+    cuisines: 'Manage the cuisine tags restaurants can be filtered by.',
+  }
+
   return (
     <DashboardSidebarProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
@@ -613,10 +623,10 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          <TabSectionHeader title={tabTitles[activeTab]} description={tabDescriptions[activeTab]} />
+
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="p-6">
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white/90 mb-6">{tabTitles[activeTab]}</h2>
-
               {activeTab === 'pending' && (
                 <PendingRequestsTab
                   pendingRequests={pendingRequests}

@@ -7,7 +7,7 @@
 // OwnerDashboardHeader.js.
 
 import Link from "next/link";
-import { Eye, QrCode, Pencil } from "lucide-react";
+import { Eye, QrCode } from "lucide-react";
 import RestaurantInfoCard from "@/components/dashboard/owner/RestaurantInfoCard";
 
 export default function RestaurantTab({ restaurant }) {
@@ -28,14 +28,6 @@ export default function RestaurantTab({ restaurant }) {
         >
           <QrCode className="h-4 w-4" />
           QR Code
-        </Link>
-
-        <Link
-          href="/dashboard/owner/restaurant/edit"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
-        >
-          <Pencil className="h-4 w-4" />
-          Edit Restaurant
         </Link>
       </div>
 

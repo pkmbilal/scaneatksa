@@ -17,12 +17,7 @@ export default function MenuItemsTable({
 }) {
   return (
     <div className="hidden md:block">
-      <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">Menu Items</h3>
-      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        Toggle availability and sold out status instantly.
-      </p>
-
-      <div className="mt-4 overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+      <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-800">

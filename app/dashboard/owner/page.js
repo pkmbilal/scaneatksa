@@ -4,6 +4,7 @@ const supabase = supabaseBrowser();
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import {
   getCurrentUser,
@@ -26,6 +27,8 @@ import {
   Pizza,
   Gauge,
   Headset,
+  Pencil,
+  RefreshCw,
 } from "lucide-react";
 
 import { DashboardSidebarProvider } from "@/context/DashboardSidebarContext";
@@ -34,6 +37,7 @@ import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import DashboardBackdrop from "@/components/dashboard/shared/DashboardBackdrop";
 import DashboardMain from "@/components/dashboard/shared/DashboardMain";
 import StatCard from "@/components/dashboard/shared/StatCard";
+import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
 
 import OverviewTab from "@/components/dashboard/owner/tabs/OverviewTab";
 import MenuItemsTab from "@/components/dashboard/owner/tabs/MenuItemsTab";
@@ -41,6 +45,8 @@ import CategoriesTab from "@/components/dashboard/owner/tabs/CategoriesTab";
 import RestaurantTab from "@/components/dashboard/owner/tabs/RestaurantTab";
 import OwnerTablesQrTab from "@/components/dashboard/owner/OwnerTablesQrTab";
 import OwnerOrdersTab from "@/components/dashboard/owner/OwnerOrdersTab";
+import AddItemDialog from "@/components/dashboard/owner/dialogs/AddItemDialog";
+import AddCategoryDialog from "@/components/dashboard/owner/dialogs/AddCategoryDialog";
 
 // ✅ Shadcn Dialogs
 import {
@@ -376,6 +382,15 @@ export default function OwnerDashboardPage() {
     restaurant: "Restaurant",
   };
 
+  const tabDescriptions = {
+    overview: "A quick snapshot of your restaurant's menu, tables, and orders.",
+    items: "Manage the dishes on your menu, prices, and availability.",
+    categories: "Organize your menu items into categories.",
+    tables: "Generate QR codes so orders automatically tag the right table.",
+    orders: "Dine-in orders show a table number. Online orders show pickup or delivery.",
+    restaurant: "Manage your restaurant's public details and settings.",
+  };
+
   const menuActions = {
     toggleAvailability,
     toggleSoldOut,
@@ -384,6 +399,35 @@ export default function OwnerDashboardPage() {
     deleteCategory,
     reloadItems: () => loadMenuItems(restaurant.id),
     reloadCategories: () => loadCategories(restaurant.id),
+  };
+
+  const headerActions = {
+    items: (
+      <AddItemDialog restaurantId={restaurant.id} categories={categories} onAdded={menuActions.reloadItems} />
+    ),
+    categories: (
+      <AddCategoryDialog restaurantId={restaurant.id} onAdded={menuActions.reloadCategories} />
+    ),
+    orders: (
+      <button
+        type="button"
+        onClick={() => loadOrders(restaurant.id)}
+        disabled={ordersLoading}
+        className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+      >
+        <RefreshCw className="h-4 w-4" />
+        {ordersLoading ? "Refreshing..." : "Refresh Orders"}
+      </button>
+    ),
+    restaurant: (
+      <Link
+        href="/dashboard/owner/restaurant/edit"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+      >
+        <Pencil className="h-4 w-4" />
+        Edit Restaurant
+      </Link>
+    ),
   };
 
   return (
@@ -417,25 +461,21 @@ export default function OwnerDashboardPage() {
             </div>
           )}
 
+          <TabSectionHeader
+            title={tabTitles[activeTab]}
+            description={tabDescriptions[activeTab]}
+            action={headerActions[activeTab]}
+          />
+
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="p-6">
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white/90 mb-6">{tabTitles[activeTab]}</h2>
-
               {activeTab === "overview" && <OverviewTab restaurant={restaurant} />}
 
               {activeTab === "items" && (
-                <MenuItemsTab
-                  restaurant={restaurant}
-                  menuItems={menuItems}
-                  categories={categories}
-                  categoryMap={categoryMap}
-                  actions={menuActions}
-                />
+                <MenuItemsTab menuItems={menuItems} categoryMap={categoryMap} actions={menuActions} />
               )}
 
-              {activeTab === "categories" && (
-                <CategoriesTab restaurant={restaurant} categories={categories} actions={menuActions} />
-              )}
+              {activeTab === "categories" && <CategoriesTab categories={categories} actions={menuActions} />}
 
               {activeTab === "tables" && (
                 <OwnerTablesQrTab
@@ -451,12 +491,7 @@ export default function OwnerDashboardPage() {
               )}
 
               {activeTab === "orders" && (
-                <OwnerOrdersTab
-                  restaurant={restaurant}
-                  orders={orders}
-                  ordersLoading={ordersLoading}
-                  onRefreshOrders={() => loadOrders(restaurant.id)}
-                />
+                <OwnerOrdersTab restaurant={restaurant} orders={orders} ordersLoading={ordersLoading} />
               )}
 
               {activeTab === "restaurant" && <RestaurantTab restaurant={restaurant} />}
