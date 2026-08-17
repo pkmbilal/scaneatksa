@@ -4,32 +4,50 @@ const supabase = supabaseBrowser();
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import {
   getCurrentUser,
   getUserProfile,
   getUserRestaurant,
-  signOut,
 } from "@/lib/auth/client";
 
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+  LayoutDashboard,
+  UtensilsCrossed,
+  Tags,
+  QrCode,
+  Receipt,
+  Store,
+  TriangleAlert,
+  CheckCircle,
+  House,
+  Pizza,
+  Gauge,
+  Headset,
+  Pencil,
+  RefreshCw,
+} from "lucide-react";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { QrCode, Receipt, TriangleAlert, Trash2, CheckCircle } from "lucide-react";
+import { DashboardSidebarProvider } from "@/context/DashboardSidebarContext";
+import DashboardSidebar from "@/components/dashboard/shared/DashboardSidebar";
+import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
+import DashboardBackdrop from "@/components/dashboard/shared/DashboardBackdrop";
+import DashboardMain from "@/components/dashboard/shared/DashboardMain";
+import StatCard from "@/components/dashboard/shared/StatCard";
+import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
 
-import OwnerDashboardHeader from "@/components/dashboard/owner/OwnerDashboardHeader";
-import OwnerStats from "@/components/dashboard/owner/OwnerStats";
-import RestaurantInfoCard from "@/components/dashboard/owner/RestaurantInfoCard";
-import OwnerMenuTabs from "@/components/dashboard/owner/OwnerMenuTabs";
-
-// ✅ NEW components
+import OverviewTab from "@/components/dashboard/owner/tabs/OverviewTab";
+import MenuItemsTab from "@/components/dashboard/owner/tabs/MenuItemsTab";
+import CategoriesTab from "@/components/dashboard/owner/tabs/CategoriesTab";
+import RestaurantTab from "@/components/dashboard/owner/tabs/RestaurantTab";
 import OwnerTablesQrTab from "@/components/dashboard/owner/OwnerTablesQrTab";
 import OwnerOrdersTab from "@/components/dashboard/owner/OwnerOrdersTab";
+import AddItemDialog from "@/components/dashboard/owner/dialogs/AddItemDialog";
+import AddCategoryDialog from "@/components/dashboard/owner/dialogs/AddCategoryDialog";
+import AddTableDialog from "@/components/dashboard/owner/dialogs/AddTableDialog";
 
 // ✅ Shadcn Dialogs
 import {
@@ -57,10 +75,8 @@ export default function OwnerDashboardPage() {
   const [tablesLoading, setTablesLoading] = useState(false);
   const [ordersLoading, setOrdersLoading] = useState(false);
 
-  const [tableCount, setTableCount] = useState(10);
-  const [generatingTables, setGeneratingTables] = useState(false);
-
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
   const router = useRouter();
 
   // ✅ Dialog States
@@ -69,6 +85,9 @@ export default function OwnerDashboardPage() {
 
   const [deleteCategoryOpen, setDeleteCategoryOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
+
+  const [deleteTableOpen, setDeleteTableOpen] = useState(false);
+  const [tableToDelete, setTableToDelete] = useState(null);
 
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [infoDialogConfig, setInfoDialogConfig] = useState({ title: "", description: "", isError: false });
@@ -257,75 +276,75 @@ export default function OwnerDashboardPage() {
     setCategoryToDelete(null);
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    router.push("/auth/login");
-  };
+  const toggleTableActive = async (table) => {
+    const { error } = await supabase
+      .from("restaurant_tables")
+      .update({ is_active: !table.is_active })
+      .eq("id", table.id);
 
-  const handleGenerateTables = async () => {
-    if (!restaurant?.id) return;
-
-    const n = Number(tableCount || 0);
-    if (!n || n < 1 || n > 200) {
+    if (!error && restaurant?.id) {
+      await loadTables(restaurant.id);
+    } else if (error) {
       setInfoDialogConfig({
-        title: "Invalid Input",
-        description: "Please enter a valid number of tables (1 to 200).",
+        title: "Error",
+        description: error.message || "Failed to update table.",
         isError: true,
       });
       setInfoDialogOpen(true);
-      return;
     }
+  };
 
-    setGeneratingTables(true);
+  // ✅ Trigger Delete Table Dialog
+  const deleteTable = (table) => {
+    setTableToDelete(table);
+    setDeleteTableOpen(true);
+  };
+
+  // ✅ Confirm Delete Table
+  const confirmDeleteTable = async () => {
+    if (!tableToDelete || !restaurant?.id) return;
+
     try {
       const { data: sess } = await supabase.auth.getSession();
       const token = sess?.session?.access_token;
 
-      const res = await fetch(`/api/restaurants/${restaurant.id}/tables/generate`, {
-        method: "POST",
+      const res = await fetch(`/api/restaurants/${restaurant.id}/tables/${tableToDelete.id}`, {
+        method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
           ...(token ? { authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ count: n }),
       });
 
       const json = await res.json();
       if (!res.ok) {
         setInfoDialogConfig({
           title: "Error",
-          description: json?.error || "Failed to generate tables.",
+          description: json?.error || "Failed to delete table.",
           isError: true,
         });
         setInfoDialogOpen(true);
-        return;
+      } else {
+        await loadTables(restaurant.id);
       }
-
-      await loadTables(restaurant.id);
-      setInfoDialogConfig({
-        title: "Success",
-        description: `✅ Tables generated (created: ${json.created ?? 0})`,
-        isError: false,
-      });
-      setInfoDialogOpen(true);
     } catch (e) {
       setInfoDialogConfig({
         title: "Error",
-        description: e?.message || "Server error generating tables.",
+        description: e?.message || "Server error deleting table.",
         isError: true,
       });
       setInfoDialogOpen(true);
     } finally {
-      setGeneratingTables(false);
+      setDeleteTableOpen(false);
+      setTableToDelete(null);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">Loading dashboard…</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">Loading owner dashboard...</p>
         </div>
       </div>
     );
@@ -333,7 +352,7 @@ export default function OwnerDashboardPage() {
 
   if (!restaurant) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <Card className="max-w-md w-full">
           <CardHeader>
             <CardTitle>No Restaurant Found</CardTitle>
@@ -344,55 +363,147 @@ export default function OwnerDashboardPage() {
     );
   }
 
+  const navItems = [
+    { key: "overview", label: "Overview", icon: LayoutDashboard },
+    { key: "items", label: "Menu Items", icon: UtensilsCrossed },
+    { key: "categories", label: "Categories", icon: Tags },
+    { key: "tables", label: "Tables & QR", icon: QrCode },
+    { key: "orders", label: "Orders", icon: Receipt, count: orders.length },
+    { key: "restaurant", label: "Restaurant", icon: Store },
+  ];
+
+  const siteNavItems = [
+    { label: "About", href: "/about", icon: House },
+    { label: "How It Works", href: "/#how-it-works", icon: Gauge },
+    { label: "Restaurants", href: "/restaurants", icon: Pizza },
+    { label: "Contact", href: "/contact", icon: Headset },
+  ];
+
+  const tabTitles = {
+    overview: "Overview",
+    items: "Menu Items",
+    categories: "Categories",
+    tables: "Tables & QR",
+    orders: "Orders",
+    restaurant: "Restaurant",
+  };
+
+  const tabDescriptions = {
+    overview: "A quick snapshot of your restaurant's menu, tables, and orders.",
+    items: "Manage the dishes on your menu, prices, and availability.",
+    categories: "Organize your menu items into categories.",
+    tables: "Generate QR codes so orders automatically tag the right table.",
+    orders: "Dine-in orders show a table number. Online orders show pickup or delivery.",
+    restaurant: "Manage your restaurant's public details and settings.",
+  };
+
+  const menuActions = {
+    toggleAvailability,
+    toggleSoldOut,
+    deleteItem,
+    renameCategory,
+    deleteCategory,
+    reloadItems: () => loadMenuItems(restaurant.id),
+    reloadCategories: () => loadCategories(restaurant.id),
+  };
+
+  const headerActions = {
+    items: (
+      <AddItemDialog restaurantId={restaurant.id} categories={categories} onAdded={menuActions.reloadItems} />
+    ),
+    categories: (
+      <AddCategoryDialog restaurantId={restaurant.id} onAdded={menuActions.reloadCategories} />
+    ),
+    tables: (
+      <AddTableDialog restaurantId={restaurant.id} onAdded={() => loadTables(restaurant.id)} />
+    ),
+    orders: (
+      <button
+        type="button"
+        onClick={() => loadOrders(restaurant.id)}
+        disabled={ordersLoading}
+        className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+      >
+        <RefreshCw className="h-4 w-4" />
+        {ordersLoading ? "Refreshing..." : "Refresh Orders"}
+      </button>
+    ),
+    restaurant: (
+      <Link
+        href="/dashboard/owner/restaurant/edit"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+      >
+        <Pencil className="h-4 w-4" />
+        Edit Restaurant
+      </Link>
+    ),
+  };
+
   return (
-    <div className="min-h-screen bg-muted/30">
-      <OwnerDashboardHeader restaurant={restaurant} onLogout={handleLogout} />
-
-      <div className="max-w-7xl mx-auto px-4 py-5 space-y-5">
-        <OwnerStats menuItems={menuItems} />
-        <RestaurantInfoCard restaurant={restaurant} />
-
-        {/* ✅ your existing Menu/Categories tabs unchanged */}
-        <OwnerMenuTabs
-          restaurant={restaurant}
-          menuItems={menuItems}
-          categories={categories}
-          categoryMap={categoryMap}
-          actions={{
-            toggleAvailability,
-            toggleSoldOut,
-            deleteItem,
-            renameCategory,
-            deleteCategory,
-            reloadItems: () => loadMenuItems(restaurant.id),
-            reloadCategories: () => loadCategories(restaurant.id),
-          }}
+    <DashboardSidebarProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
+        <DashboardSidebar
+          navItems={navItems}
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          siteNavItems={siteNavItems}
         />
+        <DashboardBackdrop />
 
-        {/* ✅ Tables & Orders tabs */}
-        <Tabs defaultValue="tables" className="w-full">
-          <div className="flex items-center justify-between gap-3">
-            <TabsList className="w-fit">
-              <TabsTrigger value="tables" className="gap-2">
-                <QrCode className="h-4 w-4" />
-                Tables & QR
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="tables" className="mt-4">
-            <OwnerTablesQrTab
-              restaurant={restaurant}
-              tables={tables}
-              tablesLoading={tablesLoading}
-              tableCount={tableCount}
-              setTableCount={setTableCount}
-              generatingTables={generatingTables}
-              onGenerateTables={handleGenerateTables}
-              onRefreshTables={() => loadTables(restaurant.id)}
+        <DashboardMain
+          header={
+            <DashboardHeader
+              user={user}
+              profile={profile}
+              homeHref="/dashboard/owner"
+              homeLabel="Owner Dashboard"
+              editProfileHref="/dashboard/owner/edit-profile"
             />
-          </TabsContent>
-        </Tabs>
+          }
+        >
+          {activeTab === "overview" && (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:gap-6 mb-6">
+              <StatCard icon={UtensilsCrossed} label="Menu Items" value={menuItems.length} tint="brand" />
+              <StatCard icon={Tags} label="Categories" value={categories.length} tint="gray" />
+              <StatCard icon={QrCode} label="Tables" value={tables.length} tint="success" />
+              <StatCard icon={Receipt} label="Orders" value={orders.length} tint="warning" />
+            </div>
+          )}
+
+          <TabSectionHeader
+            title={tabTitles[activeTab]}
+            description={tabDescriptions[activeTab]}
+            action={headerActions[activeTab]}
+          />
+
+          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="p-6">
+              {activeTab === "overview" && <OverviewTab restaurant={restaurant} />}
+
+              {activeTab === "items" && (
+                <MenuItemsTab menuItems={menuItems} categoryMap={categoryMap} actions={menuActions} />
+              )}
+
+              {activeTab === "categories" && <CategoriesTab categories={categories} actions={menuActions} />}
+
+              {activeTab === "tables" && (
+                <OwnerTablesQrTab
+                  restaurant={restaurant}
+                  tables={tables}
+                  tablesLoading={tablesLoading}
+                  onToggleActive={toggleTableActive}
+                  onDeleteTable={deleteTable}
+                />
+              )}
+
+              {activeTab === "orders" && (
+                <OwnerOrdersTab restaurant={restaurant} orders={orders} ordersLoading={ordersLoading} />
+              )}
+
+              {activeTab === "restaurant" && <RestaurantTab restaurant={restaurant} />}
+            </div>
+          </div>
+        </DashboardMain>
       </div>
 
       {/* ✅ Delete Item Dialog */}
@@ -437,6 +548,28 @@ export default function OwnerDashboardPage() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* ✅ Delete Table Dialog */}
+      <AlertDialog open={deleteTableOpen} onOpenChange={setDeleteTableOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <TriangleAlert className="h-5 w-5" />
+              Delete Table{tableToDelete ? ` ${tableToDelete.table_number}` : ""}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This can&rsquo;t be undone. If this table has past orders, deletion will be blocked — deactivate
+              it instead.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteTable} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* ✅ Info/Error Dialog */}
       <AlertDialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
         <AlertDialogContent>
@@ -456,6 +589,6 @@ export default function OwnerDashboardPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </DashboardSidebarProvider>
   );
 }

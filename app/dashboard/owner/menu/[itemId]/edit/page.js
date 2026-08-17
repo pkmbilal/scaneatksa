@@ -10,6 +10,10 @@ import {
   getUserProfile,
   getUserRestaurant,
 } from "@/lib/auth/client";
+import { Switch } from "@/components/ui/switch";
+
+const inputClass =
+  "w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white";
 
 export default function EditMenuItemPage() {
   const router = useRouter();
@@ -153,10 +157,10 @@ export default function EditMenuItemPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading item...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading item...</p>
         </div>
       </div>
     );
@@ -164,13 +168,13 @@ export default function EditMenuItemPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white rounded-lg shadow p-6 max-w-md w-full">
-          <h1 className="text-xl font-bold text-gray-800 mb-2">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 max-w-md w-full dark:border-gray-800 dark:bg-white/[0.03]">
+          <h1 className="text-xl font-bold text-gray-800 dark:text-white/90 mb-2">
             Edit Menu Item
           </h1>
-          <p className="text-red-600 text-sm mb-4">{error}</p>
-          <Link href="/dashboard/owner" className="text-primary font-semibold">
+          <p className="text-error-600 dark:text-error-400 text-sm mb-4">{error}</p>
+          <Link href="/dashboard/owner" className="text-brand-600 dark:text-brand-400 font-semibold">
             ← Back to dashboard
           </Link>
         </div>
@@ -179,19 +183,19 @@ export default function EditMenuItemPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">
                 Edit Menu Item
               </h1>
-              <p className="text-gray-500 text-sm">{item?.name}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">{item?.name}</p>
             </div>
             <Link
               href="/dashboard/owner"
-              className="text-sm font-semibold text-primary"
+              className="text-sm font-semibold text-brand-600 dark:text-brand-400"
             >
               ← Back
             </Link>
@@ -199,7 +203,7 @@ export default function EditMenuItemPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Item Name *
               </label>
               <input
@@ -208,13 +212,13 @@ export default function EditMenuItemPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Description *
               </label>
               <textarea
@@ -223,14 +227,14 @@ export default function EditMenuItemPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Price (SAR) *
                 </label>
                 <input
@@ -240,13 +244,13 @@ export default function EditMenuItemPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, price: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className={inputClass}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Category
                 </label>
                 <select
@@ -254,7 +258,7 @@ export default function EditMenuItemPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, category_id: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                  className={inputClass}
                 >
                   <option value="">Uncategorized</option>
                   {categories.map((c) => (
@@ -267,7 +271,7 @@ export default function EditMenuItemPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Image URL
               </label>
               <input
@@ -276,62 +280,58 @@ export default function EditMenuItemPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, image_url: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className={inputClass}
               />
               {formData.image_url && (
                 <div className="mt-3">
                   <img
                     src={formData.image_url}
                     alt="Preview"
-                    className="w-full max-h-64 object-cover rounded-lg border"
+                    className="w-full max-h-64 object-cover rounded-lg border border-gray-200 dark:border-gray-800"
                   />
                 </div>
               )}
             </div>
 
             {/* ✅ Availability */}
-            <div className="flex items-center gap-3">
-              <input
-                id="is_available"
-                type="checkbox"
-                checked={formData.is_available}
-                onChange={(e) =>
-                  setFormData({ ...formData, is_available: e.target.checked })
-                }
-                className="w-5 h-5"
-              />
+            <div className="flex items-center justify-between gap-3">
               <label
                 htmlFor="is_available"
-                className="text-sm font-semibold text-gray-700"
+                className="text-sm font-semibold text-gray-700 dark:text-gray-300"
               >
                 Available for ordering
               </label>
+              <Switch
+                id="is_available"
+                checked={formData.is_available}
+                onCheckedChange={(v) =>
+                  setFormData({ ...formData, is_available: v })
+                }
+              />
             </div>
 
             {/* ✅ NEW: Veg toggle */}
-            <div className="flex items-center gap-3">
-              <input
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="is_veg"
+                  className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                >
+                  Veg item
+                </label>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {formData.is_veg ? "🥗 Veg" : "🍗 Non-veg"}
+                </span>
+              </div>
+              <Switch
                 id="is_veg"
-                type="checkbox"
                 checked={formData.is_veg}
-                onChange={(e) =>
-                  setFormData({ ...formData, is_veg: e.target.checked })
-                }
-                className="w-5 h-5"
+                onCheckedChange={(v) => setFormData({ ...formData, is_veg: v })}
               />
-              <label
-                htmlFor="is_veg"
-                className="text-sm font-semibold text-gray-700"
-              >
-                Veg item
-              </label>
-              <span className="text-xs text-gray-500">
-                {formData.is_veg ? "🥗 Veg" : "🍗 Non-veg"}
-              </span>
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <div className="rounded-lg border border-error-200 bg-error-50 px-4 py-3 text-error-700 dark:border-error-800 dark:bg-error-500/10 dark:text-error-400">
                 {error}
               </div>
             )}
@@ -340,14 +340,14 @@ export default function EditMenuItemPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 bg-primary hover:bg-green-600 text-white py-3 rounded-lg font-semibold disabled:bg-gray-400 transition-colors cursor-pointer"
+                className="flex-1 bg-brand-500 hover:bg-brand-600 text-white py-3 rounded-lg font-semibold disabled:bg-gray-400 transition-colors cursor-pointer"
               >
                 {saving ? "Saving..." : "Save Changes"}
               </button>
 
               <Link
                 href="/dashboard/owner"
-                className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold transition-colors text-center"
+                className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold transition-colors text-center dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
               >
                 Cancel
               </Link>

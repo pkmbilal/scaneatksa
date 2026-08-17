@@ -1,20 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { QrCode } from "lucide-react";
+import { QrCode, Power, PowerOff, Trash2 } from "lucide-react";
+
+const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap";
+const activeTint = "bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400";
+const inactiveTint = "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
 
 export default function OwnerTablesQrTab({
   restaurant,
   tables,
   tablesLoading,
-  tableCount,
-  setTableCount,
-  generatingTables,
-  onGenerateTables,
-  onRefreshTables,
+  onToggleActive,
+  onDeleteTable,
 }) {
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -28,119 +26,114 @@ export default function OwnerTablesQrTab({
   };
 
   return (
-    <Card>
-      <CardHeader className="space-y-1">
-        <CardTitle>Tables & QR Codes</CardTitle>
-        <CardDescription>
-          Generate table QR codes so orders automatically show “Table 5”.
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        <div className="flex flex-col md:flex-row gap-3 md:items-center">
-          <div className="flex-1 items-center">
-            <label className="text-sm font-semibold">Number of tables</label>
-            <input
-              type="number"
-              min={1}
-              max={200}
-              value={tableCount}
-              onChange={(e) => setTableCount(e.target.value)}
-              className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
-              placeholder="e.g. 10"
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              This creates missing tables (1..N). Existing ones won’t be duplicated.
+    <div>
+      {/* Online link (no table) */}
+      <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-800 dark:text-white/90">Online ordering link</p>
+            <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+              {baseUrl}/menu/{restaurant.slug}
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => copy(`${baseUrl}/menu/${restaurant.slug}`)}
+            className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+          >
+            Copy link
+          </button>
+        </div>
+      </div>
 
-          <div className="flex gap-2">
-            <Button onClick={onGenerateTables} disabled={generatingTables}>
-              {generatingTables ? "Generating..." : "Generate Tables"}
-            </Button>
-            <Button variant="outline" onClick={onRefreshTables} disabled={tablesLoading}>
-              Refresh
-            </Button>
-          </div>
+      {/* Tables list */}
+      <div className="mt-4">
+        <div className="flex items-center justify-between">
+          <p className="font-semibold text-gray-800 dark:text-white/90">Table QRs</p>
+          <span className={`${pillClass} ${inactiveTint}`}>{tables.length} tables</span>
         </div>
 
-        {/* Online link (no table) */}
-        <div className="rounded-xl border bg-background p-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold">Online ordering link</p>
-              <p className="text-sm text-muted-foreground truncate">
-                {baseUrl}/menu/{restaurant.slug}
-              </p>
-            </div>
-            <Button variant="outline" onClick={() => copy(`${baseUrl}/menu/${restaurant.slug}`)}>
-              Copy link
-            </Button>
+        {tablesLoading ? (
+          <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">Loading tables…</div>
+        ) : tables.length === 0 ? (
+          <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            No tables yet. Click <b>Add Table</b> above.
           </div>
-        </div>
+        ) : (
+          <div className="mt-3 space-y-3">
+            {tables.map((t) => {
+              const url = `${baseUrl}/menu/${restaurant.slug}?t=${encodeURIComponent(t.code)}`;
 
-        {/* Tables list */}
-        <div className="rounded-xl border bg-background overflow-hidden">
-          <div className="px-4 py-3 border-b flex items-center justify-between">
-            <p className="font-semibold">Table QRs</p>
-            <Badge variant="secondary">{tables.length} tables</Badge>
-          </div>
+              // ✅ Option 1: redirect to existing QR page under /qr/[restaurantSlug]
+              // and pass table code via query param (your QR page reads ?code=...)
+              const qrHref = `/qr/${encodeURIComponent(restaurant.slug)}?code=${encodeURIComponent(
+                t.code
+              )}`;
 
-          {tablesLoading ? (
-            <div className="p-4 text-sm text-muted-foreground">Loading tables…</div>
-          ) : tables.length === 0 ? (
-            <div className="p-4 text-sm text-muted-foreground">
-              No tables yet. Click <b>Generate Tables</b>.
-            </div>
-          ) : (
-            <div className="divide-y">
-              {tables.map((t) => {
-                const url = `${baseUrl}/menu/${restaurant.slug}?t=${encodeURIComponent(t.code)}`;
-
-                // ✅ Option 1: redirect to existing QR page under /qr/[restaurantSlug]
-                // and pass table code via query param (your QR page reads ?code=...)
-                const qrHref = `/qr/${encodeURIComponent(restaurant.slug)}?code=${encodeURIComponent(
-                  t.code
-                )}`;
-
-                return (
-                  <div
-                    key={t.id}
-                    className="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold">Table {t.table_number}</p>
-                        <Badge variant={t.is_active ? "default" : "secondary"}>
-                          {t.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground truncate">{url}</p>
+              return (
+                <div
+                  key={t.id}
+                  className="flex flex-col gap-3 rounded-xl border border-gray-200 p-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-gray-800 dark:text-white/90">Table {t.table_number}</p>
+                      <span className={`${pillClass} ${t.is_active ? activeTint : inactiveTint}`}>
+                        {t.is_active ? "Active" : "Inactive"}
+                      </span>
                     </div>
-
-                    <div className="flex gap-2">
-                      <Button asChild variant="secondary">
-                        <Link href={qrHref}>
-                          <QrCode className="mr-2 h-4 w-4" />
-                          QR Code
-                        </Link>
-                      </Button>
-
-                      <Button variant="outline" onClick={() => copy(url)}>
-                        Copy link
-                      </Button>
-                    </div>
+                    <p className="truncate text-sm text-gray-500 dark:text-gray-400">{url}</p>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
 
-        <p className="text-xs text-muted-foreground">
-          Next step: add a “Download QR Pack (PDF)” button to print all tables in one click.
-        </p>
-      </CardContent>
-    </Card>
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={qrHref}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-success-50 px-4 py-2 text-sm font-semibold text-success-700 transition-colors hover:bg-success-100 dark:bg-success-500/15 dark:text-success-400 dark:hover:bg-success-500/25"
+                    >
+                      <QrCode className="h-4 w-4" />
+                      QR Code
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => copy(url)}
+                      className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+                    >
+                      Copy link
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onToggleActive?.(t)}
+                      className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-colors cursor-pointer ${
+                        t.is_active
+                          ? "bg-warning-50 text-warning-700 hover:bg-warning-100 dark:bg-warning-500/15 dark:text-warning-400 dark:hover:bg-warning-500/25"
+                          : "bg-success-50 text-success-700 hover:bg-success-100 dark:bg-success-500/15 dark:text-success-400 dark:hover:bg-success-500/25"
+                      }`}
+                    >
+                      {t.is_active ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
+                      {t.is_active ? "Deactivate" : "Activate"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onDeleteTable?.(t)}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-error-50 px-4 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-100 dark:bg-error-500/15 dark:text-error-400 dark:hover:bg-error-500/25 cursor-pointer"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+        Next step: add a &ldquo;Download QR Pack (PDF)&rdquo; button to print all tables in one click.
+      </p>
+    </div>
   );
 }

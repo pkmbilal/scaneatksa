@@ -1,20 +1,23 @@
 'use client'
 
-import { useMemo, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { signOut, getUserFavorites, removeFromFavorites } from '@/lib/auth/client'
+import { useCallback, useEffect, useState } from 'react'
+import { getUserFavorites, removeFromFavorites } from '@/lib/auth/client'
+import { LayoutDashboard, Heart, ListChecks, House, Pizza, Gauge, Headset } from 'lucide-react'
 
-import DashboardShell from '@/components/dashboard/customer/DashboardShell'
-import CustomerHeader from '@/components/dashboard/customer/CustomerHeader'
-import StatsRowMobile from '@/components/dashboard/customer/StatsRowMobile'
-import ProfileCard from '@/components/dashboard/customer/ProfileCard'
-import FavoritesCard from '@/components/dashboard/customer/FavoritesCard'
-import RequestsCard from '@/components/dashboard/customer/RequestsCard'
-import RequestOwnerCard from '@/components/dashboard/customer/RequestOwnerCard'
+import { DashboardSidebarProvider } from '@/context/DashboardSidebarContext'
+import DashboardSidebar from '@/components/dashboard/shared/DashboardSidebar'
+import DashboardHeader from '@/components/dashboard/shared/DashboardHeader'
+import DashboardBackdrop from '@/components/dashboard/shared/DashboardBackdrop'
+import DashboardMain from '@/components/dashboard/shared/DashboardMain'
+import StatCard from '@/components/dashboard/shared/StatCard'
+import TabSectionHeader from '@/components/dashboard/shared/TabSectionHeader'
+
+import OverviewTab from '@/components/dashboard/customer/tabs/OverviewTab'
+import FavoritesTab from '@/components/dashboard/customer/tabs/FavoritesTab'
+import RequestsTab from '@/components/dashboard/customer/tabs/RequestsTab'
 import { useCustomerDashboardData } from '@/components/dashboard/customer/hooks/useCustomerDashboardData'
 
 export default function CustomerDashboardPage() {
-  const router = useRouter()
   const {
     user,
     profile,
@@ -24,19 +27,7 @@ export default function CustomerDashboardPage() {
     loading,
   } = useCustomerDashboardData()
 
-  const initials = useMemo(() => {
-    const name = profile?.full_name?.trim() || 'User'
-    return name
-      .split(' ')
-      .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase())
-      .join('')
-  }, [profile?.full_name])
-
-  const handleLogout = useCallback(async () => {
-    await signOut()
-    router.push('/auth/login')
-  }, [router])
+  const [activeTab, setActiveTab] = useState('overview')
 
   const refreshFavorites = useCallback(async () => {
     if (!user?.id) return
@@ -64,53 +55,98 @@ export default function CustomerDashboardPage() {
     return () => window.removeEventListener('favorites:changed', onChanged)
   }, [refreshFavorites, user?.id])
 
- const handleRemoveFavorite = useCallback(
-  async (restaurantId, restaurantName) => {
-    if (!user?.id) return
+  const handleRemoveFavorite = useCallback(
+    async (restaurantId, restaurantName) => {
+      if (!user?.id) return
 
-    const { error } = await removeFromFavorites(user.id, restaurantId)
-    if (!error) {
-      await refreshFavorites()
-    }
-  },
-  [user?.id, refreshFavorites]
-)
+      const { error } = await removeFromFavorites(user.id, restaurantId)
+      if (!error) {
+        await refreshFavorites()
+      }
+    },
+    [user?.id, refreshFavorites]
+  )
 
-  return (
-    <DashboardShell loading={loading}>
-      <CustomerHeader
-        initials={initials}
-        fullName={profile?.full_name}
-        onLogout={handleLogout}
-      />
-
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <StatsRowMobile
-          favoritesCount={favorites.length}
-          requestsCount={requests.length}
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Mobile stack */}
-          <div className="space-y-6 lg:hidden">
-            <ProfileCard user={user} profile={profile} />
-            <FavoritesCard favorites={favorites} onRemove={handleRemoveFavorite} />
-            <RequestsCard requests={requests} />
-            <RequestOwnerCard />
-          </div>
-
-          {/* Desktop */}
-          <div className="hidden lg:block space-y-6">
-            <ProfileCard user={user} profile={profile} />
-            <RequestOwnerCard />
-          </div>
-
-          <div className="hidden lg:block lg:col-span-2 space-y-6">
-            <RequestsCard requests={requests} />
-            <FavoritesCard favorites={favorites} onRemove={handleRemoveFavorite} />
-          </div>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">Loading your dashboard...</p>
         </div>
       </div>
-    </DashboardShell>
+    )
+  }
+
+  const navItems = [
+    { key: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { key: 'favorites', label: 'Favorites', icon: Heart, count: favorites.length },
+    { key: 'requests', label: 'My Requests', icon: ListChecks, count: requests.length },
+  ]
+
+  const siteNavItems = [
+    { label: 'About', href: '/about', icon: House },
+    { label: 'How It Works', href: '/#how-it-works', icon: Gauge },
+    { label: 'Restaurants', href: '/restaurants', icon: Pizza },
+    { label: 'Contact', href: '/contact', icon: Headset },
+  ]
+
+  const tabTitles = {
+    overview: 'Overview',
+    favorites: 'Favorites',
+    requests: 'My Requests',
+  }
+
+  const tabDescriptions = {
+    overview: 'Your account details and quick actions.',
+    favorites: "Restaurants you've saved for quick access.",
+    requests: 'Track the status of your restaurant ownership requests.',
+  }
+
+  return (
+    <DashboardSidebarProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
+        <DashboardSidebar
+          navItems={navItems}
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          siteNavItems={siteNavItems}
+        />
+        <DashboardBackdrop />
+
+        <DashboardMain
+          header={
+            <DashboardHeader
+              user={user}
+              profile={profile}
+              homeHref="/dashboard/customer"
+              homeLabel="My Account"
+              editProfileHref="/dashboard/customer/edit-profile"
+            />
+          }
+        >
+          {activeTab === 'overview' && (
+            <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6">
+              <StatCard icon={Heart} label="Favorites" value={favorites.length} tint="brand" />
+              <StatCard icon={ListChecks} label="Requests" value={requests.length} tint="gray" />
+            </div>
+          )}
+
+          <TabSectionHeader title={tabTitles[activeTab]} description={tabDescriptions[activeTab]} />
+
+          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="p-6">
+              {activeTab === 'overview' && <OverviewTab user={user} profile={profile} />}
+
+              {activeTab === 'favorites' && (
+                <FavoritesTab favorites={favorites} onRemove={handleRemoveFavorite} />
+              )}
+
+              {activeTab === 'requests' && <RequestsTab requests={requests} />}
+            </div>
+          </div>
+        </DashboardMain>
+      </div>
+    </DashboardSidebarProvider>
   )
 }

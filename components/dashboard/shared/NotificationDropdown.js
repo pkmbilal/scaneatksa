@@ -1,7 +1,10 @@
 'use client'
 
-// Ported from TailAdmin's components/header/NotificationDropdown.tsx, wired
-// to the real pending restaurant-owner requests instead of demo data.
+// Ported from TailAdmin's components/header/NotificationDropdown.tsx.
+// Shared by all role dashboards — the caller supplies the list of items and
+// their labels/copy (e.g. admin wires it to pending restaurant-owner
+// requests; other dashboards can wire it to their own notifications, or omit
+// it from DashboardHeader entirely).
 
 import { useState } from 'react'
 import { Bell } from 'lucide-react'
@@ -19,9 +22,15 @@ function timeAgo(dateString) {
   return `${days}d ago`
 }
 
-export default function NotificationDropdown({ pendingRequests = [], onViewAll }) {
+export default function NotificationDropdown({
+  items = [],
+  title = 'Notifications',
+  emptyText = 'Nothing new right now.',
+  viewAllLabel = 'View All',
+  onViewAll,
+}) {
   const [isOpen, setIsOpen] = useState(false)
-  const hasPending = pendingRequests.length > 0
+  const hasItems = items.length > 0
 
   const toggleDropdown = () => setIsOpen((prev) => !prev)
   const closeDropdown = () => setIsOpen(false)
@@ -34,7 +43,7 @@ export default function NotificationDropdown({ pendingRequests = [], onViewAll }
         onClick={toggleDropdown}
         aria-label="Notifications"
       >
-        {hasPending && (
+        {hasItems && (
           <span className="absolute right-1.5 top-1.5 z-10 h-2 w-2 rounded-full bg-orange-400">
             <span className="absolute inline-flex w-full h-full bg-orange-400 rounded-full opacity-75 animate-ping" />
           </span>
@@ -49,17 +58,17 @@ export default function NotificationDropdown({ pendingRequests = [], onViewAll }
       >
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700">
           <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            Pending Requests
+            {title}
           </h5>
         </div>
 
-        {!hasPending ? (
+        {!hasItems ? (
           <p className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-            No pending restaurant requests.
+            {emptyText}
           </p>
         ) : (
           <ul className="flex flex-col h-auto overflow-y-auto custom-scrollbar">
-            {pendingRequests.slice(0, 6).map((request) => (
+            {items.slice(0, 6).map((request) => (
               <li key={request.id}>
                 <DropdownItem
                   onItemClick={() => {
@@ -93,7 +102,7 @@ export default function NotificationDropdown({ pendingRequests = [], onViewAll }
           }}
           className="block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
         >
-          View All Requests
+          {viewAllLabel}
         </button>
       </Dropdown>
     </div>

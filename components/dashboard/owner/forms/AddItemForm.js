@@ -4,14 +4,15 @@ const supabase = supabaseBrowser();
 
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+
+const inputClass =
+  "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white";
+const labelClass = "mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300";
+const selectTriggerClass =
+  "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white";
 
 export default function AddItemForm({ restaurantId, categories, onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -64,171 +65,142 @@ export default function AddItemForm({ restaurantId, categories, onSuccess }) {
     onSuccess?.();
   };
 
+  const categorySelect = (
+    <div>
+      <label className={labelClass}>Category</label>
+      <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
+        <SelectTrigger className={selectTriggerClass}>
+          <SelectValue placeholder="Select category" />
+        </SelectTrigger>
+        <SelectContent>
+          {categories.map((c) => (
+            <SelectItem key={c.id} value={c.id}>
+              {c.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {categories.length === 0 ? (
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Add a category first to create items.</p>
+      ) : null}
+    </div>
+  );
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-2 md:col-span-2">
-          <Label>Item Name</Label>
-          <Input
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="md:col-span-2">
+          <label className={labelClass}>Item Name</label>
+          <input
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="e.g., Chicken Mandi"
             required
+            className={inputClass}
           />
         </div>
-        
+
         {/* Mobile Only Block */}
-        <div className="md:hidden grid grid-cols-2 gap-2">
-          <div className="space-y-2 col-span-1">
-          <Label>Price (SAR)</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
-            placeholder="12.00"
-            required
-          />
+        <div className="grid grid-cols-2 gap-2 md:hidden">
+          <div className="col-span-1">
+            <label className={labelClass}>Price (SAR)</label>
+            <input
+              type="number"
+              step="0.01"
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              placeholder="12.00"
+              required
+              className={inputClass}
+            />
           </div>
 
-          <div className="space-y-2 col-span-1 md:col-span-1">
-            <Label>Category</Label>
-            <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
-              <SelectTrigger className={'w-full'}>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {categories.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Add a category first to create items.</p>
-            ) : null}
-          </div>
+          <div className="col-span-1">{categorySelect}</div>
         </div>
 
         {/* Price */}
-        <div className="space-y-2 hidden md:block">
-          <Label>Price (SAR)</Label>
-          <Input
+        <div className="hidden md:block">
+          <label className={labelClass}>Price (SAR)</label>
+          <input
             type="number"
             step="0.01"
             value={form.price}
             onChange={(e) => setForm({ ...form, price: e.target.value })}
             placeholder="12.00"
             required
+            className={inputClass}
           />
         </div>
 
-        <div className="hidden md:block space-y-2 md:col-span-1">
-          <Label>Category</Label>
-          <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
-            <SelectTrigger className={'w-full'}>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="hidden md:block md:col-span-1">{categorySelect}</div>
 
-          {categories.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Add a category first to create items.</p>
-          ) : null}
-        </div>
-
-        <div className="space-y-2 col-span-1 md:col-span-2">
-          <Label>Description</Label>
-          <Input
+        <div className="col-span-1 md:col-span-2">
+          <label className={labelClass}>Description</label>
+          <input
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             placeholder="Short description…"
             required
+            className={inputClass}
           />
         </div>
 
-        <div className="hidden space-y-2 md:col-span-1">
-          <Label>Category</Label>
-          <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
-            <SelectTrigger className={'w-full'}>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {categories.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Add a category first to create items.</p>
-          ) : null}
-        </div>
-
-        <div className="space-y-2 md:col-span-3">
-          <Label>Image URL (optional)</Label>
-          <Input
+        <div className="md:col-span-3">
+          <label className={labelClass}>Image URL (optional)</label>
+          <input
             value={form.image_url}
             onChange={(e) => setForm({ ...form, image_url: e.target.value })}
             placeholder="https://…"
+            className={inputClass}
           />
         </div>
       </div>
 
-      <Separator />
+      <hr className="border-gray-200 dark:border-gray-800" />
 
       <div className="grid grid-cols-3 gap-3">
-        <Card className="shadow-none !py-4">
-          <CardContent className="p-1 flex flex-col items-center md:justify-center justify-between gap-2">
-            <div className="md:text-center">
-              <p className="text-sm font-medium">Available</p>
-              <p className="hidden sm:block text-xs text-muted-foreground">Shown to customers</p>
-            </div>
-            <Switch checked={form.is_available} onCheckedChange={(v) => setForm({ ...form, is_available: v })} />
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-between gap-2 rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-800 dark:text-white/90">Available</p>
+            <p className="hidden text-xs text-gray-500 dark:text-gray-400 sm:block">Shown to customers</p>
+          </div>
+          <Switch checked={form.is_available} onCheckedChange={(v) => setForm({ ...form, is_available: v })} />
+        </div>
 
-        <Card className="shadow-none !py-4">
-          <CardContent className="p-1 flex flex-col items-center justify-between gap-2">
-            <div className="md:text-center">
-              <p className="text-sm font-medium">Veg</p>
-              <p className="hidden sm:block text-xs text-muted-foreground">{form.is_veg ? "Veg item" : "Non-veg item"}</p>
-            </div>
-            <Switch checked={form.is_veg} onCheckedChange={(v) => setForm({ ...form, is_veg: v })} />
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-between gap-2 rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-800 dark:text-white/90">Veg</p>
+            <p className="hidden text-xs text-gray-500 dark:text-gray-400 sm:block">
+              {form.is_veg ? "Veg item" : "Non-veg item"}
+            </p>
+          </div>
+          <Switch checked={form.is_veg} onCheckedChange={(v) => setForm({ ...form, is_veg: v })} />
+        </div>
 
-        <Card className="shadow-none !py-4">
-          <CardContent className="p-1 flex flex-col items-center justify-between gap-2">
-            <div className="md:text-center">
-              <p className="text-sm font-medium">Sold Out</p>
-              <p className="hidden sm:blocktext-xs text-muted-foreground">Disables add button</p>
-            </div>
-            <Switch checked={form.is_sold_out} onCheckedChange={(v) => setForm({ ...form, is_sold_out: v })} />
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-between gap-2 rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-800 dark:text-white/90">Sold Out</p>
+            <p className="hidden text-xs text-gray-500 dark:text-gray-400 sm:block">Disables add button</p>
+          </div>
+          <Switch checked={form.is_sold_out} onCheckedChange={(v) => setForm({ ...form, is_sold_out: v })} />
+        </div>
       </div>
 
       {error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm">
+        <div className="rounded-lg border border-error-200 bg-error-50 px-4 py-3 text-sm text-error-700 dark:border-error-800 dark:bg-error-500/10 dark:text-error-400">
           {error}
         </div>
       ) : null}
 
       <DialogFooter>
-        <Button type="submit" disabled={loading || categories.length === 0} className="rounded-full">
+        <button
+          type="submit"
+          disabled={loading || categories.length === 0}
+          className="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600 disabled:opacity-50 cursor-pointer"
+        >
           {loading ? "Adding…" : "Add Item"}
-        </Button>
+        </button>
       </DialogFooter>
     </form>
   );

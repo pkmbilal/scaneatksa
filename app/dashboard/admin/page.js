@@ -29,11 +29,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import { AdminSidebarProvider, useAdminSidebar } from '@/context/AdminSidebarContext'
-import AdminSidebar from '@/components/dashboard/admin/AdminSidebar'
-import AdminHeader from '@/components/dashboard/admin/AdminHeader'
-import AdminBackdrop from '@/components/dashboard/admin/AdminBackdrop'
-import AdminStatCard from '@/components/dashboard/admin/AdminStatCard'
+import { DashboardSidebarProvider } from '@/context/DashboardSidebarContext'
+import DashboardSidebar from '@/components/dashboard/shared/DashboardSidebar'
+import DashboardHeader from '@/components/dashboard/shared/DashboardHeader'
+import DashboardBackdrop from '@/components/dashboard/shared/DashboardBackdrop'
+import DashboardMain from '@/components/dashboard/shared/DashboardMain'
+import StatCard from '@/components/dashboard/shared/StatCard'
+import TabSectionHeader from '@/components/dashboard/shared/TabSectionHeader'
 import PendingRequestsTab from '@/components/dashboard/admin/tabs/PendingRequestsTab'
 import AllRequestsTab from '@/components/dashboard/admin/tabs/AllRequestsTab'
 import UsersTab from '@/components/dashboard/admin/tabs/UsersTab'
@@ -577,35 +579,54 @@ export default function AdminDashboard() {
     cuisines: 'Cuisines',
   }
 
-  return (
-    <AdminSidebarProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
-        <AdminSidebar navItems={navItems} activeTab={activeTab} onSelectTab={setActiveTab} />
-        <AdminBackdrop />
+  const tabDescriptions = {
+    pending: 'Restaurant owner requests waiting for your approval.',
+    all: 'Full history of restaurant requests and their outcomes.',
+    users: 'Manage roles and account status for every user.',
+    restaurants: 'All approved restaurants on the platform.',
+    cities: 'Manage the cities customers can select when browsing restaurants.',
+    cuisines: 'Manage the cuisine tags restaurants can be filtered by.',
+  }
 
-        <AdminMain
+  return (
+    <DashboardSidebarProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
+        <DashboardSidebar navItems={navItems} activeTab={activeTab} onSelectTab={setActiveTab} />
+        <DashboardBackdrop />
+
+        <DashboardMain
           header={
-            <AdminHeader
+            <DashboardHeader
               user={user}
               profile={profile}
-              pendingRequests={pendingRequests}
-              onViewPendingRequests={() => setActiveTab('pending')}
+              homeHref="/dashboard/admin"
+              homeLabel="Admin Dashboard"
+              editProfileHref="/dashboard/admin/edit-profile"
+              notifications={{
+                items: pendingRequests,
+                title: 'Pending Requests',
+                emptyText: 'No pending restaurant requests.',
+                viewAllLabel: 'View All Requests',
+                onViewAll: () => setActiveTab('pending'),
+              }}
             />
           }
         >
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 xl:grid-cols-6 mb-6">
-            <AdminStatCard icon={Inbox} label="Pending" value={pendingRequests.length} tint="warning" />
-            <AdminStatCard icon={UsersIcon} label="Users" value={allUsers.length} tint="brand" />
-            <AdminStatCard icon={Store} label="Restaurants" value={allRestaurants.length} tint="success" />
-            <AdminStatCard icon={ListChecks} label="Requests" value={allRequests.length} tint="gray" />
-            <AdminStatCard icon={MapPin} label="Cities" value={cities.length} tint="gray" />
-            <AdminStatCard icon={UtensilsCrossed} label="Cuisines" value={cuisines.length} tint="gray" />
-          </div>
+          {activeTab === 'pending' && (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 xl:grid-cols-6 mb-6">
+              <StatCard icon={Inbox} label="Pending" value={pendingRequests.length} tint="warning" />
+              <StatCard icon={UsersIcon} label="Users" value={allUsers.length} tint="brand" />
+              <StatCard icon={Store} label="Restaurants" value={allRestaurants.length} tint="success" />
+              <StatCard icon={ListChecks} label="Requests" value={allRequests.length} tint="gray" />
+              <StatCard icon={MapPin} label="Cities" value={cities.length} tint="gray" />
+              <StatCard icon={UtensilsCrossed} label="Cuisines" value={cuisines.length} tint="gray" />
+            </div>
+          )}
+
+          <TabSectionHeader title={tabTitles[activeTab]} description={tabDescriptions[activeTab]} />
 
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="p-6">
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white/90 mb-6">{tabTitles[activeTab]}</h2>
-
               {activeTab === 'pending' && (
                 <PendingRequestsTab
                   pendingRequests={pendingRequests}
@@ -663,7 +684,7 @@ export default function AdminDashboard() {
               )}
             </div>
           </div>
-        </AdminMain>
+        </DashboardMain>
       </div>
 
       {/* Generic Info/Error Dialog */}
@@ -775,21 +796,6 @@ export default function AdminDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminSidebarProvider>
-  )
-}
-
-/* Content column that shifts right of the sidebar; reads sidebar state from
-   context so its margin follows the collapse/expand/hover state (same
-   pattern as TailAdmin's own admin layout). */
-function AdminMain({ header, children }) {
-  const { isExpanded, isHovered, isMobileOpen } = useAdminSidebar()
-  const marginLeft = isMobileOpen ? '' : isExpanded || isHovered ? 'lg:ml-[290px]' : 'lg:ml-[90px]'
-
-  return (
-    <div className={`flex-1 transition-all duration-300 ease-in-out ${marginLeft}`}>
-      {header}
-      <div className="p-4 mx-auto max-w-screen-2xl md:p-6">{children}</div>
-    </div>
+    </DashboardSidebarProvider>
   )
 }

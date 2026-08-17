@@ -1,20 +1,33 @@
 'use client'
 
-// Top bar for the admin dashboard. Ported from TailAdmin's layout/AppHeader.tsx:
-// sidebar toggle, search field (⌘K focus), dark-mode toggle, notifications,
-// user menu. Dark mode is wired to the project's existing `next-themes`
-// instead of porting TailAdmin's own ThemeContext (avoids two theme systems).
+// Top bar shared by all role dashboards. Ported from TailAdmin's
+// layout/AppHeader.tsx: sidebar toggle, search field (⌘K focus), dark-mode
+// toggle, notifications, user menu. Dark mode is wired to the project's
+// existing `next-themes` instead of porting TailAdmin's own ThemeContext
+// (avoids two theme systems).
+//
+// The notification bell is optional — pass `notifications` to show it (e.g.
+// admin wires it to pending restaurant-owner requests); omit it for
+// dashboards that don't need one yet.
 
 import { useEffect, useRef, useState } from 'react'
 import { useTheme } from 'next-themes'
 import { Menu, X, Search, Sun, Moon } from 'lucide-react'
-import { useAdminSidebar } from '@/context/AdminSidebarContext'
+import { useDashboardSidebar } from '@/context/DashboardSidebarContext'
 import NotificationDropdown from './NotificationDropdown'
 import UserDropdown from './UserDropdown'
 
-export default function AdminHeader({ user, profile, pendingRequests, onViewPendingRequests }) {
+export default function DashboardHeader({
+  user,
+  profile,
+  homeHref = '/dashboard',
+  homeLabel = 'Dashboard',
+  editProfileHref,
+  notifications,
+  extraActions,
+}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useAdminSidebar()
+  const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useDashboardSidebar()
   const { setTheme, resolvedTheme } = useTheme()
   const inputRef = useRef(null)
 
@@ -90,6 +103,8 @@ export default function AdminHeader({ user, profile, pendingRequests, onViewPend
           } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
+            {extraActions}
+
             <button
               type="button"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
@@ -99,10 +114,24 @@ export default function AdminHeader({ user, profile, pendingRequests, onViewPend
               {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
             </button>
 
-            <NotificationDropdown pendingRequests={pendingRequests} onViewAll={onViewPendingRequests} />
+            {notifications && (
+              <NotificationDropdown
+                items={notifications.items}
+                title={notifications.title}
+                emptyText={notifications.emptyText}
+                viewAllLabel={notifications.viewAllLabel}
+                onViewAll={notifications.onViewAll}
+              />
+            )}
           </div>
 
-          <UserDropdown user={user} profile={profile} />
+          <UserDropdown
+            user={user}
+            profile={profile}
+            homeHref={homeHref}
+            homeLabel={homeLabel}
+            editProfileHref={editProfileHref}
+          />
         </div>
       </div>
     </header>
