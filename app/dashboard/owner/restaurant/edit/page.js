@@ -6,6 +6,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, getUserProfile, getUserRestaurant } from '@/lib/auth/client'
+import { Switch } from '@/components/ui/switch'
+
+const inputClass =
+  'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white'
 
 export default function EditRestaurantPage() {
   const router = useRouter()
@@ -248,7 +252,7 @@ export default function EditRestaurantPage() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                className={inputClass}
                 required
               />
             </div>
@@ -259,7 +263,7 @@ export default function EditRestaurantPage() {
               <select
                 value={formData.city_id}
                 onChange={(e) => setFormData({ ...formData, city_id: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white text-gray-900 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                className={inputClass}
                 required
               >
                 <option value="" disabled>
@@ -286,35 +290,27 @@ export default function EditRestaurantPage() {
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/5">
-                  <input
-                    type="checkbox"
-                    checked={formData.delivery_available}
-                    onChange={(e) =>
-                      setFormData({ ...formData, delivery_available: e.target.checked })
-                    }
-                    className="w-5 h-5"
-                  />
+                <div className="flex items-center justify-between gap-3 p-3 border border-gray-200 rounded-xl dark:border-gray-800">
                   <div>
                     <div className="font-semibold text-gray-800 dark:text-white/90">🚚 Delivery</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">You can deliver to customers</div>
                   </div>
-                </label>
-
-                <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/5">
-                  <input
-                    type="checkbox"
-                    checked={formData.pickup_available}
-                    onChange={(e) =>
-                      setFormData({ ...formData, pickup_available: e.target.checked })
-                    }
-                    className="w-5 h-5"
+                  <Switch
+                    checked={formData.delivery_available}
+                    onCheckedChange={(v) => setFormData({ ...formData, delivery_available: v })}
                   />
+                </div>
+
+                <div className="flex items-center justify-between gap-3 p-3 border border-gray-200 rounded-xl dark:border-gray-800">
                   <div>
                     <div className="font-semibold text-gray-800 dark:text-white/90">🏃 Pickup</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">Customers can pick up from you</div>
                   </div>
-                </label>
+                  <Switch
+                    checked={formData.pickup_available}
+                    onCheckedChange={(v) => setFormData({ ...formData, pickup_available: v })}
+                  />
+                </div>
               </div>
 
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
@@ -333,7 +329,7 @@ export default function EditRestaurantPage() {
                   const values = Array.from(e.target.selectedOptions).map((o) => o.value)
                   setSelectedCuisineIds(values)
                 }}
-                className="w-full min-h-[120px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white text-gray-900 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                className={`min-h-[120px] ${inputClass}`}
               >
                 {cuisines.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -358,7 +354,7 @@ export default function EditRestaurantPage() {
                     return (
                       <span
                         key={id}
-                        className="text-xs px-2 py-1 rounded-full bg-green-50 text-green-700 border border-green-200"
+                        className="text-xs px-2 py-1 rounded-full font-semibold bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400"
                       >
                         {c.name}
                       </span>
@@ -378,7 +374,7 @@ export default function EditRestaurantPage() {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="966501234567"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                className={inputClass}
               />
             </div>
 
@@ -389,7 +385,7 @@ export default function EditRestaurantPage() {
                 type="text"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                className={inputClass}
               />
             </div>
 
@@ -403,7 +399,7 @@ export default function EditRestaurantPage() {
                 value={formData.image_url}
                 onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                 placeholder="https://images.unsplash.com/..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                className={inputClass}
               />
 
               {!!formData.image_url?.trim() && (
@@ -422,27 +418,25 @@ export default function EditRestaurantPage() {
             </div>
 
             {/* Active toggle */}
-            <div className="flex items-center gap-3 pt-2">
-              <input
-                type="checkbox"
-                id="is_active"
-                checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                className="w-5 h-5"
-              />
+            <div className="flex items-center justify-between gap-3 pt-2">
               <label htmlFor="is_active" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                 Restaurant is active (visible to customers)
               </label>
+              <Switch
+                id="is_active"
+                checked={formData.is_active}
+                onCheckedChange={(v) => setFormData({ ...formData, is_active: v })}
+              />
             </div>
 
             {/* Error / Success */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">
+              <div className="rounded-lg border border-error-200 bg-error-50 px-4 py-3 text-error-700 dark:border-error-800 dark:bg-error-500/10 dark:text-error-400">
                 {error}
               </div>
             )}
             {success && (
-              <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded dark:border-success-900 dark:bg-success-500/10 dark:text-success-400">
+              <div className="rounded-lg border border-success-200 bg-success-50 px-4 py-3 text-success-700 dark:border-success-800 dark:bg-success-500/10 dark:text-success-400">
                 {success}
               </div>
             )}

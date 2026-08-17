@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { Pencil, Trash2, Utensils } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { itemStatusTint, vegTint } from "@/components/dashboard/owner/utils";
+
+const pillClass = "text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap";
 
 export default function MenuItemsTable({
   menuItems,
@@ -18,111 +17,126 @@ export default function MenuItemsTable({
 }) {
   return (
     <div className="hidden md:block">
-      <Card className="shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Menu Items</CardTitle>
-          <CardDescription className="text-sm">Toggle availability and sold out status instantly.</CardDescription>
-        </CardHeader>
+      <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">Menu Items</h3>
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Toggle availability and sold out status instantly.
+      </p>
 
-        <CardContent>
-          <div className="overflow-x-auto rounded-lg border bg-background">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[340px]">Item</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead className="text-center">Available</TableHead>
-                  <TableHead className="text-center">Sold Out</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
+      <div className="mt-4 overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-gray-200 dark:border-gray-800">
+              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Item</th>
+              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Category</th>
+              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Type</th>
+              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Price</th>
+              <th className="px-4 py-3 text-center font-semibold text-gray-500 dark:text-gray-400">Available</th>
+              <th className="px-4 py-3 text-center font-semibold text-gray-500 dark:text-gray-400">Sold Out</th>
+              <th className="px-4 py-3 text-right font-semibold text-gray-500 dark:text-gray-400">Actions</th>
+            </tr>
+          </thead>
 
-              <TableBody>
-                {menuItems.map((item) => {
-                  const soldOut = !!item.is_sold_out;
-                  const available = !!item.is_available;
+          <tbody>
+            {menuItems.map((item) => {
+              const soldOut = !!item.is_sold_out;
+              const available = !!item.is_available;
 
-                  return (
-                    <TableRow key={item.id} className={soldOut ? "opacity-70" : ""}>
-                      <TableCell>
-                        <div className="flex items-center gap-3 min-w-0">
-                          {item.image_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={item.image_url}
-                              alt={item.name}
-                              className="h-10 w-10 rounded-md object-cover border"
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-md border bg-muted flex items-center justify-center">
-                              <Utensils className="h-4 w-4 text-muted-foreground" />
-                            </div>
+              return (
+                <tr
+                  key={item.id}
+                  className={`border-b border-gray-100 last:border-0 dark:border-gray-800 ${soldOut ? "opacity-70" : ""}`}
+                >
+                  <td className="px-4 py-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      {item.image_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          className="h-10 w-10 rounded-lg border border-gray-200 object-cover dark:border-gray-800"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-800">
+                          <Utensils className="h-4 w-4 text-gray-400" />
+                        </div>
+                      )}
+
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="max-w-[220px] truncate font-medium text-gray-800 dark:text-white/90">
+                            {item.name}
+                          </p>
+                          {soldOut && <span className={`${pillClass} ${itemStatusTint.soldOut}`}>Sold Out</span>}
+                          {!available && (
+                            <span className={`${pillClass} ${itemStatusTint.unavailable}`}>Unavailable</span>
                           )}
-
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <p className="font-medium truncate max-w-[220px]">{item.name}</p>
-                              {soldOut && <Badge variant="secondary">Sold Out</Badge>}
-                              {!available && <Badge variant="destructive">Unavailable</Badge>}
-                            </div>
-
-                            {item.description ? (
-                              <p className="text-xs text-muted-foreground line-clamp-1 max-w-[320px]">
-                                {item.description}
-                              </p>
-                            ) : null}
-                          </div>
                         </div>
-                      </TableCell>
 
-                      <TableCell>
-                        <Badge variant="outline">{categoryMap[item.category_id] || "Uncategorized"}</Badge>
-                      </TableCell>
+                        {item.description ? (
+                          <p className="max-w-[320px] truncate text-xs text-gray-500 dark:text-gray-400">
+                            {item.description}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  </td>
 
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={item.is_veg ? "border-green-200 text-green-700" : "border-red-200 text-red-700"}
-                        >
-                          {item.is_veg ? "Veg" : "Non-veg"}
-                        </Badge>
-                      </TableCell>
+                  <td className="px-4 py-3">
+                    <span className={`${pillClass} ${itemStatusTint.category}`}>
+                      {categoryMap[item.category_id] || "Uncategorized"}
+                    </span>
+                  </td>
 
-                      <TableCell className="font-semibold">SAR {item.price}</TableCell>
+                  <td className="px-4 py-3">
+                    <span className={`${pillClass} ${item.is_veg ? vegTint.veg : vegTint.nonVeg}`}>
+                      {item.is_veg ? "Veg" : "Non-veg"}
+                    </span>
+                  </td>
 
-                      <TableCell className="text-center">
-                        <Switch className={'cursor-pointer'} checked={available} onCheckedChange={() => onToggleAvailability(item.id, item.is_available)} />
-                      </TableCell>
+                  <td className="px-4 py-3 font-semibold text-gray-800 dark:text-white/90">SAR {item.price}</td>
 
-                      <TableCell className="text-center">
-                        <Switch className={'cursor-pointer'} checked={soldOut} onCheckedChange={() => onToggleSoldOut(item.id, item.is_sold_out)} />
-                      </TableCell>
+                  <td className="px-4 py-3 text-center">
+                    <Switch
+                      className="cursor-pointer"
+                      checked={available}
+                      onCheckedChange={() => onToggleAvailability(item.id, item.is_available)}
+                    />
+                  </td>
 
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button asChild size="sm" variant="secondary" className="rounded-full">
-                            <Link href={`/dashboard/owner/menu/${item.id}/edit`}>
-                              <Pencil className="h-4 w-4 mr-2 cursor-pointer" />
-                              Edit
-                            </Link>
-                          </Button>
+                  <td className="px-4 py-3 text-center">
+                    <Switch
+                      className="cursor-pointer"
+                      checked={soldOut}
+                      onCheckedChange={() => onToggleSoldOut(item.id, item.is_sold_out)}
+                    />
+                  </td>
 
-                          <Button size="sm" variant="destructive" className="rounded-full cursor-pointer" onClick={() => onDeleteItem(item.id)}>
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/dashboard/owner/menu/${item.id}/edit`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Edit
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => onDeleteItem(item.id)}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-error-50 px-3 py-1.5 text-sm font-semibold text-error-700 transition-colors hover:bg-error-100 dark:bg-error-500/15 dark:text-error-400 dark:hover:bg-error-500/25 cursor-pointer"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -1,8 +1,17 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+const channelTint = "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
+
+const orderStatusTint = {
+  pending: "bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400",
+  confirmed: "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-400",
+  preparing: "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-400",
+  ready: "bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400",
+  completed: "bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400",
+  cancelled: "bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400",
+};
+
+const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap";
 
 export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onRefreshOrders }) {
   const formatDate = (iso) => {
@@ -14,75 +23,76 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onRe
   };
 
   return (
-    <Card>
-      <CardHeader className="space-y-1">
-        <CardTitle>Recent Orders</CardTitle>
-        <CardDescription>
-          Dine-in orders will show a table number. Online orders show pickup/delivery.
-        </CardDescription>
-      </CardHeader>
+    <div>
+      <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">Recent Orders</h3>
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Dine-in orders will show a table number. Online orders show pickup/delivery.
+      </p>
 
-      <CardContent className="space-y-3">
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onRefreshOrders} disabled={ordersLoading}>
-            {ordersLoading ? "Refreshing..." : "Refresh Orders"}
-          </Button>
-        </div>
+      <div className="mt-4 flex gap-2">
+        <button
+          type="button"
+          onClick={onRefreshOrders}
+          disabled={ordersLoading}
+          className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+        >
+          {ordersLoading ? "Refreshing..." : "Refresh Orders"}
+        </button>
+      </div>
 
-        {ordersLoading ? (
-          <div className="text-sm text-muted-foreground">Loading orders…</div>
-        ) : orders.length === 0 ? (
-          <div className="text-sm text-muted-foreground">No orders yet.</div>
-        ) : (
-          <div className="rounded-xl border bg-background overflow-hidden">
-            <div className="divide-y">
-              {orders.map((o) => {
-                const tableNum = o?.restaurant_tables?.table_number;
-                const where =
-                  o.channel === "dine_in"
-                    ? `Table ${tableNum ?? "?"}`
-                    : o.channel === "delivery"
-                    ? "Delivery"
-                    : "Pickup";
+      {ordersLoading ? (
+        <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading orders…</div>
+      ) : orders.length === 0 ? (
+        <div className="py-12 text-center text-gray-500 dark:text-gray-400">No orders yet.</div>
+      ) : (
+        <div className="mt-4 space-y-3">
+          {orders.map((o) => {
+            const tableNum = o?.restaurant_tables?.table_number;
+            const where =
+              o.channel === "dine_in"
+                ? `Table ${tableNum ?? "?"}`
+                : o.channel === "delivery"
+                ? "Delivery"
+                : "Pickup";
 
-                return (
-                  <div
-                    key={o.id}
-                    className="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold">Order</p>
-                        <Badge variant="secondary">{where}</Badge>
-                        <Badge variant="outline">{o.status}</Badge>
-                      </div>
-
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {formatDate(o.created_at)} • Total: SAR {Number(o.total || 0).toFixed(2)}
-                      </p>
-
-                      {(o.customer_phone || o.delivery_address) && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {o.customer_phone ? `📞 ${o.customer_phone}` : ""}{" "}
-                          {o.delivery_address ? `• 📍 ${o.delivery_address}` : ""}
-                        </p>
-                      )}
-
-                      {o.notes && (
-                        <p className="text-sm mt-1">
-                          <span className="font-semibold">Notes:</span> {o.notes}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="text-xs text-muted-foreground break-all">{o.id}</div>
+            return (
+              <div
+                key={o.id}
+                className="flex flex-col gap-3 rounded-xl border border-gray-200 p-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between"
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold text-gray-800 dark:text-white/90">Order</p>
+                    <span className={`${pillClass} ${channelTint}`}>{where}</span>
+                    <span className={`${pillClass} ${orderStatusTint[o.status] || orderStatusTint.pending}`}>
+                      {o.status}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {formatDate(o.created_at)} • Total: SAR {Number(o.total || 0).toFixed(2)}
+                  </p>
+
+                  {(o.customer_phone || o.delivery_address) && (
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      {o.customer_phone ? `📞 ${o.customer_phone}` : ""}{" "}
+                      {o.delivery_address ? `• 📍 ${o.delivery_address}` : ""}
+                    </p>
+                  )}
+
+                  {o.notes && (
+                    <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                      <span className="font-semibold text-gray-800 dark:text-white/90">Notes:</span> {o.notes}
+                    </p>
+                  )}
+                </div>
+
+                <div className="break-all text-xs text-gray-400 dark:text-gray-500">{o.id}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

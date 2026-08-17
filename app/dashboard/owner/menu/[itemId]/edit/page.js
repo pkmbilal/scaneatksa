@@ -10,6 +10,10 @@ import {
   getUserProfile,
   getUserRestaurant,
 } from "@/lib/auth/client";
+import { Switch } from "@/components/ui/switch";
+
+const inputClass =
+  "w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white";
 
 export default function EditMenuItemPage() {
   const router = useRouter();
@@ -169,7 +173,7 @@ export default function EditMenuItemPage() {
           <h1 className="text-xl font-bold text-gray-800 dark:text-white/90 mb-2">
             Edit Menu Item
           </h1>
-          <p className="text-red-600 dark:text-red-400 text-sm mb-4">{error}</p>
+          <p className="text-error-600 dark:text-error-400 text-sm mb-4">{error}</p>
           <Link href="/dashboard/owner" className="text-brand-600 dark:text-brand-400 font-semibold">
             ← Back to dashboard
           </Link>
@@ -208,7 +212,7 @@ export default function EditMenuItemPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                className={inputClass}
                 required
               />
             </div>
@@ -223,7 +227,7 @@ export default function EditMenuItemPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                className={inputClass}
                 required
               />
             </div>
@@ -240,7 +244,7 @@ export default function EditMenuItemPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, price: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                  className={inputClass}
                   required
                 />
               </div>
@@ -254,7 +258,7 @@ export default function EditMenuItemPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, category_id: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white text-gray-900 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                  className={inputClass}
                 >
                   <option value="">Uncategorized</option>
                   {categories.map((c) => (
@@ -276,7 +280,7 @@ export default function EditMenuItemPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, image_url: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-gray-700 dark:bg-white/[0.03] dark:text-white"
+                className={inputClass}
               />
               {formData.image_url && (
                 <div className="mt-3">
@@ -290,48 +294,44 @@ export default function EditMenuItemPage() {
             </div>
 
             {/* ✅ Availability */}
-            <div className="flex items-center gap-3">
-              <input
-                id="is_available"
-                type="checkbox"
-                checked={formData.is_available}
-                onChange={(e) =>
-                  setFormData({ ...formData, is_available: e.target.checked })
-                }
-                className="w-5 h-5"
-              />
+            <div className="flex items-center justify-between gap-3">
               <label
                 htmlFor="is_available"
                 className="text-sm font-semibold text-gray-700 dark:text-gray-300"
               >
                 Available for ordering
               </label>
+              <Switch
+                id="is_available"
+                checked={formData.is_available}
+                onCheckedChange={(v) =>
+                  setFormData({ ...formData, is_available: v })
+                }
+              />
             </div>
 
             {/* ✅ NEW: Veg toggle */}
-            <div className="flex items-center gap-3">
-              <input
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="is_veg"
+                  className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                >
+                  Veg item
+                </label>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {formData.is_veg ? "🥗 Veg" : "🍗 Non-veg"}
+                </span>
+              </div>
+              <Switch
                 id="is_veg"
-                type="checkbox"
                 checked={formData.is_veg}
-                onChange={(e) =>
-                  setFormData({ ...formData, is_veg: e.target.checked })
-                }
-                className="w-5 h-5"
+                onCheckedChange={(v) => setFormData({ ...formData, is_veg: v })}
               />
-              <label
-                htmlFor="is_veg"
-                className="text-sm font-semibold text-gray-700 dark:text-gray-300"
-              >
-                Veg item
-              </label>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {formData.is_veg ? "🥗 Veg" : "🍗 Non-veg"}
-              </span>
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">
+              <div className="rounded-lg border border-error-200 bg-error-50 px-4 py-3 text-error-700 dark:border-error-800 dark:bg-error-500/10 dark:text-error-400">
                 {error}
               </div>
             )}

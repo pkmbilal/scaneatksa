@@ -421,7 +421,7 @@ export default function OwnerDashboardPage() {
             <div className="p-6">
               <h2 className="text-lg font-bold text-gray-800 dark:text-white/90 mb-6">{tabTitles[activeTab]}</h2>
 
-              {activeTab === "overview" && <OverviewTab restaurant={restaurant} menuItems={menuItems} />}
+              {activeTab === "overview" && <OverviewTab restaurant={restaurant} />}
 
               {activeTab === "items" && (
                 <MenuItemsTab

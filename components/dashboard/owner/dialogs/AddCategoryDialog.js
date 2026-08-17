@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -21,10 +20,13 @@ export default function AddCategoryDialog({ restaurantId, onAdded }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="rounded-full cursor-pointer">
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600 cursor-pointer"
+        >
           <Plus className="h-4 w-4" />
           Add Category
-        </Button>
+        </button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">

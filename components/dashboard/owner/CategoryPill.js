@@ -3,9 +3,6 @@
 import { useEffect, useState } from "react";
 import { Pencil, Trash2, Check, X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
 export default function CategoryPill({ category, onRename, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(category.name);
@@ -31,46 +28,51 @@ export default function CategoryPill({ category, onRename, onDelete }) {
   };
 
   return (
-    <div className="flex items-center gap-2 rounded-full border bg-background px-3 py-1.5 shadow-sm">
+    <div className="flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5 dark:border-gray-800">
       {!editing ? (
         <>
-          <span className="text-sm font-medium">{category.name}</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{category.name}</span>
 
-          <Button
+          <button
             type="button"
-            size="icon"
-            variant="ghost"
-            className="h-7 w-7 rounded-full"
+            className="rounded-full p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-200 cursor-pointer"
             onClick={() => setEditing(true)}
             title="Rename"
           >
             <Pencil className="h-4 w-4" />
-          </Button>
+          </button>
 
-          <Button
+          <button
             type="button"
-            size="icon"
-            variant="ghost"
-            className="h-7 w-7 rounded-full text-red-600 hover:text-red-700"
+            className="rounded-full p-1 text-error-600 transition hover:bg-error-50 dark:text-error-400 dark:hover:bg-error-500/15 cursor-pointer"
             onClick={onDelete}
             title="Delete"
           >
             <Trash2 className="h-4 w-4" />
-          </Button>
+          </button>
         </>
       ) : (
         <>
-          <Input value={name} onChange={(e) => setName(e.target.value)} className="h-8 w-40 rounded-full" autoFocus />
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="h-8 w-40 rounded-full border border-gray-300 px-3 text-sm focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+            autoFocus
+          />
 
-          <Button type="button" size="icon" className="h-7 w-7 rounded-full" onClick={save} disabled={saving} title="Save">
-            <Check className="h-4 w-4" />
-          </Button>
-
-          <Button
+          <button
             type="button"
-            size="icon"
-            variant="secondary"
-            className="h-7 w-7 rounded-full"
+            className="rounded-full p-1 text-success-600 transition hover:bg-success-50 dark:text-success-400 dark:hover:bg-success-500/15 cursor-pointer disabled:opacity-50"
+            onClick={save}
+            disabled={saving}
+            title="Save"
+          >
+            <Check className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            className="rounded-full p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-200 cursor-pointer"
             onClick={() => {
               setEditing(false);
               setName(category.name);
@@ -79,11 +81,11 @@ export default function CategoryPill({ category, onRename, onDelete }) {
             title="Cancel"
           >
             <X className="h-4 w-4" />
-          </Button>
+          </button>
         </>
       )}
 
-      {error ? <span className="text-xs text-red-600 ml-1">{error}</span> : null}
+      {error ? <span className="ml-1 text-xs text-error-600 dark:text-error-400">{error}</span> : null}
     </div>
   );
 }

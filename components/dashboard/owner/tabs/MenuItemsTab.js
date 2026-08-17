@@ -8,16 +8,19 @@
 import AddItemDialog from "@/components/dashboard/owner/dialogs/AddItemDialog";
 import MenuItemsMobile from "@/components/dashboard/owner/MenuItemsMobile";
 import MenuItemsTable from "@/components/dashboard/owner/MenuItemsTable";
+import OwnerStats from "@/components/dashboard/owner/OwnerStats";
 
 export default function MenuItemsTab({ restaurant, menuItems, categories, categoryMap, actions }) {
   return (
     <div>
-      <div className="flex justify-end mb-4">
+      <OwnerStats menuItems={menuItems} />
+
+      <div className="flex justify-end mb-4 mt-6">
         <AddItemDialog restaurantId={restaurant.id} categories={categories} onAdded={actions.reloadItems} />
       </div>
 
       {menuItems.length === 0 ? (
-        <div className="py-10 text-center text-sm text-muted-foreground">
+        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
           No items yet. Add your first item ✨
         </div>
       ) : (
