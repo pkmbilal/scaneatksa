@@ -591,6 +591,7 @@ export default function AdminDashboard() {
               profile={profile}
               homeHref="/dashboard/admin"
               homeLabel="Admin Dashboard"
+              editProfileHref="/dashboard/admin/edit-profile"
               notifications={{
                 items: pendingRequests,
                 title: 'Pending Requests',

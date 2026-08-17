@@ -404,6 +404,7 @@ export default function OwnerDashboardPage() {
               profile={profile}
               homeHref="/dashboard/owner"
               homeLabel="Owner Dashboard"
+              editProfileHref="/dashboard/owner/edit-profile"
             />
           }
         >

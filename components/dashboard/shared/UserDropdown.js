@@ -8,7 +8,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogOut, ChevronDown } from 'lucide-react'
+import { LogOut, ChevronDown, User as UserIcon, KeyRound, ShieldUser } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { signOut } from '@/lib/auth/client'
 import { Dropdown } from './ui/Dropdown'
@@ -19,6 +19,7 @@ export default function UserDropdown({
   profile,
   homeHref = '/dashboard',
   homeLabel = 'Dashboard',
+  editProfileHref = '/dashboard/customer/edit-profile',
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
@@ -94,6 +95,41 @@ export default function UserDropdown({
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               {homeLabel}
+            </DropdownItem>
+          </li>
+          {profile?.role === 'customer' && (
+            <li>
+              <DropdownItem
+                onItemClick={closeDropdown}
+                tag="a"
+                href="/dashboard/customer/request-restaurant"
+                className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+              >
+                <ShieldUser className="size-5 stroke-gray-500 group-hover:stroke-gray-700 dark:group-hover:stroke-gray-300" />
+                Request Owner Access
+              </DropdownItem>
+            </li>
+          )}
+          <li>
+            <DropdownItem
+              onItemClick={closeDropdown}
+              tag="a"
+              href={editProfileHref}
+              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+            >
+              <UserIcon className="size-5 stroke-gray-500 group-hover:stroke-gray-700 dark:group-hover:stroke-gray-300" />
+              Edit Profile
+            </DropdownItem>
+          </li>
+          <li>
+            <DropdownItem
+              onItemClick={closeDropdown}
+              tag="a"
+              href="/dashboard/change-password"
+              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+            >
+              <KeyRound className="size-5 stroke-gray-500 group-hover:stroke-gray-700 dark:group-hover:stroke-gray-300" />
+              Change Password
             </DropdownItem>
           </li>
         </ul>

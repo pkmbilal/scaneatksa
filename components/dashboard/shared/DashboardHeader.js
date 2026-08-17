@@ -22,6 +22,7 @@ export default function DashboardHeader({
   profile,
   homeHref = '/dashboard',
   homeLabel = 'Dashboard',
+  editProfileHref,
   notifications,
   extraActions,
 }) {
@@ -124,7 +125,13 @@ export default function DashboardHeader({
             )}
           </div>
 
-          <UserDropdown user={user} profile={profile} homeHref={homeHref} homeLabel={homeLabel} />
+          <UserDropdown
+            user={user}
+            profile={profile}
+            homeHref={homeHref}
+            homeLabel={homeLabel}
+            editProfileHref={editProfileHref}
+          />
         </div>
       </div>
     </header>

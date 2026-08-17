@@ -114,6 +114,7 @@ export default function CustomerDashboardPage() {
               profile={profile}
               homeHref="/dashboard/customer"
               homeLabel="My Account"
+              editProfileHref="/dashboard/customer/edit-profile"
             />
           }
         >
