@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
-export const runtime = "nodejs"; // important because we use crypto
+export const runtime = "nodejs";
 
-const makeCode = () => crypto.randomBytes(6).toString("base64url"); // URL-safe
-
-export async function POST(req, context) {
+export async function DELETE(req, context) {
   try {
     // ✅ Next.js: params can be a Promise
     const p = context?.params;
-    const { restaurantId } = p && typeof p.then === "function" ? await p : p;
-
-    const { count } = await req.json(); // e.g. { count: 10 }
+    const { restaurantId, tableId } = p && typeof p.then === "function" ? await p : p;
 
     // ✅ Verify user (owner) using access token
     const authHeader = req.headers.get("authorization") || "";
@@ -46,39 +41,43 @@ export async function POST(req, context) {
       return NextResponse.json({ error: "Not allowed" }, { status: 403 });
     }
 
-    // ✅ Load existing tables
-    const { data: existing, error: eErr } = await supabaseAdmin
+    // ✅ Confirm the table belongs to this restaurant
+    const { data: table, error: tErr } = await supabaseAdmin
       .from("restaurant_tables")
-      .select("table_number")
-      .eq("restaurant_id", restaurantId);
+      .select("id, table_number")
+      .eq("id", tableId)
+      .eq("restaurant_id", restaurantId)
+      .single();
 
-    if (eErr) {
-      return NextResponse.json({ error: eErr.message }, { status: 400 });
+    if (tErr || !table) {
+      return NextResponse.json({ error: "Table not found" }, { status: 404 });
     }
 
-    const existingNums = new Set((existing || []).map((t) => t.table_number));
+    // ✅ Block deletion if any order references this table — deactivating is the safe path
+    const { count, error: oErr } = await supabaseAdmin
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("table_id", tableId);
 
-    const nCount = Number(count || 0);
-    if (!nCount || nCount < 1) {
-      return NextResponse.json({ error: "Invalid count" }, { status: 400 });
+    if (oErr) {
+      return NextResponse.json({ error: oErr.message }, { status: 400 });
     }
 
-    const rows = [];
-    for (let n = 1; n <= nCount; n++) {
-      if (existingNums.has(n)) continue;
-      rows.push({
-        restaurant_id: restaurantId,
-        table_number: n,
-        code: makeCode(),
-      });
+    if (count && count > 0) {
+      return NextResponse.json(
+        {
+          error: `This table has ${count} order${
+            count === 1 ? "" : "s"
+          } linked to it and can't be deleted. Deactivate it instead.`,
+        },
+        { status: 409 }
+      );
     }
 
-    if (rows.length) {
-      const { error: insErr } = await supabaseAdmin.from("restaurant_tables").insert(rows);
-      if (insErr) return NextResponse.json({ error: insErr.message }, { status: 400 });
-    }
+    const { error: delErr } = await supabaseAdmin.from("restaurant_tables").delete().eq("id", tableId);
+    if (delErr) return NextResponse.json({ error: delErr.message }, { status: 400 });
 
-    return NextResponse.json({ ok: true, created: rows.length });
+    return NextResponse.json({ ok: true });
   } catch (err) {
     return NextResponse.json({ error: err?.message || "Server error" }, { status: 500 });
   }

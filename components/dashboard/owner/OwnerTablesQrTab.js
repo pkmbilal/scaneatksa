@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { QrCode } from "lucide-react";
+import { QrCode, Power, PowerOff, Trash2 } from "lucide-react";
 
 const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap";
 const activeTint = "bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400";
@@ -11,11 +11,8 @@ export default function OwnerTablesQrTab({
   restaurant,
   tables,
   tablesLoading,
-  tableCount,
-  setTableCount,
-  generatingTables,
-  onGenerateTables,
-  onRefreshTables,
+  onToggleActive,
+  onDeleteTable,
 }) {
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -30,47 +27,8 @@ export default function OwnerTablesQrTab({
 
   return (
     <div>
-      <div className="flex flex-col gap-3 md:flex-row md:items-center">
-        <div className="flex-1">
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-            Number of tables
-          </label>
-          <input
-            type="number"
-            min={1}
-            max={200}
-            value={tableCount}
-            onChange={(e) => setTableCount(e.target.value)}
-            placeholder="e.g. 10"
-            className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-          />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            This creates missing tables (1..N). Existing ones won&rsquo;t be duplicated.
-          </p>
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onGenerateTables}
-            disabled={generatingTables}
-            className="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600 disabled:opacity-50 cursor-pointer"
-          >
-            {generatingTables ? "Generating..." : "Generate Tables"}
-          </button>
-          <button
-            type="button"
-            onClick={onRefreshTables}
-            disabled={tablesLoading}
-            className="rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
-
       {/* Online link (no table) */}
-      <div className="mt-4 rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+      <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-gray-800 dark:text-white/90">Online ordering link</p>
@@ -99,7 +57,7 @@ export default function OwnerTablesQrTab({
           <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">Loading tables…</div>
         ) : tables.length === 0 ? (
           <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-            No tables yet. Click <b>Generate Tables</b>.
+            No tables yet. Click <b>Add Table</b> above.
           </div>
         ) : (
           <div className="mt-3 space-y-3">
@@ -127,7 +85,7 @@ export default function OwnerTablesQrTab({
                     <p className="truncate text-sm text-gray-500 dark:text-gray-400">{url}</p>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Link
                       href={qrHref}
                       className="inline-flex items-center gap-1.5 rounded-lg bg-success-50 px-4 py-2 text-sm font-semibold text-success-700 transition-colors hover:bg-success-100 dark:bg-success-500/15 dark:text-success-400 dark:hover:bg-success-500/25"
@@ -142,6 +100,28 @@ export default function OwnerTablesQrTab({
                       className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
                     >
                       Copy link
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onToggleActive?.(t)}
+                      className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-colors cursor-pointer ${
+                        t.is_active
+                          ? "bg-warning-50 text-warning-700 hover:bg-warning-100 dark:bg-warning-500/15 dark:text-warning-400 dark:hover:bg-warning-500/25"
+                          : "bg-success-50 text-success-700 hover:bg-success-100 dark:bg-success-500/15 dark:text-success-400 dark:hover:bg-success-500/25"
+                      }`}
+                    >
+                      {t.is_active ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
+                      {t.is_active ? "Deactivate" : "Activate"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onDeleteTable?.(t)}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-error-50 px-4 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-100 dark:bg-error-500/15 dark:text-error-400 dark:hover:bg-error-500/25 cursor-pointer"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete
                     </button>
                   </div>
                 </div>

@@ -47,6 +47,7 @@ import OwnerTablesQrTab from "@/components/dashboard/owner/OwnerTablesQrTab";
 import OwnerOrdersTab from "@/components/dashboard/owner/OwnerOrdersTab";
 import AddItemDialog from "@/components/dashboard/owner/dialogs/AddItemDialog";
 import AddCategoryDialog from "@/components/dashboard/owner/dialogs/AddCategoryDialog";
+import AddTableDialog from "@/components/dashboard/owner/dialogs/AddTableDialog";
 
 // ✅ Shadcn Dialogs
 import {
@@ -74,9 +75,6 @@ export default function OwnerDashboardPage() {
   const [tablesLoading, setTablesLoading] = useState(false);
   const [ordersLoading, setOrdersLoading] = useState(false);
 
-  const [tableCount, setTableCount] = useState(10);
-  const [generatingTables, setGeneratingTables] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const router = useRouter();
@@ -87,6 +85,9 @@ export default function OwnerDashboardPage() {
 
   const [deleteCategoryOpen, setDeleteCategoryOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
+
+  const [deleteTableOpen, setDeleteTableOpen] = useState(false);
+  const [tableToDelete, setTableToDelete] = useState(null);
 
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [infoDialogConfig, setInfoDialogConfig] = useState({ title: "", description: "", isError: false });
@@ -275,61 +276,66 @@ export default function OwnerDashboardPage() {
     setCategoryToDelete(null);
   };
 
-  const handleGenerateTables = async () => {
-    if (!restaurant?.id) return;
+  const toggleTableActive = async (table) => {
+    const { error } = await supabase
+      .from("restaurant_tables")
+      .update({ is_active: !table.is_active })
+      .eq("id", table.id);
 
-    const n = Number(tableCount || 0);
-    if (!n || n < 1 || n > 200) {
+    if (!error && restaurant?.id) {
+      await loadTables(restaurant.id);
+    } else if (error) {
       setInfoDialogConfig({
-        title: "Invalid Input",
-        description: "Please enter a valid number of tables (1 to 200).",
+        title: "Error",
+        description: error.message || "Failed to update table.",
         isError: true,
       });
       setInfoDialogOpen(true);
-      return;
     }
+  };
 
-    setGeneratingTables(true);
+  // ✅ Trigger Delete Table Dialog
+  const deleteTable = (table) => {
+    setTableToDelete(table);
+    setDeleteTableOpen(true);
+  };
+
+  // ✅ Confirm Delete Table
+  const confirmDeleteTable = async () => {
+    if (!tableToDelete || !restaurant?.id) return;
+
     try {
       const { data: sess } = await supabase.auth.getSession();
       const token = sess?.session?.access_token;
 
-      const res = await fetch(`/api/restaurants/${restaurant.id}/tables/generate`, {
-        method: "POST",
+      const res = await fetch(`/api/restaurants/${restaurant.id}/tables/${tableToDelete.id}`, {
+        method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
           ...(token ? { authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ count: n }),
       });
 
       const json = await res.json();
       if (!res.ok) {
         setInfoDialogConfig({
           title: "Error",
-          description: json?.error || "Failed to generate tables.",
+          description: json?.error || "Failed to delete table.",
           isError: true,
         });
         setInfoDialogOpen(true);
-        return;
+      } else {
+        await loadTables(restaurant.id);
       }
-
-      await loadTables(restaurant.id);
-      setInfoDialogConfig({
-        title: "Success",
-        description: `✅ Tables generated (created: ${json.created ?? 0})`,
-        isError: false,
-      });
-      setInfoDialogOpen(true);
     } catch (e) {
       setInfoDialogConfig({
         title: "Error",
-        description: e?.message || "Server error generating tables.",
+        description: e?.message || "Server error deleting table.",
         isError: true,
       });
       setInfoDialogOpen(true);
     } finally {
-      setGeneratingTables(false);
+      setDeleteTableOpen(false);
+      setTableToDelete(null);
     }
   };
 
@@ -408,6 +414,9 @@ export default function OwnerDashboardPage() {
     categories: (
       <AddCategoryDialog restaurantId={restaurant.id} onAdded={menuActions.reloadCategories} />
     ),
+    tables: (
+      <AddTableDialog restaurantId={restaurant.id} onAdded={() => loadTables(restaurant.id)} />
+    ),
     orders: (
       <button
         type="button"
@@ -482,11 +491,8 @@ export default function OwnerDashboardPage() {
                   restaurant={restaurant}
                   tables={tables}
                   tablesLoading={tablesLoading}
-                  tableCount={tableCount}
-                  setTableCount={setTableCount}
-                  generatingTables={generatingTables}
-                  onGenerateTables={handleGenerateTables}
-                  onRefreshTables={() => loadTables(restaurant.id)}
+                  onToggleActive={toggleTableActive}
+                  onDeleteTable={deleteTable}
                 />
               )}
 
@@ -536,6 +542,28 @@ export default function OwnerDashboardPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDeleteCategory} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ✅ Delete Table Dialog */}
+      <AlertDialog open={deleteTableOpen} onOpenChange={setDeleteTableOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <TriangleAlert className="h-5 w-5" />
+              Delete Table{tableToDelete ? ` ${tableToDelete.table_number}` : ""}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This can&rsquo;t be undone. If this table has past orders, deletion will be blocked — deactivate
+              it instead.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteTable} className="bg-destructive hover:bg-destructive/90">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
