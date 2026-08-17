@@ -408,12 +408,14 @@ export default function OwnerDashboardPage() {
             />
           }
         >
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:gap-6 mb-6">
-            <StatCard icon={UtensilsCrossed} label="Menu Items" value={menuItems.length} tint="brand" />
-            <StatCard icon={Tags} label="Categories" value={categories.length} tint="gray" />
-            <StatCard icon={QrCode} label="Tables" value={tables.length} tint="success" />
-            <StatCard icon={Receipt} label="Orders" value={orders.length} tint="warning" />
-          </div>
+          {activeTab === "overview" && (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:gap-6 mb-6">
+              <StatCard icon={UtensilsCrossed} label="Menu Items" value={menuItems.length} tint="brand" />
+              <StatCard icon={Tags} label="Categories" value={categories.length} tint="gray" />
+              <StatCard icon={QrCode} label="Tables" value={tables.length} tint="success" />
+              <StatCard icon={Receipt} label="Orders" value={orders.length} tint="warning" />
+            </div>
+          )}
 
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="p-6">

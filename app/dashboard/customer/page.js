@@ -118,10 +118,12 @@ export default function CustomerDashboardPage() {
             />
           }
         >
-          <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6">
-            <StatCard icon={Heart} label="Favorites" value={favorites.length} tint="brand" />
-            <StatCard icon={ListChecks} label="Requests" value={requests.length} tint="gray" />
-          </div>
+          {activeTab === 'overview' && (
+            <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6">
+              <StatCard icon={Heart} label="Favorites" value={favorites.length} tint="brand" />
+              <StatCard icon={ListChecks} label="Requests" value={requests.length} tint="gray" />
+            </div>
+          )}
 
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="p-6">

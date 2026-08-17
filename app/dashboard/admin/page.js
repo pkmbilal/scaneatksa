@@ -602,14 +602,16 @@ export default function AdminDashboard() {
             />
           }
         >
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 xl:grid-cols-6 mb-6">
-            <StatCard icon={Inbox} label="Pending" value={pendingRequests.length} tint="warning" />
-            <StatCard icon={UsersIcon} label="Users" value={allUsers.length} tint="brand" />
-            <StatCard icon={Store} label="Restaurants" value={allRestaurants.length} tint="success" />
-            <StatCard icon={ListChecks} label="Requests" value={allRequests.length} tint="gray" />
-            <StatCard icon={MapPin} label="Cities" value={cities.length} tint="gray" />
-            <StatCard icon={UtensilsCrossed} label="Cuisines" value={cuisines.length} tint="gray" />
-          </div>
+          {activeTab === 'pending' && (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 xl:grid-cols-6 mb-6">
+              <StatCard icon={Inbox} label="Pending" value={pendingRequests.length} tint="warning" />
+              <StatCard icon={UsersIcon} label="Users" value={allUsers.length} tint="brand" />
+              <StatCard icon={Store} label="Restaurants" value={allRestaurants.length} tint="success" />
+              <StatCard icon={ListChecks} label="Requests" value={allRequests.length} tint="gray" />
+              <StatCard icon={MapPin} label="Cities" value={cities.length} tint="gray" />
+              <StatCard icon={UtensilsCrossed} label="Cuisines" value={cuisines.length} tint="gray" />
+            </div>
+          )}
 
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="p-6">
