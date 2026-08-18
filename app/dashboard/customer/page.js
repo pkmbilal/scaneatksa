@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getUserFavorites, removeFromFavorites } from '@/lib/auth/client'
 import { LayoutDashboard, Heart, ListChecks, House, Pizza, Gauge, Headset } from 'lucide-react'
 
+import LoadingScreen from '@/components/common/LoadingScreen'
 import { DashboardSidebarProvider } from '@/context/DashboardSidebarContext'
 import DashboardSidebar from '@/components/dashboard/shared/DashboardSidebar'
 import DashboardHeader from '@/components/dashboard/shared/DashboardHeader'
@@ -68,14 +69,7 @@ export default function CustomerDashboardPage() {
   )
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Loading your dashboard...</p>
-        </div>
-      </div>
-    )
+    return <LoadingScreen message="Loading your dashboard..." />
   }
 
   const navItems = [

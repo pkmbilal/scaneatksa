@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Inbox, ListChecks, Users as UsersIcon, Store, MapPin, UtensilsCrossed, TriangleAlert, CheckCircle } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
+import LoadingScreen from '@/components/common/LoadingScreen'
 
 import {
   AlertDialog,
@@ -551,14 +552,7 @@ export default function AdminDashboard() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading admin dashboard...</p>
-        </div>
-      </div>
-    )
+    return <LoadingScreen message="Loading admin dashboard..." />
   }
 
   const navItems = [
