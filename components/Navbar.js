@@ -52,6 +52,7 @@ export default function Navbar() {
   // ✅ compute this early, but DON'T return yet (hooks must run first)
   const hideNavbar =
     pathname?.startsWith("/auth/") ||
+    pathname === "/dashboard" ||
     pathname?.startsWith("/dashboard/admin") ||
     pathname?.startsWith("/dashboard/owner") ||
     pathname?.startsWith("/dashboard/customer");
