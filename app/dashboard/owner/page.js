@@ -21,6 +21,7 @@ import {
   Tags,
   QrCode,
   Receipt,
+  Users,
   Store,
   TriangleAlert,
   CheckCircle,
@@ -46,6 +47,7 @@ import CategoriesTab from "@/components/dashboard/owner/tabs/CategoriesTab";
 import RestaurantTab from "@/components/dashboard/owner/tabs/RestaurantTab";
 import OwnerTablesQrTab from "@/components/dashboard/owner/OwnerTablesQrTab";
 import OwnerOrdersTab from "@/components/dashboard/owner/OwnerOrdersTab";
+import StaffTab from "@/components/dashboard/owner/tabs/StaffTab";
 import AddItemDialog from "@/components/dashboard/owner/dialogs/AddItemDialog";
 import AddCategoryDialog from "@/components/dashboard/owner/dialogs/AddCategoryDialog";
 import AddTableDialog from "@/components/dashboard/owner/dialogs/AddTableDialog";
@@ -73,8 +75,10 @@ export default function OwnerDashboardPage() {
   // ✅ tables + orders
   const [tables, setTables] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [staff, setStaff] = useState([]);
   const [tablesLoading, setTablesLoading] = useState(false);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [staffLoading, setStaffLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
@@ -131,6 +135,7 @@ export default function OwnerDashboardPage() {
       loadMenuItems(userRestaurant.id),
       loadTables(userRestaurant.id),
       loadOrders(userRestaurant.id),
+      loadStaff(),
     ]);
 
     setLoading(false);
@@ -192,6 +197,82 @@ export default function OwnerDashboardPage() {
 
     if (!error) setOrders(data || []);
     setOrdersLoading(false);
+  }
+
+  async function updateOrderStatus(orderId, nextStatus) {
+    const { data: sess } = await supabase.auth.getSession();
+    const token = sess?.session?.access_token;
+
+    const res = await fetch(`/api/orders/${orderId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ status: nextStatus }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setInfoDialogConfig({
+        title: "Couldn't update order",
+        description: data?.error || "Please try again.",
+        isError: true,
+      });
+      setInfoDialogOpen(true);
+      return;
+    }
+
+    if (restaurant?.id) await loadOrders(restaurant.id);
+  }
+
+  async function loadStaff() {
+    setStaffLoading(true);
+    const { data: sess } = await supabase.auth.getSession();
+    const token = sess?.session?.access_token;
+
+    const res = await fetch("/api/staff", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    const data = await res.json();
+    if (res.ok) setStaff(data.staff || []);
+    setStaffLoading(false);
+  }
+
+  async function addStaffMember(payload) {
+    const { data: sess } = await supabase.auth.getSession();
+    const token = sess?.session?.access_token;
+
+    const res = await fetch("/api/staff", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!res.ok) return { error: data?.error || "Could not create staff account." };
+
+    await loadStaff();
+    return { ok: true };
+  }
+
+  async function toggleStaffActive(staffId, currentActive) {
+    const { data: sess } = await supabase.auth.getSession();
+    const token = sess?.session?.access_token;
+
+    const res = await fetch(`/api/staff/${staffId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ is_active: !currentActive }),
+    });
+
+    if (res.ok) await loadStaff();
   }
 
   const categoryMap = useMemo(() => {
@@ -363,6 +444,7 @@ export default function OwnerDashboardPage() {
     { key: "categories", label: "Categories", icon: Tags },
     { key: "tables", label: "Tables & QR", icon: QrCode },
     { key: "orders", label: "Orders", icon: Receipt, count: orders.length },
+    { key: "staff", label: "Staff", icon: Users, count: staff.length },
     { key: "restaurant", label: "Restaurant", icon: Store },
   ];
 
@@ -379,6 +461,7 @@ export default function OwnerDashboardPage() {
     categories: "Categories",
     tables: "Tables & QR",
     orders: "Orders",
+    staff: "Staff",
     restaurant: "Restaurant",
   };
 
@@ -388,6 +471,7 @@ export default function OwnerDashboardPage() {
     categories: "Organize your menu items into categories.",
     tables: "Generate QR codes so orders automatically tag the right table.",
     orders: "Dine-in orders show a table number. Online orders show pickup or delivery.",
+    staff: "Create kitchen and waiter accounts for your restaurant.",
     restaurant: "Manage your restaurant's public details and settings.",
   };
 
@@ -491,7 +575,21 @@ export default function OwnerDashboardPage() {
               )}
 
               {activeTab === "orders" && (
-                <OwnerOrdersTab restaurant={restaurant} orders={orders} ordersLoading={ordersLoading} />
+                <OwnerOrdersTab
+                  restaurant={restaurant}
+                  orders={orders}
+                  ordersLoading={ordersLoading}
+                  onStatusChange={updateOrderStatus}
+                />
+              )}
+
+              {activeTab === "staff" && (
+                <StaffTab
+                  staff={staff}
+                  staffLoading={staffLoading}
+                  onAdd={addStaffMember}
+                  onToggleActive={toggleStaffActive}
+                />
               )}
 
               {activeTab === "restaurant" && <RestaurantTab restaurant={restaurant} />}

@@ -7,6 +7,7 @@ import {
   getUserProfile,
   getUserFavorites,
   getUserRequests,
+  getUserOrders,
 } from '@/lib/auth/client'
 
 export function useCustomerDashboardData() {
@@ -16,6 +17,7 @@ export function useCustomerDashboardData() {
   const [profile, setProfile] = useState(null)
   const [favorites, setFavorites] = useState([])
   const [requests, setRequests] = useState([])
+  const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
   const refreshFavorites = useCallback(
@@ -48,6 +50,21 @@ export function useCustomerDashboardData() {
     [user?.id]
   )
 
+  const refreshOrders = useCallback(
+    async (uid) => {
+      const userId = uid || user?.id
+      if (!userId) return
+
+      const { data, error } = await getUserOrders(userId)
+      if (error) {
+        console.error('getUserOrders error:', error)
+        return
+      }
+      setOrders(Array.isArray(data) ? data : [])
+    },
+    [user?.id]
+  )
+
   useEffect(() => {
     let mounted = true
 
@@ -74,14 +91,16 @@ export function useCustomerDashboardData() {
         return
       }
 
-      const [{ data: userFavorites }, { data: userRequests }] = await Promise.all([
+      const [{ data: userFavorites }, { data: userRequests }, { data: userOrders }] = await Promise.all([
         getUserFavorites(currentUser.id),
         getUserRequests(currentUser.id),
+        getUserOrders(currentUser.id),
       ])
 
       if (!mounted) return
       setFavorites(Array.isArray(userFavorites) ? userFavorites : [])
       setRequests(Array.isArray(userRequests) ? userRequests : [])
+      setOrders(Array.isArray(userOrders) ? userOrders : [])
       setLoading(false)
     }
 
@@ -96,10 +115,11 @@ export function useCustomerDashboardData() {
     const onFocus = () => {
       refreshFavorites()
       refreshRequests()
+      refreshOrders()
     }
     window.addEventListener('focus', onFocus)
     return () => window.removeEventListener('focus', onFocus)
-  }, [refreshFavorites, refreshRequests])
+  }, [refreshFavorites, refreshRequests, refreshOrders])
 
   // ✅ refresh when FavoriteButton broadcasts changes
   useEffect(() => {
@@ -122,6 +142,9 @@ export function useCustomerDashboardData() {
     requests,
     setRequests,
     refreshRequests, // ✅ exported if you want manual refresh
+    orders,
+    setOrders,
+    refreshOrders, // ✅ exported if you want manual refresh
     loading,
   }
 }

@@ -33,17 +33,10 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { normalizeSaudiWhatsAppNumber } from "@/lib/whatsapp";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
-function normalizeSaudiWhatsAppNumber(value) {
-  let digits = String(value || "").replace(/\D/g, "");
-  if (digits.startsWith("00")) digits = digits.slice(2);
-  if (digits.startsWith("05") && digits.length === 10) {
-    digits = "966" + digits.slice(1);
-  } else if (digits.startsWith("5") && digits.length === 9) {
-    digits = "966" + digits;
-  }
-  return digits;
-}
+const supabase = supabaseBrowser();
 
 function createCheckoutReference() {
   const stamp = new Date().toISOString().slice(2, 10).replace(/-/g, "");
@@ -89,6 +82,7 @@ export default function CartPage() {
   const [placeError, setPlaceError] = useState("");
   const [whatsappOpened, setWhatsAppOpened] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [savedOrder, setSavedOrder] = useState(null); // { orderId, loggedIn }
   const checkoutSnapshotRef = useRef(null);
 
   const router = useRouter();
@@ -327,6 +321,45 @@ export default function CartPage() {
         return;
       }
 
+      // Persist the order so it shows up in both the owner's and the
+      // customer's Orders tabs. Best-effort: if this fails we still let the
+      // customer place the order via WhatsApp as before, rather than
+      // blocking checkout on it.
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        const token = sess?.session?.access_token;
+
+        const orderRes = await fetch("/api/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            restaurantSlug: restaurant.slug,
+            channel: isDineIn ? "dine_in" : channel,
+            tableCode: isDineIn ? tableCode : null,
+            items: cartItems.map((item) => ({
+              id: item.id,
+              quantity: item.quantity,
+            })),
+            customer: {
+              name: customerName?.trim() || null,
+              phone: customerPhone?.trim() || null,
+              address: channel === "delivery" ? deliveryAddress?.trim() || null : null,
+            },
+            notes: notes?.trim() || null,
+          }),
+        });
+
+        const orderData = await orderRes.json();
+        if (orderRes.ok && orderData?.orderId) {
+          setSavedOrder({ orderId: orderData.orderId, loggedIn: !!token });
+        }
+      } catch {
+        // ignore — WhatsApp ordering below still works without a saved order
+      }
+
       const message = generateWhatsAppMessage(data.tableNumber);
       const whatsappUrl = `https://wa.me/${validatedPhone}?text=${message}`;
       checkoutSnapshotRef.current.message = decodeURIComponent(message);
@@ -381,6 +414,7 @@ export default function CartPage() {
     setTableNumber(null); // ✅ clear resolved number too
     setPlaceError("");
     setWhatsAppOpened(false);
+    setSavedOrder(null);
     checkoutSnapshotRef.current = null;
   };
 
@@ -806,6 +840,15 @@ export default function CartPage() {
                     >
                       I sent it — clear my cart
                     </Button>
+
+                    {savedOrder?.loggedIn && (
+                      <Link
+                        href="/dashboard/customer"
+                        className="mt-2 block text-center text-xs font-semibold text-emerald-800 underline underline-offset-2"
+                      >
+                        Track this order in My Orders
+                      </Link>
+                    )}
                   </div>
                 )}
 

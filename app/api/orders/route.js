@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { restaurantSlug, channel, tableCode, items, customer } = body;
+    const { restaurantSlug, channel, tableCode, items, customer, notes } = body;
 
     // 1) Restaurant lookup
     const { data: restaurant, error: rErr } = await supabaseAdmin
@@ -113,6 +113,7 @@ export async function POST(req) {
         customer_name: customer?.name || null,
         customer_phone: customer?.phone || null,
         delivery_address: channel === "delivery" ? (customer?.address || null) : null,
+        notes: notes || null,
         user_id,
       })
       .select("id")

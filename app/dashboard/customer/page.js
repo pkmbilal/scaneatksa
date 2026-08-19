@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { getUserFavorites, removeFromFavorites } from '@/lib/auth/client'
-import { LayoutDashboard, Heart, ListChecks, House, Pizza, Gauge, Headset } from 'lucide-react'
+import { LayoutDashboard, Heart, ListChecks, Receipt, House, Pizza, Gauge, Headset } from 'lucide-react'
 
 import LoadingScreen from '@/components/common/LoadingScreen'
 import { DashboardSidebarProvider } from '@/context/DashboardSidebarContext'
@@ -16,6 +16,7 @@ import TabSectionHeader from '@/components/dashboard/shared/TabSectionHeader'
 import OverviewTab from '@/components/dashboard/customer/tabs/OverviewTab'
 import FavoritesTab from '@/components/dashboard/customer/tabs/FavoritesTab'
 import RequestsTab from '@/components/dashboard/customer/tabs/RequestsTab'
+import OrdersTab from '@/components/dashboard/customer/tabs/OrdersTab'
 import { useCustomerDashboardData } from '@/components/dashboard/customer/hooks/useCustomerDashboardData'
 
 export default function CustomerDashboardPage() {
@@ -25,6 +26,7 @@ export default function CustomerDashboardPage() {
     favorites,
     setFavorites,
     requests,
+    orders,
     loading,
   } = useCustomerDashboardData()
 
@@ -74,6 +76,7 @@ export default function CustomerDashboardPage() {
 
   const navItems = [
     { key: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { key: 'orders', label: 'Orders', icon: Receipt, count: orders.length },
     { key: 'favorites', label: 'Favorites', icon: Heart, count: favorites.length },
     { key: 'requests', label: 'My Requests', icon: ListChecks, count: requests.length },
   ]
@@ -87,12 +90,14 @@ export default function CustomerDashboardPage() {
 
   const tabTitles = {
     overview: 'Overview',
+    orders: 'Orders',
     favorites: 'Favorites',
     requests: 'My Requests',
   }
 
   const tabDescriptions = {
     overview: 'Your account details and quick actions.',
+    orders: 'Track your past and current orders.',
     favorites: "Restaurants you've saved for quick access.",
     requests: 'Track the status of your restaurant ownership requests.',
   }
@@ -120,7 +125,8 @@ export default function CustomerDashboardPage() {
           }
         >
           {activeTab === 'overview' && (
-            <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 mb-6">
+              <StatCard icon={Receipt} label="Orders" value={orders.length} tint="brand" />
               <StatCard icon={Heart} label="Favorites" value={favorites.length} tint="brand" />
               <StatCard icon={ListChecks} label="Requests" value={requests.length} tint="gray" />
             </div>
@@ -131,6 +137,8 @@ export default function CustomerDashboardPage() {
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="p-6">
               {activeTab === 'overview' && <OverviewTab user={user} profile={profile} />}
+
+              {activeTab === 'orders' && <OrdersTab orders={orders} />}
 
               {activeTab === 'favorites' && (
                 <FavoritesTab favorites={favorites} onRemove={handleRemoveFavorite} />

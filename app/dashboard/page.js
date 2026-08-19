@@ -37,6 +37,12 @@ export default function DashboardPage() {
         case 'owner':
           router.push('/dashboard/owner')
           break
+        case 'kitchen':
+          router.push('/dashboard/kitchen')
+          break
+        case 'waiter':
+          router.push('/dashboard/waiter')
+          break
         case 'customer':
         default:
           router.push('/dashboard/customer')
