@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { STATUS_LABELS, STATUS_TINTS, buildStatusWhatsAppMessage } from "@/lib/orderStatus";
+import { STATUS_LABELS, STATUS_TINTS } from "@/lib/orderStatus";
+import { notifyStatusChange } from "@/lib/whatsappClient";
 
 const channelTint = "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
 const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap";
@@ -23,7 +24,8 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
     if (!nextStatus || nextStatus === order.status) return;
     setUpdatingId(order.id);
     try {
-      await onStatusChange?.(order.id, nextStatus);
+      const updated = await onStatusChange?.(order.id, nextStatus);
+      notifyStatusChange(updated, restaurant?.name);
     } finally {
       setUpdatingId(null);
     }
@@ -45,8 +47,6 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
                 : o.channel === "delivery"
                 ? "Delivery"
                 : "Pickup";
-
-            const whatsappLink = buildStatusWhatsAppMessage(o, restaurant?.name);
 
             return (
               <div
@@ -98,17 +98,6 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
                       </option>
                     ))}
                   </select>
-
-                  {whatsappLink && (
-                    <a
-                      href={whatsappLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-lg bg-success-50 px-2.5 py-1.5 text-xs font-semibold text-success-700 hover:bg-success-100 dark:bg-success-500/15 dark:text-success-400"
-                    >
-                      Send WhatsApp update
-                    </a>
-                  )}
                 </div>
               </div>
             );

@@ -92,7 +92,9 @@ export default function KitchenDashboardPage() {
       body: JSON.stringify({ status: nextStatus }),
     });
 
+    const data = await res.json();
     if (res.ok && profile?.restaurant_id) await loadOrders(profile.restaurant_id);
+    return res.ok ? data.order : null;
   }
 
   if (loading) {

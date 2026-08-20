@@ -2,6 +2,7 @@ import './globals.css'
 import { ThemeProvider } from 'next-themes'
 import { CartProvider } from './CartContext'
 import LayoutWithNavbar from '@/components/LayoutWithNavbar'
+import { Toaster } from '@/components/ui/sonner'
 
 export const metadata = {
   title: 'QR Menu System',
@@ -17,6 +18,7 @@ export default function RootLayout({ children }) {
             <LayoutWithNavbar>
               {children}
             </LayoutWithNavbar>
+            <Toaster />
           </CartProvider>
         </ThemeProvider>
       </body>

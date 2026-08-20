@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { STATUS_LABELS, STATUS_TINTS, nextActionFor, buildStatusWhatsAppMessage } from "@/lib/orderStatus";
+import { STATUS_LABELS, STATUS_TINTS, nextActionFor } from "@/lib/orderStatus";
+import { notifyStatusChange } from "@/lib/whatsappClient";
 
 const channelTint = "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
 const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap";
 
 // Shared work-queue view for kitchen/waiter dashboards -- each order shows
-// its single next action for that role (from lib/orderStatus.nextActionFor)
-// plus a WhatsApp resend link when the resulting status has a canned
-// customer message.
+// its single next action for that role (from lib/orderStatus.nextActionFor).
+// On success, the canned WhatsApp update for the new status auto-opens (see
+// lib/whatsappClient.notifyStatusChange).
 export default function OrderQueue({ role, restaurantName, orders, loading, onAction }) {
   const [actingId, setActingId] = useState(null);
 
@@ -24,7 +25,8 @@ export default function OrderQueue({ role, restaurantName, orders, loading, onAc
   const handleAction = async (order, toStatus) => {
     setActingId(order.id);
     try {
-      await onAction?.(order.id, toStatus);
+      const updated = await onAction?.(order.id, toStatus);
+      notifyStatusChange(updated, restaurantName);
     } finally {
       setActingId(null);
     }
@@ -46,7 +48,6 @@ export default function OrderQueue({ role, restaurantName, orders, loading, onAc
           o.channel === "dine_in" ? `Table ${tableNum ?? "?"}` : o.channel === "delivery" ? "Delivery" : "Pickup";
 
         const action = nextActionFor(role, o.status);
-        const whatsappLink = buildStatusWhatsAppMessage({ ...o, status: action?.to || o.status }, restaurantName);
 
         return (
           <div
@@ -83,17 +84,6 @@ export default function OrderQueue({ role, restaurantName, orders, loading, onAc
                 >
                   {actingId === o.id ? "Updating…" : action.label}
                 </button>
-
-                {whatsappLink && (
-                  <a
-                    href={whatsappLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-lg bg-success-50 px-2.5 py-2 text-xs font-semibold text-success-700 hover:bg-success-100 dark:bg-success-500/15 dark:text-success-400"
-                  >
-                    WhatsApp update
-                  </a>
-                )}
               </div>
             )}
           </div>

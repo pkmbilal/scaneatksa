@@ -220,10 +220,11 @@ export default function OwnerDashboardPage() {
         isError: true,
       });
       setInfoDialogOpen(true);
-      return;
+      return null;
     }
 
     if (restaurant?.id) await loadOrders(restaurant.id);
+    return data.order;
   }
 
   async function loadStaff() {
