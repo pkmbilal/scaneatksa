@@ -5,14 +5,18 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 const supabase = supabaseBrowser();
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { Mail } from 'lucide-react'
+import { Mail, ArrowLeft } from 'lucide-react'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations('auth')
+
   // Hide navbar on this page
   useEffect(() => {
     document.body.classList.add('hide-navbar')
@@ -37,7 +41,7 @@ export default function ForgotPasswordPage() {
     if (error) {
       setError(error.message)
     } else {
-      setMessage('Password reset link sent to your email.')
+      setMessage(t('forgotPassword.successMessage'))
     }
 
     setLoading(false)
@@ -45,6 +49,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <>
+      <LanguageSwitcher className="fixed top-4 end-4 z-50" />
+
       {/* MOBILE wrapper */}
       <div className="md:hidden flex min-h-screen items-center justify-center bg-white px-0">
         <div className="w-full min-h-screen flex items-center justify-center">
@@ -58,10 +64,10 @@ export default function ForgotPasswordPage() {
               {/* Title */}
               <div className="space-y-1">
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Forgot your password?
+                  {t('forgotPassword.title')}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Enter your email and we’ll send you a password reset link
+                  {t('forgotPassword.subtitle')}
                 </p>
               </div>
 
@@ -69,7 +75,7 @@ export default function ForgotPasswordPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
                   type="email"
-                  placeholder="Email"
+                  placeholder={t('forgotPassword.emailPlaceholder')}
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -77,11 +83,11 @@ export default function ForgotPasswordPage() {
                 />
 
                 {error && (
-                  <p className="text-sm text-destructive text-left">{error}</p>
+                  <p className="text-sm text-destructive text-start">{error}</p>
                 )}
 
                 {message && (
-                  <p className="text-sm text-green-600 text-left">{message}</p>
+                  <p className="text-sm text-green-600 text-start">{message}</p>
                 )}
 
                 <Button
@@ -89,7 +95,7 @@ export default function ForgotPasswordPage() {
                   disabled={loading}
                   className="w-full h-11 rounded-xl bg-primary hover:bg-green-600 text-white"
                 >
-                  {loading ? 'Sending...' : 'Send Email'}
+                  {loading ? t('forgotPassword.sending') : t('forgotPassword.sendEmail')}
                 </Button>
               </form>
 
@@ -97,9 +103,10 @@ export default function ForgotPasswordPage() {
               <div className="pt-2">
                 <Link
                   href="/auth/login"
-                  className="text-sm text-muted-foreground hover:text-primary transition"
+                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition"
                 >
-                  ← Back to Login
+                  <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+                  {t('forgotPassword.backToLogin')}
                 </Link>
               </div>
             </CardContent>
@@ -119,10 +126,10 @@ export default function ForgotPasswordPage() {
             {/* Title */}
             <div className="space-y-1">
               <h1 className="text-2xl font-bold text-gray-900">
-                Forgot your password?
+                {t('forgotPassword.title')}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Enter your email and we’ll send you a password reset link
+                {t('forgotPassword.subtitle')}
               </p>
             </div>
 
@@ -130,7 +137,7 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 type="email"
-                placeholder="Email"
+                placeholder={t('forgotPassword.emailPlaceholder')}
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -138,11 +145,11 @@ export default function ForgotPasswordPage() {
               />
 
               {error && (
-                <p className="text-sm text-destructive text-left">{error}</p>
+                <p className="text-sm text-destructive text-start">{error}</p>
               )}
 
               {message && (
-                <p className="text-sm text-green-600 text-left">{message}</p>
+                <p className="text-sm text-green-600 text-start">{message}</p>
               )}
 
               <Button
@@ -150,7 +157,7 @@ export default function ForgotPasswordPage() {
                 disabled={loading}
                 className="w-full h-11 rounded-xl bg-primary hover:bg-green-600 text-white"
               >
-                {loading ? 'Sending...' : 'Send Email'}
+                {loading ? t('forgotPassword.sending') : t('forgotPassword.sendEmail')}
               </Button>
             </form>
 
@@ -158,9 +165,10 @@ export default function ForgotPasswordPage() {
             <div className="pt-2">
               <Link
                 href="/auth/login"
-                className="text-sm text-muted-foreground hover:text-primary transition"
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition"
               >
-                ← Back to Login
+                <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+                {t('forgotPassword.backToLogin')}
               </Link>
             </div>
           </CardContent>

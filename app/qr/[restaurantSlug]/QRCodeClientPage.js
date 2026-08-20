@@ -8,6 +8,7 @@ import Link from 'next/link'
 import QRCode from 'qrcode'
 import { toast } from 'sonner'
 import { toPng } from 'html-to-image'
+import { useTranslations } from 'next-intl'
 import { Download, Printer, ExternalLink, QrCode, Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ import {
 import QRCodeTemplateCard from '@/components/qr/QRCodeTemplateCard'
 
 export default function QRCodeClientPage({ restaurantSlug }) {
+  const t = useTranslations('qr.clientPage')
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -43,7 +45,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
 
   const selectedTable = useMemo(() => {
     if (selectedTableId === 'general') return null
-    return tables.find((t) => String(t.id) === String(selectedTableId)) || null
+    return tables.find((tbl) => String(tbl.id) === String(selectedTableId)) || null
   }, [selectedTableId, tables])
 
   const encodedUrl = useMemo(() => {
@@ -65,7 +67,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
     async function guardAndLoad() {
       try {
         if (!slug) {
-          toast.error('Missing restaurant slug.')
+          toast.error(t('errors.missingSlug'))
           router.push('/dashboard')
           return
         }
@@ -79,7 +81,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
         const user = userRes?.user
 
         if (!user) {
-          toast.error('Please login first.')
+          toast.error(t('errors.loginRequired'))
           router.push('/auth/login')
           return
         }
@@ -95,7 +97,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
         const isOwner = role === 'owner'
 
         if (!isAdmin && !isOwner) {
-          toast.error(`Access denied. Your role: ${role || '(missing)'}`)
+          toast.error(t('errors.accessDenied', { role: role || '(missing)' }))
           router.push('/dashboard')
           return
         }
@@ -107,7 +109,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
           .maybeSingle()
 
         if (!rest) {
-          toast.error(`Restaurant not found: ${slug}`)
+          toast.error(t('errors.restaurantNotFound', { slug }))
           router.push('/dashboard')
           return
         }
@@ -134,7 +136,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
             (rest.owner_id && rest.owner_id === uid) || ownerEmailMatch
 
           if (!finalOwnerOk) {
-            toast.error("You don't own this restaurant.")
+            toast.error(t('errors.notOwner'))
             router.push('/dashboard/owner')
             return
           }
@@ -152,12 +154,12 @@ export default function QRCodeClientPage({ restaurantSlug }) {
           console.log('restaurant_tables error:', tableErr)
           if (mounted) setTables([])
         } else {
-          const activeTables = (tableRows || []).filter((t) => t.is_active !== false)
+          const activeTables = (tableRows || []).filter((tbl) => tbl.is_active !== false)
           if (mounted) setTables(activeTables)
         }
       } catch (e) {
         console.error(e)
-        toast.error('Something went wrong.')
+        toast.error(t('errors.generic'))
         router.push('/dashboard')
       } finally {
         if (mounted) {
@@ -171,7 +173,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
     return () => {
       mounted = false
     }
-  }, [slug, router])
+  }, [slug, router, t])
 
   // ✅ NEW: Auto-select table based on URL query
   // Supported:
@@ -186,7 +188,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
 
     const code = searchParams?.get('code')
     if (code && tables?.length) {
-      const match = tables.find((t) => String(t.code) === String(code))
+      const match = tables.find((tbl) => String(tbl.code) === String(code))
       if (match) setSelectedTableId(match.id)
     }
   }, [searchParams, tables])
@@ -208,7 +210,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
         if (mounted) setQrCodeUrl(qr)
       } catch (err) {
         console.error('QR error:', err)
-        toast.error('Failed to generate QR code.')
+        toast.error(t('errors.qrGenerationFailed'))
       }
     }
 
@@ -216,7 +218,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
     return () => {
       mounted = false
     }
-  }, [encodedUrl])
+  }, [encodedUrl, t])
 
   // ✅ ensure fonts & images are ready before exporting
   const ensureAssetsReady = async () => {
@@ -238,7 +240,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
     try {
       if (!templateRef.current) return
       if (!qrCodeUrl) {
-        toast.error('QR not ready yet.')
+        toast.error(t('errors.qrNotReady'))
         return
       }
 
@@ -262,10 +264,10 @@ export default function QRCodeClientPage({ restaurantSlug }) {
       a.href = dataUrl
       a.click()
 
-      toast.success('Template downloaded ✅')
+      toast.success(t('toast.templateDownloaded'))
     } catch (e) {
       console.error(e)
-      toast.error('Failed to download template.')
+      toast.error(t('errors.downloadFailed'))
     }
   }
 
@@ -276,7 +278,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="flex flex-col items-center gap-2">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Preparing QR Template...</p>
+          <p className="text-muted-foreground">{t('loading')}</p>
         </div>
       </div>
     )
@@ -288,15 +290,15 @@ export default function QRCodeClientPage({ restaurantSlug }) {
         <Card className="max-w-md w-full border-destructive/50">
           <CardHeader>
             <CardTitle className="text-destructive flex items-center gap-2">
-              <span className="text-2xl">⚠️</span> Restaurant Not Found
+              <span className="text-2xl">⚠️</span> {t('notFound.title')}
             </CardTitle>
             <CardDescription>
-              We couldn&apos;t load the restaurant &quot;{slug}&quot;.
+              {t('notFound.description', { slug })}
             </CardDescription>
           </CardHeader>
           <CardFooter>
             <Button asChild variant="outline" className="w-full">
-              <Link href="/dashboard">Back to Dashboard</Link>
+              <Link href="/dashboard">{t('notFound.backToDashboard')}</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -309,11 +311,10 @@ export default function QRCodeClientPage({ restaurantSlug }) {
       <div className="max-w-4xl mx-auto space-y-8 print:hidden">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            QR Code Template Generator
+            {t('title')}
           </h1>
           <p className="text-muted-foreground">
-            Download or print a professional QR template (logo + instructions + QR).
-            Choose a table to generate a table-specific QR.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -325,31 +326,31 @@ export default function QRCodeClientPage({ restaurantSlug }) {
             </CardTitle>
             <CardDescription>
               {selectedTableId === 'general'
-                ? 'Universal menu QR'
-                : `Table-specific QR for Table ${selectedTable?.table_number}`}
+                ? t('universalMenuQr')
+                : t('tableSpecificQr', { tableNumber: selectedTable?.table_number })}
             </CardDescription>
           </CardHeader>
 
           <CardContent className="pt-6 space-y-6">
             <div className="w-full flex items-center justify-center">
               <div className="md:w-1/2 w-full space-y-2">
-                <label className="text-sm font-medium text-foreground">QR Type</label>
+                <label className="text-sm font-medium text-foreground">{t('qrTypeLabel')}</label>
                 <select
                   className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm"
                   value={selectedTableId}
                   onChange={(e) => setSelectedTableId(e.target.value)}
                 >
-                  <option value="general">General Menu QR</option>
-                  {tables.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      Table {t.table_number}
+                  <option value="general">{t('generalMenuQrOption')}</option>
+                  {tables.map((tbl) => (
+                    <option key={tbl.id} value={tbl.id}>
+                      {t('tableOption', { tableNumber: tbl.table_number })}
                     </option>
                   ))}
                 </select>
 
                 {tables.length === 0 && (
                   <p className="text-xs text-muted-foreground">
-                    No tables found. Create tables first to generate table QR codes.
+                    {t('noTables')}
                   </p>
                 )}
               </div>
@@ -377,7 +378,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
               disabled={!qrCodeUrl}
             >
               <Download className="h-4 w-4" />
-              Download Template PNG
+              {t('downloadTemplate')}
             </Button>
 
             <Button
@@ -388,13 +389,13 @@ export default function QRCodeClientPage({ restaurantSlug }) {
               disabled={!qrCodeUrl}
             >
               <Printer className="h-4 w-4" />
-              Print Template
+              {t('printTemplate')}
             </Button>
 
             <Button asChild variant="secondary" className="w-full sm:w-auto gap-2" size="lg">
               <Link href={menuUrl || `/menu/${slug}`} target="_blank">
                 <ExternalLink className="h-4 w-4" />
-                Preview Menu
+                {t('previewMenu')}
               </Link>
             </Button>
           </CardFooter>

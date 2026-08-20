@@ -4,6 +4,7 @@ const supabase = supabaseBrowser();
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ChefHat } from "lucide-react";
 
 import { getCurrentUser, getUserProfile } from "@/lib/auth/client";
@@ -22,6 +23,7 @@ import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks
 // (Start Preparing) moves an order to `preparing` and then it's the
 // waiter's queue's concern. See lib/orderStatus.js for the transition rules.
 export default function KitchenDashboardPage() {
+  const t = useTranslations("dashboard.staff");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
@@ -103,19 +105,19 @@ export default function KitchenDashboardPage() {
   }
 
   if (loading) {
-    return <LoadingScreen message="Loading your kitchen queue..." />;
+    return <LoadingScreen message={t("kitchen.loadingMessage")} />;
   }
 
   if (!profile?.restaurant_id) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 text-center text-gray-500 dark:text-gray-400">
-        Your account isn&apos;t assigned to a restaurant yet. Ask your restaurant owner to check your staff account.
+        {t("queue.noRestaurantAssigned")}
       </div>
     );
   }
 
   const navItems = [
-    { key: "queue", label: "Kitchen Queue", icon: ChefHat, count: orders.length, alert: orders.length > 0 },
+    { key: "queue", label: t("kitchen.title"), icon: ChefHat, count: orders.length, alert: orders.length > 0 },
   ];
 
   return (
@@ -130,14 +132,18 @@ export default function KitchenDashboardPage() {
               user={user}
               profile={profile}
               homeHref="/dashboard/kitchen"
-              homeLabel="Kitchen"
+              homeLabel={t("kitchen.homeLabel")}
               editProfileHref="/dashboard/kitchen"
             />
           }
         >
           <TabSectionHeader
-            title="Kitchen Queue"
-            description={`New orders${restaurant?.name ? ` for ${restaurant.name}` : ""} waiting to be started.`}
+            title={t("kitchen.title")}
+            description={
+              restaurant?.name
+                ? t("kitchen.descriptionWithRestaurant", { restaurantName: restaurant.name })
+                : t("kitchen.descriptionGeneric")
+            }
           />
 
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">

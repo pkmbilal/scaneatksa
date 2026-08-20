@@ -4,6 +4,7 @@ const supabase = supabaseBrowser();
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Bell } from "lucide-react";
 
 import { getCurrentUser, getUserProfile } from "@/lib/auth/client";
@@ -22,6 +23,7 @@ import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks
 // transitions from here: marking food ready (preparing -> ready) and
 // handing it over (ready -> delivered). See lib/orderStatus.js.
 export default function WaiterDashboardPage() {
+  const t = useTranslations("dashboard.staff");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
@@ -105,19 +107,19 @@ export default function WaiterDashboardPage() {
   }
 
   if (loading) {
-    return <LoadingScreen message="Loading your floor queue..." />;
+    return <LoadingScreen message={t("waiter.loadingMessage")} />;
   }
 
   if (!profile?.restaurant_id) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 text-center text-gray-500 dark:text-gray-400">
-        Your account isn&apos;t assigned to a restaurant yet. Ask your restaurant owner to check your staff account.
+        {t("queue.noRestaurantAssigned")}
       </div>
     );
   }
 
   const navItems = [
-    { key: "queue", label: "Floor Queue", icon: Bell, count: orders.length, alert: orders.length > 0 },
+    { key: "queue", label: t("waiter.title"), icon: Bell, count: orders.length, alert: orders.length > 0 },
   ];
 
   return (
@@ -132,14 +134,18 @@ export default function WaiterDashboardPage() {
               user={user}
               profile={profile}
               homeHref="/dashboard/waiter"
-              homeLabel="Waiter"
+              homeLabel={t("waiter.homeLabel")}
               editProfileHref="/dashboard/waiter"
             />
           }
         >
           <TabSectionHeader
-            title="Floor Queue"
-            description={`Orders${restaurant?.name ? ` for ${restaurant.name}` : ""} that are preparing or ready to serve.`}
+            title={t("waiter.title")}
+            description={
+              restaurant?.name
+                ? t("waiter.descriptionWithRestaurant", { restaurantName: restaurant.name })
+                : t("waiter.descriptionGeneric")
+            }
           />
 
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
