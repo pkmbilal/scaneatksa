@@ -13,10 +13,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useDashboardSidebar } from '@/context/DashboardSidebarContext'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function DashboardSidebar({ navItems, activeTab, onSelectTab, siteNavItems }) {
   const t = useTranslations('dashboard.common')
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useDashboardSidebar()
+  const { isRTL } = useLanguage()
   const pathname = usePathname()
 
   const showLabels = isExpanded || isHovered || isMobileOpen
@@ -25,7 +27,15 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
     <aside
       className={`fixed flex flex-col top-0 px-5 start-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-[999] border-e border-gray-200
         ${isExpanded || isMobileOpen ? 'w-[290px]' : isHovered ? 'w-[290px]' : 'w-[90px]'}
-        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'}
+        ${
+          // Resolved from isRTL in JS rather than an rtl: variant class: an
+          // unprefixed off-canvas class and a Tailwind rtl: class carry equal
+          // specificity, so which one wins against lg:translate-x-0 below is
+          // cascade-order luck (it lost in practice, hiding the sidebar at
+          // every screen size in Arabic). Keeping only one off-canvas class
+          // here preserves the plain mobile-first override that already works.
+          isMobileOpen ? 'translate-x-0' : isRTL ? 'translate-x-full' : '-translate-x-full'
+        }
         lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
