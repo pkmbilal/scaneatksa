@@ -212,10 +212,35 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                   SAR {Number(item.price).toFixed(2)}
                 </span>
 
-                <Button onClick={handleAddToCart} disabled={soldOut} className="rounded-lg cursor-pointer">
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Add to Cart
-                </Button>
+                {inCartCount > 0 ? (
+                  <div className="inline-flex items-center rounded-full border bg-background p-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-full"
+                      onClick={handleDecrement}
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="w-8 text-center font-semibold">{inCartCount}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-full"
+                      onClick={handleIncrement}
+                      disabled={soldOut}
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button onClick={handleAddToCart} disabled={soldOut} className="rounded-lg cursor-pointer">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Add to Cart
+                  </Button>
+                )}
               </div>
 
               {!item.image_url && soldOut && (

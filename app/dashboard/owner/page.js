@@ -40,6 +40,7 @@ import DashboardBackdrop from "@/components/dashboard/shared/DashboardBackdrop";
 import DashboardMain from "@/components/dashboard/shared/DashboardMain";
 import StatCard from "@/components/dashboard/shared/StatCard";
 import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
+import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
 
 import OverviewTab from "@/components/dashboard/owner/tabs/OverviewTab";
 import MenuItemsTab from "@/components/dashboard/owner/tabs/MenuItemsTab";
@@ -101,6 +102,10 @@ export default function OwnerDashboardPage() {
     loadOwnerData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Live order updates -- new orders placed, or status changes made by
+  // kitchen/waiter -- so the owner never has to refresh to see them.
+  useRestaurantOrdersRealtime(restaurant?.id, () => loadOrders(restaurant.id, { silent: true }));
 
   async function loadOwnerData() {
     setLoading(true);
@@ -173,8 +178,8 @@ export default function OwnerDashboardPage() {
     setTablesLoading(false);
   }
 
-  async function loadOrders(restaurantId) {
-    setOrdersLoading(true);
+  async function loadOrders(restaurantId, { silent = false } = {}) {
+    if (!silent) setOrdersLoading(true);
     const { data, error } = await supabase
       .from("orders")
       .select(
@@ -196,7 +201,7 @@ export default function OwnerDashboardPage() {
       .limit(50);
 
     if (!error) setOrders(data || []);
-    setOrdersLoading(false);
+    if (!silent) setOrdersLoading(false);
   }
 
   async function updateOrderStatus(orderId, nextStatus) {
@@ -439,12 +444,14 @@ export default function OwnerDashboardPage() {
     );
   }
 
+  const newOrdersCount = orders.filter((o) => o.status === "new").length;
+
   const navItems = [
     { key: "overview", label: "Overview", icon: LayoutDashboard },
     { key: "items", label: "Menu Items", icon: UtensilsCrossed },
     { key: "categories", label: "Categories", icon: Tags },
     { key: "tables", label: "Tables & QR", icon: QrCode },
-    { key: "orders", label: "Orders", icon: Receipt, count: orders.length },
+    { key: "orders", label: "Orders", icon: Receipt, count: newOrdersCount, alert: newOrdersCount > 0 },
     { key: "staff", label: "Staff", icon: Users, count: staff.length },
     { key: "restaurant", label: "Restaurant", icon: Store },
   ];

@@ -16,6 +16,7 @@ import DashboardBackdrop from "@/components/dashboard/shared/DashboardBackdrop";
 import DashboardMain from "@/components/dashboard/shared/DashboardMain";
 import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
 import OrderQueue from "@/components/dashboard/staff/OrderQueue";
+import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
 
 // Waiter's queue is orders in `preparing` or `ready`. Waiter owns both
 // transitions from here: marking food ready (preparing -> ready) and
@@ -33,6 +34,10 @@ export default function WaiterDashboardPage() {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Live queue updates -- an order entering/leaving preparing/ready -- so
+  // waiter never has to refresh.
+  useRestaurantOrdersRealtime(restaurant?.id, () => loadOrders(restaurant.id, { silent: true }));
 
   async function loadData() {
     setLoading(true);
@@ -66,8 +71,8 @@ export default function WaiterDashboardPage() {
     setLoading(false);
   }
 
-  async function loadOrders(restaurantId) {
-    setOrdersLoading(true);
+  async function loadOrders(restaurantId, { silent = false } = {}) {
+    if (!silent) setOrdersLoading(true);
     const { data, error } = await supabase
       .from("orders")
       .select(
@@ -78,7 +83,7 @@ export default function WaiterDashboardPage() {
       .order("created_at", { ascending: true });
 
     if (!error) setOrders(data || []);
-    setOrdersLoading(false);
+    if (!silent) setOrdersLoading(false);
   }
 
   async function handleAction(orderId, nextStatus) {
@@ -111,7 +116,9 @@ export default function WaiterDashboardPage() {
     );
   }
 
-  const navItems = [{ key: "queue", label: "Floor Queue", icon: Bell, count: orders.length }];
+  const navItems = [
+    { key: "queue", label: "Floor Queue", icon: Bell, count: orders.length, alert: orders.length > 0 },
+  ];
 
   return (
     <DashboardSidebarProvider>

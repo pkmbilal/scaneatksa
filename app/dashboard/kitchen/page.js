@@ -16,6 +16,7 @@ import DashboardBackdrop from "@/components/dashboard/shared/DashboardBackdrop";
 import DashboardMain from "@/components/dashboard/shared/DashboardMain";
 import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
 import OrderQueue from "@/components/dashboard/staff/OrderQueue";
+import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
 
 // Kitchen's queue is orders in `new` status only -- their single action
 // (Start Preparing) moves an order to `preparing` and then it's the
@@ -33,6 +34,10 @@ export default function KitchenDashboardPage() {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Live queue updates -- a new order landing in `new`, or one leaving it --
+  // so kitchen never has to refresh.
+  useRestaurantOrdersRealtime(restaurant?.id, () => loadOrders(restaurant.id, { silent: true }));
 
   async function loadData() {
     setLoading(true);
@@ -66,8 +71,8 @@ export default function KitchenDashboardPage() {
     setLoading(false);
   }
 
-  async function loadOrders(restaurantId) {
-    setOrdersLoading(true);
+  async function loadOrders(restaurantId, { silent = false } = {}) {
+    if (!silent) setOrdersLoading(true);
     const { data, error } = await supabase
       .from("orders")
       .select("id, created_at, channel, status, total, customer_name, customer_phone, notes")
@@ -76,7 +81,7 @@ export default function KitchenDashboardPage() {
       .order("created_at", { ascending: true });
 
     if (!error) setOrders(data || []);
-    setOrdersLoading(false);
+    if (!silent) setOrdersLoading(false);
   }
 
   async function handleAction(orderId, nextStatus) {
@@ -109,7 +114,9 @@ export default function KitchenDashboardPage() {
     );
   }
 
-  const navItems = [{ key: "queue", label: "Kitchen Queue", icon: ChefHat, count: orders.length }];
+  const navItems = [
+    { key: "queue", label: "Kitchen Queue", icon: ChefHat, count: orders.length, alert: orders.length > 0 },
+  ];
 
   return (
     <DashboardSidebarProvider>

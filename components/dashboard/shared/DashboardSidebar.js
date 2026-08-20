@@ -61,8 +61,14 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
                           isActive ? 'menu-item-active' : 'menu-item-inactive'
                         } ${!showLabels ? 'lg:justify-center' : 'lg:justify-start'}`}
                       >
-                        <span className={isActive ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}>
+                        <span className={`relative ${isActive ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}`}>
                           <Icon className="size-5" />
+                          {item.alert && (
+                            <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
+                              <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-400" />
+                            </span>
+                          )}
                         </span>
                         {showLabels && <span className="menu-item-text">{item.label}</span>}
                         {showLabels && typeof item.count === 'number' && item.count > 0 && (
