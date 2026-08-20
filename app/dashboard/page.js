@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
+import LoadingScreen from '@/components/common/LoadingScreen'
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
@@ -36,6 +37,12 @@ export default function DashboardPage() {
         case 'owner':
           router.push('/dashboard/owner')
           break
+        case 'kitchen':
+          router.push('/dashboard/kitchen')
+          break
+        case 'waiter':
+          router.push('/dashboard/waiter')
+          break
         case 'customer':
         default:
           router.push('/dashboard/customer')
@@ -46,12 +53,5 @@ export default function DashboardPage() {
     checkUserAndRedirect()
   }, [router])
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading your dashboard...</p>
-      </div>
-    </div>
-  )
+  return <LoadingScreen message="Loading your dashboard..." />
 }

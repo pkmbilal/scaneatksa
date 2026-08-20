@@ -73,6 +73,29 @@
   animation-delay: 4s;
 }
 
+@keyframes text-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.loading-text-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--muted-foreground) 40%,
+    #00c951 50%,
+    var(--muted-foreground) 60%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-shimmer 2.2s ease-in-out infinite;
+}
+
 /* Hide navbar on auth pages */
 body.hide-navbar nav {
   display: none;

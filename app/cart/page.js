@@ -1,24 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/app/CartContext";
 import { useRouter } from "next/navigation";
 
 import {
   ArrowLeft,
   ShoppingCart,
+  ShoppingBag,
   Store,
   Trash2,
   Plus,
   Minus,
-  MessageCircle,
   BadgeCheck,
   Clipboard,
   MapPin,
   Bike,
   UtensilsCrossed,
-  Copy,
   CheckCircle2,
   Loader2,
 } from "lucide-react";
@@ -33,39 +32,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { normalizeSaudiWhatsAppNumber } from "@/lib/whatsapp";
+import { STATUS_LABELS, STATUS_TINTS } from "@/lib/orderStatus";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
-function normalizeSaudiWhatsAppNumber(value) {
-  let digits = String(value || "").replace(/\D/g, "");
-  if (digits.startsWith("00")) digits = digits.slice(2);
-  if (digits.startsWith("05") && digits.length === 10) {
-    digits = "966" + digits.slice(1);
-  } else if (digits.startsWith("5") && digits.length === 9) {
-    digits = "966" + digits;
-  }
-  return digits;
-}
-
-function createCheckoutReference() {
-  const stamp = new Date().toISOString().slice(2, 10).replace(/-/g, "");
-  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return "SE-" + stamp + "-" + random;
-}
-
-async function copyText(text) {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand("copy");
-  textarea.remove();
-}
+const supabase = supabaseBrowser();
 
 export default function CartPage() {
   const {
@@ -87,9 +60,7 @@ export default function CartPage() {
   const [notes, setNotes] = useState("");
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState("");
-  const [whatsappOpened, setWhatsAppOpened] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const checkoutSnapshotRef = useRef(null);
+  const [placedOrder, setPlacedOrder] = useState(null); // { orderId, loggedIn, tableNumber, channel, itemCount, total }
 
   const router = useRouter();
 
@@ -181,101 +152,20 @@ export default function CartPage() {
       : `/menu/${restaurant.slug}`;
   }, [restaurant?.slug, isDineIn, tableCode]);
 
-  const restaurantPhone = useMemo(() => {
-    return normalizeSaudiWhatsAppNumber(restaurant?.phone);
-  }, [restaurant?.phone]);
-
-  const getCheckoutSnapshot = () => {
-    if (!checkoutSnapshotRef.current) {
-      checkoutSnapshotRef.current = {
-        reference: createCheckoutReference(),
-        createdAt: new Date(),
-      };
-    }
-    return checkoutSnapshotRef.current;
-  };
-
-  const generateWhatsAppMessage = (resolvedTableNumber = tableNumber) => {
-    const checkout = getCheckoutSnapshot();
-    let message = `*NEW ORDER*\n`;
-    message += `━━━━━━━━━━━━━━\n`;
-    message += `*Reference:* ${checkout.reference}\n`;
-    message += `*Time:* ${checkout.createdAt.toLocaleString("en-SA", {
-      timeZone: "Asia/Riyadh",
-    })}\n`;
-
-    // Restaurant + type
-    if (restaurant?.name) message += `*Restaurant:* ${restaurant.name}\n`;
-
-    const typeLabel = isDineIn
-      ? "Dine-in"
-      : channel === "delivery"
-        ? "Delivery"
-        : "Pickup";
-
-    message += `*Type:* ${typeLabel}\n`;
-
-    // Table (dine-in)
-    if (isDineIn) {
-      message += `*Table:* ${resolvedTableNumber ? `Table ${resolvedTableNumber}` : "Table ?"}\n`;
-    }
-
-    // Customer details (online)
-    if (!isDineIn) {
-      if (customerName?.trim()) message += `*Name:* ${customerName.trim()}\n`;
-      if (customerPhone?.trim())
-        message += `*Phone:* ${customerPhone.trim()}\n`;
-      if (channel === "delivery" && deliveryAddress?.trim()) {
-        message += `*Address:* ${deliveryAddress.trim()}\n`;
-      }
-    }
-
-    // Divider
-    message += `\n━━━━━━━━━━━━━━\n`;
-    message += `*ITEMS*\n`;
-
-    // Items list
-    cartItems.forEach((item, idx) => {
-      const lineTotal = money(item.price * item.quantity);
-      message += `${idx + 1}) ${item.name}  x${item.quantity}  —  ${lineTotal}\n`;
-    });
-
-    // Divider + totals
-    message += `━━━━━━━━━━━━━━\n`;
-    message += `*Items:* ${totalItems}\n`;
-    message += `*Total:* ${money(totalPrice)}\n`;
-
-    // Notes
-    if (notes?.trim()) {
-      message += `\n *Notes:* ${notes.trim()}\n`;
-    }
-
-    return encodeURIComponent(message);
-  };
-
-  const handleWhatsAppOrder = async () => {
+  const handlePlaceOrder = async () => {
     const err = validateBeforePlace();
     if (err) {
       setPlaceError(err);
       return;
     }
 
-    if (!restaurantPhone) {
-      setPlaceError(
-        "WhatsApp ordering is unavailable because the restaurant phone number isn’t set.",
-      );
-      return;
-    }
-
     setPlaceError("");
     setPlacing(true);
-    setCopied(false);
-
-    const popup = window.open("", "_blank");
-    if (popup) popup.opener = null;
 
     try {
-      const response = await fetch("/api/checkout/validate", {
+      // 1) Revalidate the cart against the live menu (price/name/availability
+      // may have drifted since items were added).
+      const validateRes = await fetch("/api/checkout/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -289,17 +179,16 @@ export default function CartPage() {
         }),
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        popup?.close();
-        setPlaceError(data?.error || "Unable to validate your cart.");
+      const validateData = await validateRes.json();
+      if (!validateRes.ok) {
+        setPlaceError(validateData?.error || "Unable to validate your cart.");
         return;
       }
 
       const currentById = new Map(
         cartItems.map((item) => [String(item.id), item]),
       );
-      const menuChanged = data.items.some((item) => {
+      const menuChanged = validateData.items.some((item) => {
         const current = currentById.get(String(item.id));
         return (
           !current ||
@@ -309,63 +198,64 @@ export default function CartPage() {
       });
 
       if (menuChanged) {
-        popup?.close();
         setPlaceError(
           "The menu changed while you were ordering. Return to the menu and review your cart.",
         );
         return;
       }
 
-      const validatedPhone = normalizeSaudiWhatsAppNumber(
-        data?.restaurant?.phone,
-      );
-      if (!validatedPhone) {
-        popup?.close();
-        setPlaceError(
-          "WhatsApp ordering is unavailable because the restaurant phone number isn’t set.",
-        );
+      // 2) Place the order — this is now the actual checkout action.
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess?.session?.access_token;
+
+      const orderRes = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          restaurantSlug: restaurant.slug,
+          channel: isDineIn ? "dine_in" : channel,
+          tableCode: isDineIn ? tableCode : null,
+          items: cartItems.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+          })),
+          customer: {
+            name: customerName?.trim() || null,
+            phone: customerPhone?.trim() || null,
+            address: channel === "delivery" ? deliveryAddress?.trim() || null : null,
+          },
+          notes: notes?.trim() || null,
+        }),
+      });
+
+      const orderData = await orderRes.json();
+      if (!orderRes.ok || !orderData?.orderId) {
+        setPlaceError(orderData?.error || "We couldn't place your order. Please try again.");
         return;
       }
 
-      const message = generateWhatsAppMessage(data.tableNumber);
-      const whatsappUrl = `https://wa.me/${validatedPhone}?text=${message}`;
-      checkoutSnapshotRef.current.message = decodeURIComponent(message);
+      if (orderData.tableNumber) setTableNumber(orderData.tableNumber);
 
-      if (data.tableNumber) setTableNumber(data.tableNumber);
-      setWhatsAppOpened(true);
+      setPlacedOrder({
+        orderId: orderData.orderId,
+        loggedIn: !!token,
+        tableNumber: orderData.tableNumber ?? tableNumber,
+        channel: isDineIn ? "dine_in" : channel,
+        itemCount: totalItems,
+        total: totalPrice,
+      });
 
-      if (popup) {
-        popup.location.replace(whatsappUrl);
-      } else {
-        window.location.href = whatsappUrl;
-      }
+      clearCart();
     } catch {
-      popup?.close();
       setPlaceError(
-        "We couldn’t open WhatsApp. Check your connection or copy the order instead.",
+        "We couldn’t reach the server. Check your connection and try again.",
       );
     } finally {
       setPlacing(false);
     }
-  };
-
-  const handleCopyOrder = async () => {
-    try {
-      const message =
-        checkoutSnapshotRef.current?.message ||
-        decodeURIComponent(generateWhatsAppMessage());
-      checkoutSnapshotRef.current.message = message;
-      await copyText(message);
-      setCopied(true);
-      setPlaceError("");
-    } catch {
-      setPlaceError("Your browser blocked copying. Please select and copy the order manually.");
-    }
-  };
-
-  const handleConfirmSent = () => {
-    clearCart();
-    router.push("/restaurants");
   };
 
   const handleDec = (item) => {
@@ -380,8 +270,7 @@ export default function CartPage() {
     setTableCode(null);
     setTableNumber(null); // ✅ clear resolved number too
     setPlaceError("");
-    setWhatsAppOpened(false);
-    checkoutSnapshotRef.current = null;
+    setPlacedOrder(null);
   };
 
   const validateBeforePlace = () => {
@@ -419,6 +308,84 @@ export default function CartPage() {
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           Restoring your cart…
+        </div>
+      </div>
+    );
+  }
+
+  if (placedOrder) {
+    const orderRef = placedOrder.orderId.slice(-8).toUpperCase();
+    const whereLabel =
+      placedOrder.channel === "dine_in"
+        ? `Table ${placedOrder.tableNumber ?? "?"}`
+        : placedOrder.channel === "delivery"
+          ? "Delivery"
+          : "Pickup";
+
+    return (
+      <div className="min-h-[calc(100vh-64px)] bg-muted/30">
+        <div className="mx-auto max-w-xl px-4 py-10">
+          <Card className="overflow-hidden">
+            <CardHeader className="space-y-1">
+              <CardTitle className="flex items-center gap-2 text-emerald-700">
+                <CheckCircle2 className="h-6 w-6" />
+                Order placed!
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Order #{orderRef} — the restaurant has received it.
+              </p>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between rounded-lg border bg-background p-3">
+                <div className="text-sm text-muted-foreground">
+                  {whereLabel} • {placedOrder.itemCount} item
+                  {placedOrder.itemCount === 1 ? "" : "s"} • {money(placedOrder.total)}
+                </div>
+                <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${STATUS_TINTS.new}`}>
+                  {STATUS_LABELS.new}
+                </span>
+              </div>
+
+              {placedOrder.loggedIn ? (
+                <Button asChild className="w-full">
+                  <Link href="/dashboard/customer">Track this order</Link>
+                </Button>
+              ) : placedOrder.channel !== "dine_in" && customerPhone.trim() ? (
+                <p className="text-sm text-muted-foreground rounded-lg border bg-background p-3">
+                  You’ll receive WhatsApp updates from the restaurant as your
+                  order status changes, at {customerPhone.trim()}.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground rounded-lg border bg-background p-3">
+                  The kitchen has received your order — sit tight!
+                </p>
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                  onClick={() => {
+                    setPlacedOrder(null);
+                    router.push(menuHref);
+                  }}
+                >
+                  Place another order
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                  onClick={() => {
+                    setPlacedOrder(null);
+                    router.push("/restaurants");
+                  }}
+                >
+                  Browse restaurants
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -684,21 +651,19 @@ export default function CartPage() {
                   <div className="space-y-3">
                     <div className="space-y-1">
                       <p className="text-sm font-semibold">Phone *</p>
-                      <input
+                      <Input
                         value={customerPhone}
                         onChange={(e) => setCustomerPhone(e.target.value)}
                         placeholder="e.g. 9665xxxxxxx"
-                        className="w-full h-10 rounded-md border bg-background px-3 text-sm"
                       />
                     </div>
 
                     <div className="space-y-1">
                       <p className="text-sm font-semibold">Name (optional)</p>
-                      <input
+                      <Input
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         placeholder="Your name"
-                        className="w-full h-10 rounded-md border bg-background px-3 text-sm"
                       />
                     </div>
 
@@ -707,11 +672,11 @@ export default function CartPage() {
                         <p className="text-sm font-semibold flex items-center gap-2">
                           <MapPin className="h-4 w-4" /> Address *
                         </p>
-                        <textarea
+                        <Textarea
                           value={deliveryAddress}
                           onChange={(e) => setDeliveryAddress(e.target.value)}
                           placeholder="District, street, building, apartment..."
-                          className="w-full min-h-[80px] rounded-md border bg-background px-3 py-2 text-sm"
+                          className="min-h-[80px]"
                         />
                       </div>
                     )}
@@ -720,11 +685,11 @@ export default function CartPage() {
 
                 <div className="space-y-1">
                   <p className="text-sm font-semibold">Notes (optional)</p>
-                  <textarea
+                  <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Any instructions..."
-                    className="w-full min-h-[70px] rounded-md border bg-background px-3 py-2 text-sm"
+                    className="min-h-[70px]"
                   />
                 </div>
 
@@ -756,63 +721,23 @@ export default function CartPage() {
                 <div className="grid gap-2">
                   <Button
                     size="lg"
-                    className="w-full hover:bg-green-600 text-white cursor-pointer"
-                    onClick={handleWhatsAppOrder}
-                    disabled={!restaurantPhone || placing}
+                    className="w-full cursor-pointer"
+                    onClick={handlePlaceOrder}
+                    disabled={placing || !cartItems?.length}
                   >
                     {placing ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <MessageCircle className="h-4 w-4" />
+                      <ShoppingBag className="h-4 w-4" />
                     )}
-                    {placing ? "Checking menu…" : "Continue on WhatsApp"}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleCopyOrder}
-                  >
-                    {copied ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                    {copied ? "Order copied" : "Copy order text"}
+                    {placing ? "Placing order…" : "Place Order"}
                   </Button>
                 </div>
 
-                {whatsappOpened && (
-                  <div
-                    className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950"
-                    role="status"
-                  >
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-                      <div>
-                        <p className="text-sm font-semibold">WhatsApp opened</p>
-                        <p className="mt-1 text-xs leading-5 text-emerald-800">
-                          Your cart is still here. Clear it only after you send the message.
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-3 w-full border-emerald-300 bg-white hover:bg-emerald-100"
-                      onClick={handleConfirmSent}
-                    >
-                      I sent it — clear my cart
-                    </Button>
-                  </div>
-                )}
-
-                {!restaurantPhone && (
+                {!isDineIn && (
                   <p className="text-xs text-muted-foreground">
-                    WhatsApp ordering is unavailable because the restaurant
-                    phone number isn’t set.
+                    We’ll send WhatsApp updates to your phone number as your
+                    order status changes.
                   </p>
                 )}
               </CardContent>

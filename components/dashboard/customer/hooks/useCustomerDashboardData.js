@@ -7,7 +7,9 @@ import {
   getUserProfile,
   getUserFavorites,
   getUserRequests,
+  getUserOrders,
 } from '@/lib/auth/client'
+import { supabaseBrowser } from '@/lib/supabase/client'
 
 export function useCustomerDashboardData() {
   const router = useRouter()
@@ -16,6 +18,7 @@ export function useCustomerDashboardData() {
   const [profile, setProfile] = useState(null)
   const [favorites, setFavorites] = useState([])
   const [requests, setRequests] = useState([])
+  const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
   const refreshFavorites = useCallback(
@@ -48,6 +51,21 @@ export function useCustomerDashboardData() {
     [user?.id]
   )
 
+  const refreshOrders = useCallback(
+    async (uid) => {
+      const userId = uid || user?.id
+      if (!userId) return
+
+      const { data, error } = await getUserOrders(userId)
+      if (error) {
+        console.error('getUserOrders error:', error)
+        return
+      }
+      setOrders(Array.isArray(data) ? data : [])
+    },
+    [user?.id]
+  )
+
   useEffect(() => {
     let mounted = true
 
@@ -74,14 +92,16 @@ export function useCustomerDashboardData() {
         return
       }
 
-      const [{ data: userFavorites }, { data: userRequests }] = await Promise.all([
+      const [{ data: userFavorites }, { data: userRequests }, { data: userOrders }] = await Promise.all([
         getUserFavorites(currentUser.id),
         getUserRequests(currentUser.id),
+        getUserOrders(currentUser.id),
       ])
 
       if (!mounted) return
       setFavorites(Array.isArray(userFavorites) ? userFavorites : [])
       setRequests(Array.isArray(userRequests) ? userRequests : [])
+      setOrders(Array.isArray(userOrders) ? userOrders : [])
       setLoading(false)
     }
 
@@ -96,10 +116,41 @@ export function useCustomerDashboardData() {
     const onFocus = () => {
       refreshFavorites()
       refreshRequests()
+      refreshOrders()
     }
     window.addEventListener('focus', onFocus)
     return () => window.removeEventListener('focus', onFocus)
-  }, [refreshFavorites, refreshRequests])
+  }, [refreshFavorites, refreshRequests, refreshOrders])
+
+  // ✅ live order status updates (kitchen/waiter/owner changing `orders.status`)
+  // via Supabase Realtime, so the progress line updates without a refocus/refresh.
+  useEffect(() => {
+    if (!user?.id) return
+
+    const supabase = supabaseBrowser()
+    const channel = supabase
+      .channel(`orders-user-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.eventType === 'UPDATE') {
+            setOrders((prev) =>
+              prev.map((o) => (o.id === payload.new.id ? { ...o, ...payload.new } : o))
+            )
+          } else {
+            // INSERT/DELETE need the joined restaurant/table/item data getUserOrders
+            // provides, which the realtime payload doesn't include — just refetch.
+            refreshOrders()
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user?.id, refreshOrders])
 
   // ✅ refresh when FavoriteButton broadcasts changes
   useEffect(() => {
@@ -122,6 +173,9 @@ export function useCustomerDashboardData() {
     requests,
     setRequests,
     refreshRequests, // ✅ exported if you want manual refresh
+    orders,
+    setOrders,
+    refreshOrders, // ✅ exported if you want manual refresh
     loading,
   }
 }

@@ -1,24 +1,33 @@
 "use client";
 
+import { useState } from "react";
+import { STATUS_LABELS, STATUS_TINTS } from "@/lib/orderStatus";
+import { notifyStatusChange } from "@/lib/whatsappClient";
+
 const channelTint = "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
-
-const orderStatusTint = {
-  pending: "bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400",
-  confirmed: "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-400",
-  preparing: "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-400",
-  ready: "bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400",
-  completed: "bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400",
-  cancelled: "bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400",
-};
-
 const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap";
 
-export default function OwnerOrdersTab({ restaurant, orders, ordersLoading }) {
+const ALL_STATUSES = Object.keys(STATUS_LABELS);
+
+export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onStatusChange }) {
+  const [updatingId, setUpdatingId] = useState(null);
+
   const formatDate = (iso) => {
     try {
       return new Date(iso).toLocaleString();
     } catch {
       return iso;
+    }
+  };
+
+  const handleStatusPick = async (order, nextStatus) => {
+    if (!nextStatus || nextStatus === order.status) return;
+    setUpdatingId(order.id);
+    try {
+      const updated = await onStatusChange?.(order.id, nextStatus);
+      notifyStatusChange(updated, restaurant?.name);
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -48,8 +57,8 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading }) {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold text-gray-800 dark:text-white/90">Order</p>
                     <span className={`${pillClass} ${channelTint}`}>{where}</span>
-                    <span className={`${pillClass} ${orderStatusTint[o.status] || orderStatusTint.pending}`}>
-                      {o.status}
+                    <span className={`${pillClass} ${STATUS_TINTS[o.status] || STATUS_TINTS.new}`}>
+                      {STATUS_LABELS[o.status] || o.status}
                     </span>
                   </div>
 
@@ -69,9 +78,27 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading }) {
                       <span className="font-semibold text-gray-800 dark:text-white/90">Notes:</span> {o.notes}
                     </p>
                   )}
+
+                  <div className="break-all text-xs text-gray-400 dark:text-gray-500 mt-1">{o.id}</div>
                 </div>
 
-                <div className="break-all text-xs text-gray-400 dark:text-gray-500">{o.id}</div>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  <select
+                    value=""
+                    onChange={(e) => handleStatusPick(o, e.target.value)}
+                    disabled={updatingId === o.id}
+                    className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                  >
+                    <option value="" disabled>
+                      {updatingId === o.id ? "Updating…" : "Change status"}
+                    </option>
+                    {ALL_STATUSES.filter((s) => s !== o.status).map((s) => (
+                      <option key={s} value={s}>
+                        {STATUS_LABELS[s]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             );
           })}
