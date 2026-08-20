@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import MenuItem from "@/components/MenuItem";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function MenuClient({ items, categories, restaurant }) {
+    const t = useTranslations("menu");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -18,11 +20,11 @@ export default function MenuClient({ items, categories, restaurant }) {
                 .includes(searchQuery.toLowerCase());
             const matchesCategory =
                 selectedCategory === "All" ||
-                (item.categories?.name || "Uncategorized") === selectedCategory;
+                (item.categories?.name || t("uncategorized")) === selectedCategory;
 
             return matchesSearch && matchesCategory;
         });
-    }, [items, searchQuery, selectedCategory]);
+    }, [items, searchQuery, selectedCategory, t]);
 
     return (
         <div className="space-y-6">
@@ -31,12 +33,12 @@ export default function MenuClient({ items, categories, restaurant }) {
                 <div className="max-w-7xl mx-auto space-y-4">
                     {/* Search Bar */}
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search food..."
+                            placeholder={t("search.placeholder")}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 bg-muted/50 border-input/60 focus-visible:ring-1 focus-visible:ring-ring"
+                            className="ps-9 bg-muted/50 border-input/60 focus-visible:ring-1 focus-visible:ring-ring"
                         />
                     </div>
 
@@ -51,7 +53,7 @@ export default function MenuClient({ items, categories, restaurant }) {
                                     : "bg-background text-muted-foreground border-input hover:bg-accent hover:text-accent-foreground"
                             )}
                         >
-                            All
+                            {t("categories.all")}
                         </button>
                         {categories.map((cat) => (
                             <button
@@ -84,8 +86,8 @@ export default function MenuClient({ items, categories, restaurant }) {
                     ))
                 ) : (
                     <div className="col-span-full text-center py-12 text-muted-foreground">
-                        <p className="text-lg font-medium">No items found</p>
-                        <p className="text-sm">Try adjusting your search or filters.</p>
+                        <p className="text-lg font-medium">{t("empty.title")}</p>
+                        <p className="text-sm">{t("empty.subtitle")}</p>
                     </div>
                 )}
             </div>

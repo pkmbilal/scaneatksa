@@ -3,6 +3,7 @@
 // Cities CRUD. Same data/handlers as the original page.js.
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Pencil, Trash2, Ban, CheckCircle, X } from 'lucide-react'
 
 export default function CitiesTab({
@@ -16,16 +17,18 @@ export default function CitiesTab({
   onToggle,
   onDelete,
 }) {
+  const t = useTranslations('dashboard.admin')
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-        <h3 className="text-lg font-bold text-gray-800 dark:text-white/90 mb-3">Add City</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white/90 mb-3">{t('citiesTab.addHeading')}</h3>
 
         <form onSubmit={onAddCity} className="flex flex-col sm:flex-row gap-3">
           <input
             value={cityName}
             onChange={(e) => setCityName(e.target.value)}
-            placeholder="e.g., Riyadh"
+            placeholder={t('citiesTab.namePlaceholder')}
             className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300"
           />
 
@@ -34,7 +37,7 @@ export default function CitiesTab({
             disabled={cityLoading}
             className="bg-brand-500 hover:bg-brand-600 text-white px-6 py-3 rounded-lg font-semibold disabled:bg-gray-400"
           >
-            {cityLoading ? 'Adding...' : 'Add'}
+            {cityLoading ? t('citiesTab.addingButton') : t('citiesTab.addButton')}
           </button>
         </form>
 
@@ -46,7 +49,7 @@ export default function CitiesTab({
       </div>
 
       {cities.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">No cities yet. Add your first one.</div>
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">{t('citiesTab.emptyState')}</div>
       ) : (
         <div className="flex flex-wrap gap-2">
           {cities.map((c) => (
@@ -59,6 +62,7 @@ export default function CitiesTab({
 }
 
 export function Pill({ item, onRename, onToggle, onDelete }) {
+  const t = useTranslations('dashboard.admin')
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(item.name)
   const [saving, setSaving] = useState(false)
@@ -74,7 +78,7 @@ export function Pill({ item, onRename, onToggle, onDelete }) {
 
     setSaving(false)
     if (!res?.ok) {
-      setError(res?.message || 'Failed to rename')
+      setError(res?.message || t('pill.renameFailedError'))
       return
     }
     setEditing(false)
@@ -102,7 +106,7 @@ export function Pill({ item, onRename, onToggle, onDelete }) {
             type="button"
             onClick={() => setEditing(true)}
             className="p-1 rounded-full text-gray-500 hover:text-gray-800 hover:bg-white/70 dark:hover:bg-white/10 transition cursor-pointer"
-            title="Rename"
+            title={t('pill.renameTooltip')}
           >
             <Pencil className="h-4 w-4" />
           </button>
@@ -115,7 +119,7 @@ export function Pill({ item, onRename, onToggle, onDelete }) {
                 ? 'text-warning-600 hover:text-warning-700 hover:bg-white/70 dark:hover:bg-white/10'
                 : 'text-success-600 hover:text-success-700 hover:bg-white/70 dark:hover:bg-white/10'
             }`}
-            title={item.is_active ? 'Disable' : 'Enable'}
+            title={item.is_active ? t('pill.disableTooltip') : t('pill.enableTooltip')}
           >
             {item.is_active ? <Ban className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
           </button>
@@ -124,7 +128,7 @@ export function Pill({ item, onRename, onToggle, onDelete }) {
             type="button"
             onClick={() => onDelete(item)}
             className="p-1 rounded-full text-error-600 hover:text-error-700 hover:bg-white/70 dark:hover:bg-white/10 transition cursor-pointer"
-            title="Delete"
+            title={t('pill.deleteTooltip')}
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -143,7 +147,7 @@ export function Pill({ item, onRename, onToggle, onDelete }) {
             onClick={save}
             disabled={saving}
             className="p-1 rounded-full text-success-600 hover:text-success-700 hover:bg-white/70 dark:hover:bg-white/10 transition disabled:opacity-50"
-            title="Save"
+            title={t('pill.saveTooltip')}
           >
             <CheckCircle className="h-4 w-4" />
           </button>
@@ -156,14 +160,14 @@ export function Pill({ item, onRename, onToggle, onDelete }) {
               setError('')
             }}
             className="p-1 rounded-full text-gray-500 hover:text-gray-800 hover:bg-white/70 dark:hover:bg-white/10 transition"
-            title="Cancel"
+            title={t('pill.cancelTooltip')}
           >
             <X className="h-4 w-4" />
           </button>
         </>
       )}
 
-      {error && <span className="text-xs text-error-600 dark:text-error-400 ml-1">{error}</span>}
+      {error && <span className="text-xs text-error-600 dark:text-error-400 ms-1">{error}</span>}
     </div>
   )
 }

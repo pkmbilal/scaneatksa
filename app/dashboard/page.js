@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
 import LoadingScreen from '@/components/common/LoadingScreen'
 
 export default function DashboardPage() {
+  const t = useTranslations('dashboard.common')
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -53,5 +55,5 @@ export default function DashboardPage() {
     checkUserAndRedirect()
   }, [router])
 
-  return <LoadingScreen message="Loading your dashboard..." />
+  return <LoadingScreen message={t('loading')} />
 }

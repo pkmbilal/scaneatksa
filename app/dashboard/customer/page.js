@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { getUserFavorites, removeFromFavorites } from '@/lib/auth/client'
 import { LayoutDashboard, Heart, ListChecks, Receipt, House, Pizza, Gauge, Headset } from 'lucide-react'
 
@@ -20,6 +21,7 @@ import OrdersTab from '@/components/dashboard/customer/tabs/OrdersTab'
 import { useCustomerDashboardData } from '@/components/dashboard/customer/hooks/useCustomerDashboardData'
 
 export default function CustomerDashboardPage() {
+  const t = useTranslations('dashboard.customer')
   const {
     user,
     profile,
@@ -71,35 +73,35 @@ export default function CustomerDashboardPage() {
   )
 
   if (loading) {
-    return <LoadingScreen message="Loading your dashboard..." />
+    return <LoadingScreen message={t('page.loading')} />
   }
 
   const navItems = [
-    { key: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { key: 'orders', label: 'Orders', icon: Receipt, count: orders.length },
-    { key: 'favorites', label: 'Favorites', icon: Heart, count: favorites.length },
-    { key: 'requests', label: 'My Requests', icon: ListChecks, count: requests.length },
+    { key: 'overview', label: t('page.nav.overview'), icon: LayoutDashboard },
+    { key: 'orders', label: t('page.nav.orders'), icon: Receipt, count: orders.length },
+    { key: 'favorites', label: t('page.nav.favorites'), icon: Heart, count: favorites.length },
+    { key: 'requests', label: t('page.nav.requests'), icon: ListChecks, count: requests.length },
   ]
 
   const siteNavItems = [
-    { label: 'About', href: '/about', icon: House },
-    { label: 'How It Works', href: '/#how-it-works', icon: Gauge },
-    { label: 'Restaurants', href: '/restaurants', icon: Pizza },
-    { label: 'Contact', href: '/contact', icon: Headset },
+    { label: t('page.siteNav.about'), href: '/about', icon: House },
+    { label: t('page.siteNav.howItWorks'), href: '/#how-it-works', icon: Gauge },
+    { label: t('page.siteNav.restaurants'), href: '/restaurants', icon: Pizza },
+    { label: t('page.siteNav.contact'), href: '/contact', icon: Headset },
   ]
 
   const tabTitles = {
-    overview: 'Overview',
-    orders: 'Orders',
-    favorites: 'Favorites',
-    requests: 'My Requests',
+    overview: t('page.tabTitles.overview'),
+    orders: t('page.tabTitles.orders'),
+    favorites: t('page.tabTitles.favorites'),
+    requests: t('page.tabTitles.requests'),
   }
 
   const tabDescriptions = {
-    overview: 'Your account details and quick actions.',
-    orders: 'Track your past and current orders.',
-    favorites: "Restaurants you've saved for quick access.",
-    requests: 'Track the status of your restaurant ownership requests.',
+    overview: t('page.tabDescriptions.overview'),
+    orders: t('page.tabDescriptions.orders'),
+    favorites: t('page.tabDescriptions.favorites'),
+    requests: t('page.tabDescriptions.requests'),
   }
 
   return (
@@ -119,16 +121,16 @@ export default function CustomerDashboardPage() {
               user={user}
               profile={profile}
               homeHref="/dashboard/customer"
-              homeLabel="My Account"
+              homeLabel={t('page.homeLabel')}
               editProfileHref="/dashboard/customer/edit-profile"
             />
           }
         >
           {activeTab === 'overview' && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 mb-6">
-              <StatCard icon={Receipt} label="Orders" value={orders.length} tint="brand" />
-              <StatCard icon={Heart} label="Favorites" value={favorites.length} tint="brand" />
-              <StatCard icon={ListChecks} label="Requests" value={requests.length} tint="gray" />
+              <StatCard icon={Receipt} label={t('page.stats.orders')} value={orders.length} tint="brand" />
+              <StatCard icon={Heart} label={t('page.stats.favorites')} value={favorites.length} tint="brand" />
+              <StatCard icon={ListChecks} label={t('page.stats.requests')} value={requests.length} tint="gray" />
             </div>
           )}
 

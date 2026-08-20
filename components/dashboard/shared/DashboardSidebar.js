@@ -11,9 +11,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useDashboardSidebar } from '@/context/DashboardSidebarContext'
 
 export default function DashboardSidebar({ navItems, activeTab, onSelectTab, siteNavItems }) {
+  const t = useTranslations('dashboard.common')
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useDashboardSidebar()
   const pathname = usePathname()
 
@@ -21,9 +23,9 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
 
   return (
     <aside
-      className={`fixed flex flex-col top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-[999] border-r border-gray-200
+      className={`fixed flex flex-col top-0 px-5 start-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-[999] border-e border-gray-200
         ${isExpanded || isMobileOpen ? 'w-[290px]' : isHovered ? 'w-[290px]' : 'w-[90px]'}
-        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'}
         lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -45,7 +47,7 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
                   !showLabels ? 'lg:justify-center' : 'justify-start'
                 }`}
               >
-                {showLabels ? 'Menu' : '•••'}
+                {showLabels ? t('sidebar.menu') : '•••'}
               </h2>
 
               <ul className="flex flex-col gap-1">
@@ -64,7 +66,7 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
                         <span className={`relative ${isActive ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}`}>
                           <Icon className="size-5" />
                           {item.alert && (
-                            <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
+                            <span className="absolute -end-0.5 -top-0.5 flex h-2 w-2">
                               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
                               <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-400" />
                             </span>
@@ -72,7 +74,7 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
                         </span>
                         {showLabels && <span className="menu-item-text">{item.label}</span>}
                         {showLabels && typeof item.count === 'number' && item.count > 0 && (
-                          <span className="ml-auto rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+                          <span className="ms-auto rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
                             {item.count}
                           </span>
                         )}
@@ -90,7 +92,7 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
                     !showLabels ? 'lg:justify-center' : 'justify-start'
                   }`}
                 >
-                  {showLabels ? 'Navigation' : '•••'}
+                  {showLabels ? t('sidebar.navigation') : '•••'}
                 </h2>
 
                 <ul className="flex flex-col gap-1">

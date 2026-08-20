@@ -4,6 +4,7 @@ const supabase = supabaseBrowser();
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Inbox, ListChecks, Users as UsersIcon, Store, MapPin, UtensilsCrossed, TriangleAlert, CheckCircle } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
 import LoadingScreen from '@/components/common/LoadingScreen'
@@ -45,6 +46,7 @@ import CitiesTab from '@/components/dashboard/admin/tabs/CitiesTab'
 import CuisinesTab from '@/components/dashboard/admin/tabs/CuisinesTab'
 
 export default function AdminDashboard() {
+  const t = useTranslations('dashboard.admin')
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
 
@@ -78,7 +80,7 @@ export default function AdminDashboard() {
     description: '',
     value: '',
     placeholder: '',
-    confirmText: 'Confirm',
+    confirmText: t('dialogs.confirm'),
     matchValue: null,
     action: null,
   })
@@ -197,16 +199,17 @@ export default function AdminDashboard() {
 
   /* ---------------- Users actions ---------------- */
   const handleChangeRole = async (userId, newRole) => {
+    const roleLabel = t.has(`roles.${newRole}`) ? t(`roles.${newRole}`) : newRole
     setConfirmDialog({
       open: true,
-      title: 'Change User Role',
-      description: `Are you sure you want to change this user's role to ${newRole}?`,
+      title: t('dialogs.changeRoleTitle'),
+      description: t('dialogs.changeRoleDescription', { role: roleLabel }),
       action: async () => {
         const { error } = await supabase.from('user_profiles').update({ role: newRole }).eq('id', userId)
         if (error) {
-          setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
         } else {
-          setInfoDialog({ open: true, title: 'Success', description: `User role changed to ${newRole}`, isError: false })
+          setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: t('dialogs.userRoleChanged', { role: roleLabel }), isError: false })
           loadUsers()
         }
       },
@@ -214,11 +217,11 @@ export default function AdminDashboard() {
   }
 
   const handleToggleUserStatus = async (userId, currentStatus) => {
-    const action = currentStatus ? 'disable' : 'enable'
+    const disabling = !!currentStatus
     setConfirmDialog({
       open: true,
-      title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
-      description: `Are you sure you want to ${action} this user?`,
+      title: disabling ? t('dialogs.disableUserTitle') : t('dialogs.enableUserTitle'),
+      description: disabling ? t('dialogs.disableUserDescription') : t('dialogs.enableUserDescription'),
       action: async () => {
         const { error } = await supabase
           .from('user_profiles')
@@ -226,9 +229,9 @@ export default function AdminDashboard() {
           .eq('id', userId)
 
         if (error) {
-          setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
         } else {
-          setInfoDialog({ open: true, title: 'Success', description: `User ${action}d successfully`, isError: false })
+          setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: disabling ? t('dialogs.userDisabled') : t('dialogs.userEnabled'), isError: false })
           loadUsers()
         }
       },
@@ -236,19 +239,20 @@ export default function AdminDashboard() {
   }
 
   const handleDeleteUser = async (userId, userName) => {
+    const deleteKeyword = t('dialogs.deleteKeyword')
     setInputDialog({
       open: true,
-      title: 'Delete User',
-      description: `This will permanently delete the user and all their data. Type "${userName || 'DELETE'}" to confirm.`,
-      placeholder: userName || 'DELETE',
-      matchValue: userName || 'DELETE',
-      confirmText: 'Delete User',
+      title: t('dialogs.deleteUserTitle'),
+      description: t('dialogs.deleteUserDescription', { name: userName || deleteKeyword }),
+      placeholder: userName || deleteKeyword,
+      matchValue: userName || deleteKeyword,
+      confirmText: t('dialogs.deleteUserConfirm'),
       action: async () => {
         const { error } = await supabase.from('user_profiles').delete().eq('id', userId)
         if (error) {
-          setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
         } else {
-          setInfoDialog({ open: true, title: 'Success', description: 'User deleted successfully', isError: false })
+          setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: t('dialogs.userDeleted'), isError: false })
           loadUsers()
         }
       },
@@ -259,8 +263,8 @@ export default function AdminDashboard() {
   const handleApprove = async (request) => {
     setConfirmDialog({
       open: true,
-      title: 'Approve Request',
-      description: `Approve ${request.restaurant_name}? This will create the restaurant and promote the user to Owner.`,
+      title: t('dialogs.approveRequestTitle'),
+      description: t('dialogs.approveRequestDescription', { name: request.restaurant_name }),
       action: async () => {
         try {
           const slug = request.restaurant_name
@@ -285,15 +289,15 @@ export default function AdminDashboard() {
             .select()
             .single()
 
-          if (restaurantError) throw new Error('Error creating restaurant: ' + restaurantError.message)
-          if (!restaurant) throw new Error('Failed to create restaurant')
+          if (restaurantError) throw new Error(t('dialogs.errorCreatingRestaurant', { message: restaurantError.message }))
+          if (!restaurant) throw new Error(t('dialogs.errorCreatingRestaurantGeneric'))
 
           const { error: roleError } = await supabase
             .from('user_profiles')
             .update({ role: 'owner' })
             .eq('id', request.user_id)
 
-          if (roleError) throw new Error('Error updating user role: ' + roleError.message)
+          if (roleError) throw new Error(t('dialogs.errorUpdatingRole', { message: roleError.message }))
 
           const { error: requestError } = await supabase
             .from('restaurant_requests')
@@ -304,12 +308,12 @@ export default function AdminDashboard() {
             })
             .eq('id', request.id)
 
-          if (requestError) throw new Error('Error updating request: ' + requestError.message)
+          if (requestError) throw new Error(t('dialogs.errorUpdatingRequest', { message: requestError.message }))
 
-          setInfoDialog({ open: true, title: 'Success', description: 'Request approved! Restaurant created.', isError: false })
+          setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: t('dialogs.requestApproved'), isError: false })
           loadAdminData()
         } catch (err) {
-          setInfoDialog({ open: true, title: 'Error', description: err.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: err.message, isError: true })
         }
       },
     })
@@ -334,9 +338,9 @@ export default function AdminDashboard() {
       .eq('id', request.id)
 
     if (error) {
-      setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+      setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
     } else {
-      setInfoDialog({ open: true, title: 'Success', description: 'Request rejected.', isError: false })
+      setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: t('dialogs.requestRejected'), isError: false })
       loadAdminData()
     }
     setRejectDialog({ open: false, request: null, reason: '' })
@@ -348,7 +352,7 @@ export default function AdminDashboard() {
     setCityError('')
 
     const clean = cityName.trim()
-    if (!clean) return setCityError('City name cannot be empty')
+    if (!clean) return setCityError(t('citiesTab.nameEmptyError'))
 
     setCityLoading(true)
 
@@ -356,7 +360,7 @@ export default function AdminDashboard() {
 
     if (error) {
       const msg = error.message?.toLowerCase().includes('duplicate')
-        ? 'City already exists.'
+        ? t('citiesTab.duplicateError')
         : error.message
       setCityError(msg)
       setCityLoading(false)
@@ -370,13 +374,13 @@ export default function AdminDashboard() {
 
   const handleRenameCity = async (cityId, newName) => {
     const clean = newName.trim()
-    if (!clean) return { ok: false, message: 'Name cannot be empty' }
+    if (!clean) return { ok: false, message: t('pill.renameEmptyError') }
 
     const { error } = await supabase.from('cities').update({ name: clean }).eq('id', cityId)
 
     if (error) {
       const msg = error.message?.toLowerCase().includes('duplicate')
-        ? 'City already exists.'
+        ? t('citiesTab.duplicateError')
         : error.message
       return { ok: false, message: msg }
     }
@@ -386,11 +390,13 @@ export default function AdminDashboard() {
   }
 
   const handleToggleCity = async (city) => {
-    const action = city.is_active ? 'disable' : 'enable'
+    const disabling = !!city.is_active
     setConfirmDialog({
       open: true,
-      title: `${action.charAt(0).toUpperCase() + action.slice(1)} City`,
-      description: `Are you sure you want to ${action} ${city.name}?`,
+      title: disabling ? t('citiesTab.disableTitle') : t('citiesTab.enableTitle'),
+      description: disabling
+        ? t('citiesTab.disableDescription', { name: city.name })
+        : t('citiesTab.enableDescription', { name: city.name }),
       action: async () => {
         const { error } = await supabase
           .from('cities')
@@ -398,7 +404,7 @@ export default function AdminDashboard() {
           .eq('id', city.id)
 
         if (error) {
-          setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
         } else {
           loadCities()
         }
@@ -409,15 +415,15 @@ export default function AdminDashboard() {
   const handleDeleteCity = async (city) => {
     setInputDialog({
       open: true,
-      title: 'Delete City',
-      description: `Type "${city.name}" to delete this city:`,
+      title: t('citiesTab.deleteTitle'),
+      description: t('citiesTab.deleteDescription', { name: city.name }),
       placeholder: city.name,
       matchValue: city.name,
-      confirmText: 'Delete',
+      confirmText: t('citiesTab.deleteConfirm'),
       action: async () => {
         const { error } = await supabase.from('cities').delete().eq('id', city.id)
         if (error) {
-          setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
         } else {
           loadCities()
         }
@@ -431,7 +437,7 @@ export default function AdminDashboard() {
     setCuisineError('')
 
     const clean = cuisineName.trim()
-    if (!clean) return setCuisineError('Cuisine name cannot be empty')
+    if (!clean) return setCuisineError(t('cuisinesTab.nameEmptyError'))
 
     setCuisineLoading(true)
 
@@ -439,7 +445,7 @@ export default function AdminDashboard() {
 
     if (error) {
       const msg = error.message?.toLowerCase().includes('duplicate')
-        ? 'Cuisine already exists.'
+        ? t('cuisinesTab.duplicateError')
         : error.message
       setCuisineError(msg)
       setCuisineLoading(false)
@@ -453,13 +459,13 @@ export default function AdminDashboard() {
 
   const handleRenameCuisine = async (cuisineId, newName) => {
     const clean = newName.trim()
-    if (!clean) return { ok: false, message: 'Name cannot be empty' }
+    if (!clean) return { ok: false, message: t('pill.renameEmptyError') }
 
     const { error } = await supabase.from('cuisines').update({ name: clean }).eq('id', cuisineId)
 
     if (error) {
       const msg = error.message?.toLowerCase().includes('duplicate')
-        ? 'Cuisine already exists.'
+        ? t('cuisinesTab.duplicateError')
         : error.message
       return { ok: false, message: msg }
     }
@@ -469,11 +475,13 @@ export default function AdminDashboard() {
   }
 
   const handleToggleCuisine = async (cuisine) => {
-    const action = cuisine.is_active ? 'disable' : 'enable'
+    const disabling = !!cuisine.is_active
     setConfirmDialog({
       open: true,
-      title: `${action.charAt(0).toUpperCase() + action.slice(1)} Cuisine`,
-      description: `Are you sure you want to ${action} ${cuisine.name}?`,
+      title: disabling ? t('cuisinesTab.disableTitle') : t('cuisinesTab.enableTitle'),
+      description: disabling
+        ? t('cuisinesTab.disableDescription', { name: cuisine.name })
+        : t('cuisinesTab.enableDescription', { name: cuisine.name }),
       action: async () => {
         const { error } = await supabase
           .from('cuisines')
@@ -481,7 +489,7 @@ export default function AdminDashboard() {
           .eq('id', cuisine.id)
 
         if (error) {
-          setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
         } else {
           loadCuisines()
         }
@@ -492,15 +500,15 @@ export default function AdminDashboard() {
   const handleDeleteCuisine = async (cuisine) => {
     setInputDialog({
       open: true,
-      title: 'Delete Cuisine',
-      description: `Type "${cuisine.name}" to delete this cuisine:`,
+      title: t('cuisinesTab.deleteTitle'),
+      description: t('cuisinesTab.deleteDescription', { name: cuisine.name }),
       placeholder: cuisine.name,
       matchValue: cuisine.name,
-      confirmText: 'Delete',
+      confirmText: t('cuisinesTab.deleteConfirm'),
       action: async () => {
         const { error } = await supabase.from('cuisines').delete().eq('id', cuisine.id)
         if (error) {
-          setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
         } else {
           loadCuisines()
         }
@@ -510,11 +518,13 @@ export default function AdminDashboard() {
 
   /* ---------------- Restaurant Actions ---------------- */
   const handleToggleRestaurant = async (restaurant) => {
-    const action = restaurant.is_active ? 'disable' : 'enable'
+    const disabling = !!restaurant.is_active
     setConfirmDialog({
       open: true,
-      title: `${action.charAt(0).toUpperCase() + action.slice(1)} Restaurant`,
-      description: `Are you sure you want to ${action} ${restaurant.name}?`,
+      title: disabling ? t('restaurantsTab.disableTitle') : t('restaurantsTab.enableTitle'),
+      description: disabling
+        ? t('restaurantsTab.disableDescription', { name: restaurant.name })
+        : t('restaurantsTab.enableDescription', { name: restaurant.name }),
       action: async () => {
         const { error } = await supabase
           .from('restaurants')
@@ -522,9 +532,9 @@ export default function AdminDashboard() {
           .eq('id', restaurant.id)
 
         if (error) {
-          setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
         } else {
-          setInfoDialog({ open: true, title: 'Success', description: `Restaurant ${action}d successfully`, isError: false })
+          setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: disabling ? t('restaurantsTab.disabledSuccess') : t('restaurantsTab.enabledSuccess'), isError: false })
           loadRestaurants()
         }
       },
@@ -534,17 +544,17 @@ export default function AdminDashboard() {
   const handleDeleteRestaurant = async (restaurant) => {
     setInputDialog({
       open: true,
-      title: 'Delete Restaurant',
-      description: `This will permanently delete "${restaurant.name}" and all its menu items! Type "${restaurant.name}" to confirm:`,
+      title: t('restaurantsTab.deleteTitle'),
+      description: t('restaurantsTab.deleteDescription', { name: restaurant.name }),
       placeholder: restaurant.name,
       matchValue: restaurant.name,
-      confirmText: 'Delete',
+      confirmText: t('restaurantsTab.deleteConfirm'),
       action: async () => {
         const { error } = await supabase.from('restaurants').delete().eq('id', restaurant.id)
         if (error) {
-          setInfoDialog({ open: true, title: 'Error', description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
         } else {
-          setInfoDialog({ open: true, title: 'Success', description: 'Restaurant deleted successfully', isError: false })
+          setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: t('restaurantsTab.deletedSuccess'), isError: false })
           loadRestaurants()
         }
       },
@@ -552,34 +562,34 @@ export default function AdminDashboard() {
   }
 
   if (loading) {
-    return <LoadingScreen message="Loading admin dashboard..." />
+    return <LoadingScreen message={t('page.loading')} />
   }
 
   const navItems = [
-    { key: 'pending', label: 'Pending Requests', icon: Inbox, count: pendingRequests.length },
-    { key: 'all', label: 'All Requests', icon: ListChecks },
-    { key: 'users', label: 'Users', icon: UsersIcon },
-    { key: 'restaurants', label: 'Restaurants', icon: Store },
-    { key: 'cities', label: 'Cities', icon: MapPin },
-    { key: 'cuisines', label: 'Cuisines', icon: UtensilsCrossed },
+    { key: 'pending', label: t('nav.pending'), icon: Inbox, count: pendingRequests.length },
+    { key: 'all', label: t('nav.all'), icon: ListChecks },
+    { key: 'users', label: t('nav.users'), icon: UsersIcon },
+    { key: 'restaurants', label: t('nav.restaurants'), icon: Store },
+    { key: 'cities', label: t('nav.cities'), icon: MapPin },
+    { key: 'cuisines', label: t('nav.cuisines'), icon: UtensilsCrossed },
   ]
 
   const tabTitles = {
-    pending: 'Pending Requests',
-    all: 'All Requests',
-    users: 'Users',
-    restaurants: 'Restaurants',
-    cities: 'Cities',
-    cuisines: 'Cuisines',
+    pending: t('tabs.pending.title'),
+    all: t('tabs.all.title'),
+    users: t('tabs.users.title'),
+    restaurants: t('tabs.restaurants.title'),
+    cities: t('tabs.cities.title'),
+    cuisines: t('tabs.cuisines.title'),
   }
 
   const tabDescriptions = {
-    pending: 'Restaurant owner requests waiting for your approval.',
-    all: 'Full history of restaurant requests and their outcomes.',
-    users: 'Manage roles and account status for every user.',
-    restaurants: 'All approved restaurants on the platform.',
-    cities: 'Manage the cities customers can select when browsing restaurants.',
-    cuisines: 'Manage the cuisine tags restaurants can be filtered by.',
+    pending: t('tabs.pending.description'),
+    all: t('tabs.all.description'),
+    users: t('tabs.users.description'),
+    restaurants: t('tabs.restaurants.description'),
+    cities: t('tabs.cities.description'),
+    cuisines: t('tabs.cuisines.description'),
   }
 
   return (
@@ -594,13 +604,13 @@ export default function AdminDashboard() {
               user={user}
               profile={profile}
               homeHref="/dashboard/admin"
-              homeLabel="Admin Dashboard"
+              homeLabel={t('page.homeLabel')}
               editProfileHref="/dashboard/admin/edit-profile"
               notifications={{
                 items: pendingRequests,
-                title: 'Pending Requests',
-                emptyText: 'No pending restaurant requests.',
-                viewAllLabel: 'View All Requests',
+                title: t('page.notificationsTitle'),
+                emptyText: t('page.notificationsEmpty'),
+                viewAllLabel: t('page.viewAllRequests'),
                 onViewAll: () => setActiveTab('pending'),
               }}
             />
@@ -608,12 +618,12 @@ export default function AdminDashboard() {
         >
           {activeTab === 'pending' && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 xl:grid-cols-6 mb-6">
-              <StatCard icon={Inbox} label="Pending" value={pendingRequests.length} tint="warning" />
-              <StatCard icon={UsersIcon} label="Users" value={allUsers.length} tint="brand" />
-              <StatCard icon={Store} label="Restaurants" value={allRestaurants.length} tint="success" />
-              <StatCard icon={ListChecks} label="Requests" value={allRequests.length} tint="gray" />
-              <StatCard icon={MapPin} label="Cities" value={cities.length} tint="gray" />
-              <StatCard icon={UtensilsCrossed} label="Cuisines" value={cuisines.length} tint="gray" />
+              <StatCard icon={Inbox} label={t('stats.pending')} value={pendingRequests.length} tint="warning" />
+              <StatCard icon={UsersIcon} label={t('stats.users')} value={allUsers.length} tint="brand" />
+              <StatCard icon={Store} label={t('stats.restaurants')} value={allRestaurants.length} tint="success" />
+              <StatCard icon={ListChecks} label={t('stats.requests')} value={allRequests.length} tint="gray" />
+              <StatCard icon={MapPin} label={t('stats.cities')} value={cities.length} tint="gray" />
+              <StatCard icon={UtensilsCrossed} label={t('stats.cuisines')} value={cuisines.length} tint="gray" />
             </div>
           )}
 
@@ -693,7 +703,7 @@ export default function AdminDashboard() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setInfoDialog({ ...infoDialog, open: false })}>
-              Okay
+              {t('dialogs.okay')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -707,7 +717,7 @@ export default function AdminDashboard() {
             <AlertDialogDescription>{confirmDialog.description}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('dialogs.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-brand-500 hover:bg-brand-600"
               onClick={() => {
@@ -715,7 +725,7 @@ export default function AdminDashboard() {
                 setConfirmDialog({ ...confirmDialog, open: false })
               }}
             >
-              Confirm
+              {t('dialogs.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -742,7 +752,7 @@ export default function AdminDashboard() {
 
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setInputDialog({ ...inputDialog, open: false })}>
-              Cancel
+              {t('dialogs.cancel')}
             </Button>
             <Button
               className="bg-destructive hover:bg-destructive/90"
@@ -762,9 +772,9 @@ export default function AdminDashboard() {
       <Dialog open={rejectDialog.open} onOpenChange={(open) => setRejectDialog(prev => ({ ...prev, open }))}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-destructive">Reject Request</DialogTitle>
+            <DialogTitle className="text-destructive">{t('dialogs.rejectRequestTitle')}</DialogTitle>
             <DialogDescription>
-              Please provide a reason for rejecting this request.
+              {t('dialogs.rejectRequestDescription')}
             </DialogDescription>
           </DialogHeader>
 
@@ -772,20 +782,20 @@ export default function AdminDashboard() {
             <Textarea
               value={rejectDialog.reason}
               onChange={(e) => setRejectDialog({ ...rejectDialog, reason: e.target.value })}
-              placeholder="Reason for rejection..."
+              placeholder={t('dialogs.rejectReasonPlaceholder')}
             />
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setRejectDialog({ ...rejectDialog, open: false })}>
-              Cancel
+              {t('dialogs.cancel')}
             </Button>
             <Button
               variant="destructive"
               disabled={!rejectDialog.reason.trim()}
               onClick={confirmReject}
             >
-              Reject
+              {t('dialogs.rejectConfirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

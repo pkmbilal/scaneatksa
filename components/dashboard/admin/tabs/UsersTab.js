@@ -1,4 +1,8 @@
+'use client'
+
 // Users list with role/status management. Same handlers as the original page.js.
+
+import { useTranslations } from 'next-intl'
 
 const roleTint = {
   admin: 'bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-400',
@@ -7,6 +11,8 @@ const roleTint = {
 }
 
 export default function UsersTab({ allUsers, currentUserId, onChangeRole, onToggleStatus, onDeleteUser }) {
+  const t = useTranslations('dashboard.admin')
+
   return (
     <div className="space-y-4">
       {allUsers.map((userItem) => {
@@ -20,21 +26,21 @@ export default function UsersTab({ allUsers, currentUserId, onChangeRole, onTogg
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h3 className="font-bold text-gray-800 dark:text-white/90 text-lg">
-                    {userItem.full_name || 'No name'}
+                    {userItem.full_name || t('usersTab.noName')}
                   </h3>
                   {!userItem.is_active && (
                     <span className="text-xs bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400 px-2 py-1 rounded-full font-semibold">
-                      DISABLED
+                      {t('usersTab.disabledBadge')}
                     </span>
                   )}
                 </div>
 
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">ID: {userItem.id}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('usersTab.idLabel', { id: userItem.id })}</p>
                 {userItem.phone && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Phone: {userItem.phone}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('usersTab.phoneLabel', { phone: userItem.phone })}</p>
                 )}
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                  Created: {new Date(userItem.created_at).toLocaleDateString()}
+                  {t('usersTab.createdLabel', { date: new Date(userItem.created_at).toLocaleDateString() })}
                 </p>
               </div>
 
@@ -43,7 +49,7 @@ export default function UsersTab({ allUsers, currentUserId, onChangeRole, onTogg
                   roleTint[userItem.role] || roleTint.customer
                 }`}
               >
-                {userItem.role}
+                {t.has(`roles.${userItem.role}`) ? t(`roles.${userItem.role}`) : userItem.role}
               </span>
             </div>
 
@@ -54,9 +60,9 @@ export default function UsersTab({ allUsers, currentUserId, onChangeRole, onTogg
                 className="px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-lg text-sm font-semibold focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300"
                 disabled={isSelf}
               >
-                <option value="customer">Customer</option>
-                <option value="owner">Owner</option>
-                <option value="admin">Admin</option>
+                <option value="customer">{t('roles.customer')}</option>
+                <option value="owner">{t('roles.owner')}</option>
+                <option value="admin">{t('roles.admin')}</option>
               </select>
 
               <button
@@ -68,7 +74,7 @@ export default function UsersTab({ allUsers, currentUserId, onChangeRole, onTogg
                 }`}
                 disabled={isSelf}
               >
-                {userItem.is_active ? 'Disable User' : 'Enable User'}
+                {userItem.is_active ? t('usersTab.disableButton') : t('usersTab.enableButton')}
               </button>
 
               <button
@@ -76,13 +82,13 @@ export default function UsersTab({ allUsers, currentUserId, onChangeRole, onTogg
                 className="px-4 py-2 bg-error-50 text-error-700 rounded-lg font-semibold text-sm hover:bg-error-100 transition-colors dark:bg-error-500/15 dark:text-error-400"
                 disabled={isSelf}
               >
-                Delete User
+                {t('usersTab.deleteButton')}
               </button>
             </div>
 
             {isSelf && (
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 italic">
-                You cannot modify your own account
+                {t('usersTab.selfModifyWarning')}
               </p>
             )}
           </div>

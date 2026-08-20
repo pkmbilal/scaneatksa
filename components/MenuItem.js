@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCart } from "@/app/CartContext";
 import { ShoppingCart, Plus, Minus, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export default function MenuItem({ item, restaurant, categoryMap = {} }) {
+  const t = useTranslations("menu");
   const { addToCart, cartItems, updateQuantity, removeFromCart } = useCart();
   const soldOut = !!item.is_sold_out;
 
@@ -34,8 +36,8 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
   };
 
   const categoryName = item.category_id
-    ? categoryMap[item.category_id] || "Uncategorized"
-    : "Uncategorized";
+    ? categoryMap[item.category_id] || t("uncategorized")
+    : t("uncategorized");
 
   return (
     <>
@@ -68,7 +70,7 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                 {soldOut && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <span className="text-white font-bold text-xs px-2 py-0.5 bg-black/70 rounded-full">
-                      SOLD OUT
+                      {t("item.soldOutOverlay")}
                     </span>
                   </div>
                 )}
@@ -83,7 +85,7 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                   {item.name}
                 </h3>
                 <span className="text-sm font-bold text-gray-900 shrink-0 pt-0.5">
-                  SAR {Number(item.price).toFixed(2)}
+                  {t("item.price", { amount: Number(item.price).toFixed(2) })}
                 </span>
               </div>
 
@@ -106,7 +108,7 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                 {item.prep_time && (
                   <Badge variant="outline" className="text-[10px] gap-1 h-5 px-1.5">
                     <Clock className="h-2.5 w-2.5" />
-                    {item.prep_time}min
+                    {t("item.prepTime", { minutes: item.prep_time })}
                   </Badge>
                 )}
               </div>
@@ -122,7 +124,7 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                       variant="ghost"
                       className="h-6 w-6 rounded-full bg-white shadow-sm"
                       onClick={handleDecrement}
-                      aria-label="Decrease"
+                      aria-label={t("item.decreaseAria")}
                     >
                       <Minus className="h-2.5 w-2.5" />
                     </Button>
@@ -136,7 +138,7 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                       variant="ghost"
                       className="h-6 w-6 rounded-full bg-white shadow-sm"
                       onClick={handleIncrement}
-                      aria-label="Increase"
+                      aria-label={t("item.increaseAria")}
                     >
                       <Plus className="h-2.5 w-2.5" />
                     </Button>
@@ -154,11 +156,11 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                     )}
                   >
                     {soldOut ? (
-                      "Sold Out"
+                      t("item.soldOutButton")
                     ) : (
                       <>
-                        <Plus className="h-3 w-3 mr-1" />
-                        Add
+                        <Plus className="h-3 w-3 me-1" />
+                        {t("item.add")}
                       </>
                     )}
                   </Button>
@@ -187,8 +189,8 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                   loading="lazy"
                 />
                 {soldOut && (
-                  <span className="absolute top-3 right-3 inline-flex items-center rounded-full bg-background/90 text-foreground text-xs font-semibold px-3 py-1 shadow-sm border">
-                    Sold out
+                  <span className="absolute top-3 end-3 inline-flex items-center rounded-full bg-background/90 text-foreground text-xs font-semibold px-3 py-1 shadow-sm border">
+                    {t("item.soldOutBadge")}
                   </span>
                 )}
               </div>
@@ -209,7 +211,7 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
 
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-lg font-bold text-primary">
-                  SAR {Number(item.price).toFixed(2)}
+                  {t("item.price", { amount: Number(item.price).toFixed(2) })}
                 </span>
 
                 {inCartCount > 0 ? (
@@ -219,7 +221,7 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                       size="icon"
                       className="h-8 w-8 rounded-full"
                       onClick={handleDecrement}
-                      aria-label="Decrease quantity"
+                      aria-label={t("item.decreaseQtyAria")}
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
@@ -230,15 +232,15 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                       className="h-8 w-8 rounded-full"
                       onClick={handleIncrement}
                       disabled={soldOut}
-                      aria-label="Increase quantity"
+                      aria-label={t("item.increaseQtyAria")}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
                   <Button onClick={handleAddToCart} disabled={soldOut} className="rounded-lg cursor-pointer">
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Add to Cart
+                    <ShoppingCart className="h-4 w-4 me-2" />
+                    {t("item.addToCart")}
                   </Button>
                 )}
               </div>
@@ -246,7 +248,7 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
               {!item.image_url && soldOut && (
                 <div className="mt-3">
                   <Badge variant="outline" className="rounded-full">
-                    Sold out
+                    {t("item.soldOutBadge")}
                   </Badge>
                 </div>
               )}

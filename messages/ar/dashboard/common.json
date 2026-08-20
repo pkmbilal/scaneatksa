@@ -1,0 +1,103 @@
+{
+  "loading": "جارٍ تحميل لوحة التحكم...",
+  "dashboardLabel": "لوحة التحكم",
+  "header": {
+    "toggleSidebar": "إظهار/إخفاء الشريط الجانبي",
+    "toggleMenu": "إظهار/إخفاء قائمة الرأس",
+    "searchPlaceholder": "ابحث أو اكتب أمرًا...",
+    "toggleDarkMode": "تبديل الوضع الداكن"
+  },
+  "sidebar": {
+    "menu": "القائمة",
+    "navigation": "التنقل"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا يوجد جديد الآن.",
+    "viewAll": "عرض الكل",
+    "request": "طلب",
+    "unknownUser": "غير معروف",
+    "justNow": "الآن",
+    "minutesAgo": "قبل {minutes} د",
+    "hoursAgo": "قبل {hours} س",
+    "daysAgo": "قبل {days} يوم"
+  },
+  "userMenu": {
+    "requestOwnerAccess": "طلب صلاحية مالك",
+    "editProfile": "تعديل الملف الشخصي",
+    "changePassword": "تغيير كلمة المرور",
+    "signOut": "تسجيل الخروج"
+  },
+  "editProfile": {
+    "loading": "جارٍ تحميل ملفك الشخصي…",
+    "backToDashboard": "العودة إلى لوحة التحكم",
+    "title": "تعديل الملف الشخصي",
+    "subtitle": "حدّث معلوماتك الشخصية وحافظ على تفاصيل حسابك محدّثة.",
+    "updatedTitle": "تم تحديث الملف الشخصي",
+    "updatedDescription": "تم حفظ التغييرات بنجاح. جارٍ إعادة التوجيه…",
+    "failedTitle": "فشل التحديث",
+    "genericError": "حدث خطأ ما: {message}",
+    "detailsTitle": "تفاصيل الملف الشخصي",
+    "detailsDescription": "تساعد هذه التفاصيل المطاعم على التواصل معك عند الحاجة.",
+    "emailLabel": "البريد الإلكتروني",
+    "emailHint": "لا يمكن تغيير البريد الإلكتروني.",
+    "fullNameLabel": "الاسم الكامل",
+    "fullNamePlaceholder": "أدخل اسمك الكامل",
+    "phoneLabel": "رقم الهاتف",
+    "phonePlaceholder": "مثال: 966501234567",
+    "phoneHint": "أدرج رمز الدولة (مثال: 966 للمملكة العربية السعودية).",
+    "saving": "جارٍ الحفظ…",
+    "saved": "تم الحفظ!",
+    "saveChanges": "حفظ التغييرات",
+    "cancel": "إلغاء",
+    "accountType": "نوع الحساب",
+    "accountTypeSubtitle": "مستوى صلاحياتك",
+    "role": "الدور",
+    "roleLabels": {
+      "admin": "مسؤول",
+      "owner": "مالك",
+      "customer": "عميل"
+    },
+    "roleHints": {
+      "admin": "صلاحية كاملة على النظام",
+      "owner": "يمكنك إدارة المطاعم",
+      "customer": "هل ترغب في إدارة مطعم؟ اطلب صلاحية مالك!"
+    },
+    "accountInfo": "معلومات الحساب",
+    "accountInfoSubtitle": "بيانات أساسية عن الحساب",
+    "created": "تاريخ الإنشاء",
+    "updated": "تاريخ التحديث",
+    "status": "الحالة",
+    "active": "نشط",
+    "inactive": "غير نشط"
+  },
+  "changePassword": {
+    "backToDashboard": "العودة إلى لوحة التحكم",
+    "title": "تغيير كلمة المرور",
+    "subtitle": "اختر كلمة مرور جديدة لحسابك.",
+    "updatedTitle": "تم تحديث كلمة المرور",
+    "updatedDescription": "تم تغيير كلمة المرور. جارٍ إعادة التوجيه…",
+    "failedTitle": "فشل التحديث",
+    "tooShort": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+    "mismatch": "كلمتا المرور غير متطابقتين",
+    "formTitle": "كلمة المرور الجديدة",
+    "formSubtitle": "استخدم 6 أحرف على الأقل.",
+    "newPasswordLabel": "كلمة المرور الجديدة",
+    "newPasswordPlaceholder": "أدخل كلمة مرور جديدة",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور الجديدة",
+    "updating": "جارٍ التحديث…",
+    "updated": "تم التحديث!",
+    "updatePassword": "تحديث كلمة المرور",
+    "cancel": "إلغاء"
+  },
+  "status": {
+    "new": "جديد",
+    "accepted": "مقبول",
+    "preparing": "قيد التحضير",
+    "ready": "جاهز",
+    "delivered": "تم التسليم",
+    "cancelled": "ملغى",
+    "completed": "مكتمل"
+  }
+}

@@ -1,4 +1,8 @@
+'use client'
+
 // Full restaurant-request history. Same data as the original page.js, restyled.
+
+import { useTranslations } from 'next-intl'
 
 const statusTint = {
   pending: 'bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400',
@@ -7,8 +11,10 @@ const statusTint = {
 }
 
 export default function AllRequestsTab({ allRequests }) {
+  const t = useTranslations('dashboard.admin')
+
   if (allRequests.length === 0) {
-    return <div className="text-center py-12 text-gray-500 dark:text-gray-400">No requests yet.</div>
+    return <div className="text-center py-12 text-gray-500 dark:text-gray-400">{t('allRequestsTab.emptyState')}</div>
   }
 
   return (
@@ -28,13 +34,13 @@ export default function AllRequestsTab({ allRequests }) {
                 statusTint[request.status] || statusTint.pending
               }`}
             >
-              {request.status}
+              {t.has(`status.${request.status}`) ? t(`status.${request.status}`) : request.status}
             </span>
           </div>
 
           {request.status === 'rejected' && request.rejection_reason && (
             <p className="text-xs text-error-600 dark:text-error-400 mt-2">
-              Reason: {request.rejection_reason}
+              {t('allRequestsTab.reasonLabel', { reason: request.rejection_reason })}
             </p>
           )}
         </div>

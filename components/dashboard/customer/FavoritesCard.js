@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Heart, ExternalLink, MapPin, X } from "lucide-react";
 
 export default function FavoritesCard({ favorites = [], onRemove }) {
+  const t = useTranslations("dashboard.customer");
   const items = Array.isArray(favorites) ? favorites : [];
 
   return (
@@ -13,16 +15,16 @@ export default function FavoritesCard({ favorites = [], onRemove }) {
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
             <Heart className="h-6 w-6" />
           </div>
-          <p className="font-semibold text-gray-800 dark:text-white/90">No favorites yet</p>
+          <p className="font-semibold text-gray-800 dark:text-white/90">{t("favoritesCard.emptyTitle")}</p>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Browse restaurants and save your top picks.
+            {t("favoritesCard.emptyDescription")}
           </p>
           <Link
             href="/restaurants"
             className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
           >
             <ExternalLink className="h-4 w-4" />
-            Browse Restaurants
+            {t("favoritesCard.browseRestaurants")}
           </Link>
         </div>
       ) : (
@@ -31,7 +33,7 @@ export default function FavoritesCard({ favorites = [], onRemove }) {
             // support both possible shapes
             const r = fav?.restaurant || fav?.restaurants;
             const rid = fav?.restaurant_id ?? r?.id;
-            const name = r?.name ?? `Restaurant (${rid})`;
+            const name = r?.name ?? t("favoritesCard.restaurantFallback", { id: rid });
             const slug = r?.slug || null;
             const address = r?.address || null;
 
@@ -57,28 +59,28 @@ export default function FavoritesCard({ favorites = [], onRemove }) {
                     </div>
 
                     <div className="mt-3 inline-flex items-center text-sm font-medium text-brand-600 dark:text-brand-400">
-                      View Menu <ExternalLink className="ml-1 h-4 w-4" />
+                      {t("favoritesCard.viewMenu")} <ExternalLink className="ms-1 h-4 w-4" />
                     </div>
                   </Link>
                 ) : (
                   <div className="block">
                     <p className="truncate font-semibold text-gray-800 dark:text-white/90">{name}</p>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      Restaurant details not loaded
+                      {t("favoritesCard.detailsNotLoaded")}
                     </p>
                   </div>
                 )}
 
                 <button
                   type="button"
-                  title="Remove from favorites"
+                  title={t("favoritesCard.removeFavorite")}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     if (!rid) return;
                     onRemove?.(rid, name);
                   }}
-                  className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 opacity-100 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-white/10 dark:hover:text-gray-300 md:opacity-0 md:group-hover:opacity-100 cursor-pointer"
+                  className="absolute top-3 end-3 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 opacity-100 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-white/10 dark:hover:text-gray-300 md:opacity-0 md:group-hover:opacity-100 cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                 </button>

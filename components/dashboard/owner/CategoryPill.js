@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Check, X } from "lucide-react";
 
 export default function CategoryPill({ category, onRename, onDelete }) {
+  const t = useTranslations("dashboard.owner");
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(category.name);
   const [saving, setSaving] = useState(false);
@@ -20,7 +22,7 @@ export default function CategoryPill({ category, onRename, onDelete }) {
     setSaving(false);
 
     if (!res?.ok) {
-      setError(res?.message || "Failed to rename");
+      setError(res?.message || t("categoryPill.renameFailed"));
       return;
     }
 
@@ -37,7 +39,7 @@ export default function CategoryPill({ category, onRename, onDelete }) {
             type="button"
             className="rounded-full p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-200 cursor-pointer"
             onClick={() => setEditing(true)}
-            title="Rename"
+            title={t("categoryPill.rename")}
           >
             <Pencil className="h-4 w-4" />
           </button>
@@ -46,7 +48,7 @@ export default function CategoryPill({ category, onRename, onDelete }) {
             type="button"
             className="rounded-full p-1 text-error-600 transition hover:bg-error-50 dark:text-error-400 dark:hover:bg-error-500/15 cursor-pointer"
             onClick={onDelete}
-            title="Delete"
+            title={t("categoryPill.delete")}
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -65,7 +67,7 @@ export default function CategoryPill({ category, onRename, onDelete }) {
             className="rounded-full p-1 text-success-600 transition hover:bg-success-50 dark:text-success-400 dark:hover:bg-success-500/15 cursor-pointer disabled:opacity-50"
             onClick={save}
             disabled={saving}
-            title="Save"
+            title={t("categoryPill.save")}
           >
             <Check className="h-4 w-4" />
           </button>
@@ -78,14 +80,14 @@ export default function CategoryPill({ category, onRename, onDelete }) {
               setName(category.name);
               setError("");
             }}
-            title="Cancel"
+            title={t("categoryPill.cancel")}
           >
             <X className="h-4 w-4" />
           </button>
         </>
       )}
 
-      {error ? <span className="ml-1 text-xs text-error-600 dark:text-error-400">{error}</span> : null}
+      {error ? <span className="ms-1 text-xs text-error-600 dark:text-error-400">{error}</span> : null}
     </div>
   );
 }

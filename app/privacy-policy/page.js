@@ -1,32 +1,36 @@
 import SiteFooter from "@/components/home/SiteFooter";
 import { footerData } from "@/lib/siteData";
-import { sections } from "@/lib/siteData";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-export const metadata = {
-  title: "Privacy Policy | ScanEat",
-  description:
-    "Learn how ScanEat collects, uses, stores, and protects personal data for restaurant QR menu and ordering services.",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("privacyPolicy.metadata");
 
-export default function PrivacyPolicyPage() {
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
+
+export default async function PrivacyPolicyPage() {
+  const t = await getTranslations("privacyPolicy");
+  const sections = t.raw("sections");
+
   return (
     <main className="min-h-screen bg-white text-slate-900">
       <section className="border-b bg-slate-50">
         <div className="mx-auto max-w-4xl px-4 py-16 md:px-6 md:py-20">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Legal
+            {t("eyebrow")}
           </p>
           <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-            Privacy Policy
+            {t("title")}
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 md:text-lg">
-            This Privacy Policy explains how ScanEat collects, uses, shares,
-            and protects personal data across its website, QR menu system, and
-            restaurant ordering services.
+            {t("intro")}
           </p>
           <p className="mt-4 text-sm text-slate-500">
-            Last Updated: March 16, 2026
+            {t("lastUpdated")}
           </p>
 
           <div className="mt-8">
@@ -34,7 +38,7 @@ export default function PrivacyPolicyPage() {
               href="/"
               className="inline-flex rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
             >
-              Back to Home
+              {t("backToHome")}
             </Link>
           </div>
         </div>

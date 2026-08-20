@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 
 import {
@@ -15,6 +16,7 @@ import {
 import AddTableForm from "@/components/dashboard/owner/forms/AddTableForm";
 
 export default function AddTableDialog({ restaurantId, onAdded }) {
+  const t = useTranslations("dashboard.owner");
   const [open, setOpen] = useState(false);
 
   return (
@@ -25,17 +27,14 @@ export default function AddTableDialog({ restaurantId, onAdded }) {
           className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
-          Add Table
+          {t("addTableDialog.trigger")}
         </button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Table(s)</DialogTitle>
-          <DialogDesc>
-            New tables continue from your current highest table number — e.g. if you have Table 1–8, this
-            adds Table 9 onward.
-          </DialogDesc>
+          <DialogTitle>{t("addTableDialog.title")}</DialogTitle>
+          <DialogDesc>{t("addTableDialog.description")}</DialogDesc>
         </DialogHeader>
 
         <AddTableForm

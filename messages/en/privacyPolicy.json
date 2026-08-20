@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "title": "Privacy Policy | ScanEat",
+    "description": "Learn how ScanEat collects, uses, stores, and protects personal data for restaurant QR menu and ordering services."
+  },
+  "eyebrow": "Legal",
+  "title": "Privacy Policy",
+  "intro": "This Privacy Policy explains how ScanEat collects, uses, shares, and protects personal data across its website, QR menu system, and restaurant ordering services.",
+  "lastUpdated": "Last Updated: March 16, 2026",
+  "backToHome": "Back to Home",
+  "sections": [
+    {
+      "title": "1. Introduction",
+      "content": "ScanEat (“we,” “our,” or “us”) respects your privacy and is committed to protecting personal data. This Privacy Policy explains how we collect, use, disclose, and safeguard information when you use our website, platform, QR menu system, and related services.\n\nThis Privacy Policy applies to:\n• restaurant owners, managers, and staff who create or manage ScanEat accounts;\n• customers who browse restaurant menus or place orders through ScanEat-powered pages;\n• visitors who interact with our website or support channels."
+    },
+    {
+      "title": "2. Information We Collect",
+      "content": "Depending on how you use ScanEat, we may collect the following categories of personal data:\n\nA. Account and business information\n• full name\n• email address\n• login credentials\n• restaurant or business details\n• support communications\n\nB. Customer order and interaction data\n• order details submitted through a ScanEat-powered menu\n• table number or table identifier\n• restaurant selection and menu interactions\n• WhatsApp order routing details where applicable\n\nC. Technical and usage data\n• IP address\n• browser type and device information\n• pages viewed and actions taken on the platform\n• date/time of access\n• referral and diagnostic information\n• cookies or similar technologies, where used\n\nD. Password recovery and authentication data\n• email address used for password reset\n• security-related logs associated with authentication attempts\n\nYou should review your actual backend and analytics stack and add any extra data categories you collect, such as phone number, billing data, or location data, if applicable."
+    },
+    {
+      "title": "3. How We Collect Information",
+      "content": "We collect information:\n• directly from you when you sign up, sign in, reset a password, submit restaurant information, or contact us;\n• when customers browse menus or place orders through ScanEat-powered pages;\n• automatically through the operation of the website, logs, cookies, and platform analytics;\n• from integrations or third-party services you choose to use, such as WhatsApp-based workflows."
+    },
+    {
+      "title": "4. Why We Use Personal Data",
+      "content": "We use personal data to:\n• create and manage accounts;\n• provide QR menu, restaurant listing, and ordering functionality;\n• route or facilitate customer orders;\n• support restaurant onboarding and account administration;\n• respond to support requests and service inquiries;\n• secure the platform, detect abuse, and prevent fraud;\n• improve performance, usability, and service quality;\n• maintain operational records and comply with applicable legal obligations;\n• communicate important product, service, or account-related notices."
+    },
+    {
+      "title": "5. Legal Basis and Compliance",
+      "content": "Where applicable, we process personal data in accordance with the laws and regulations of the Kingdom of Saudi Arabia, including the Personal Data Protection Law (PDPL) and related implementing regulations.\n\nWhere required, we will rely on an appropriate lawful basis for processing, including:\n• performance of a contract or requested service;\n• compliance with legal obligations;\n• legitimate business purposes that do not override data subject rights;\n• consent, where consent is required by applicable law."
+    },
+    {
+      "title": "6. Sharing of Information",
+      "content": "We do not sell personal data.\n\nWe may share personal data only where necessary with:\n• service providers that help us host, maintain, secure, or operate the platform;\n• communications providers or integrations used to facilitate ordering workflows, including WhatsApp-related processes where applicable;\n• restaurant operators using ScanEat, to the extent necessary to process customer menu requests or orders;\n• legal, regulatory, or governmental authorities where required by law or to protect rights, safety, and security;\n• professional advisers in connection with legal, compliance, or corporate matters.\n\nAny sharing should be limited to what is necessary for the specific purpose."
+    },
+    {
+      "title": "7. Cookies and Analytics",
+      "content": "We may use cookies, log files, pixels, or similar technologies to:\n• keep users signed in;\n• remember preferences;\n• understand traffic and usage patterns;\n• improve site performance and user experience;\n• support security and troubleshooting.\n\nIf you use analytics tools, advertising pixels, session replay, or third-party tracking services, they should be specifically identified here."
+    },
+    {
+      "title": "8. Data Retention",
+      "content": "We retain personal data only for as long as reasonably necessary to fulfill the purposes described in this Privacy Policy, including service delivery, dispute resolution, security, recordkeeping, and legal compliance.\n\nRetention periods may vary depending on:\n• the nature of the data;\n• whether the account remains active;\n• legal or regulatory obligations;\n• fraud prevention and platform security needs."
+    },
+    {
+      "title": "9. Data Security",
+      "content": "We implement reasonable technical, administrative, and organizational safeguards designed to protect personal data against unauthorized access, disclosure, alteration, loss, or misuse.\n\nHowever, no website, platform, or internet transmission method is completely secure. We therefore cannot guarantee absolute security."
+    },
+    {
+      "title": "10. International Data Transfers",
+      "content": "If personal data is processed or stored outside the Kingdom of Saudi Arabia, we will take appropriate steps to ensure such transfers are made in accordance with applicable legal requirements and adequate safeguards.\n\nIf all your infrastructure is hosted inside Saudi Arabia, you can adjust this section accordingly."
+    },
+    {
+      "title": "11. Your Rights",
+      "content": "Subject to applicable law, individuals may have rights regarding their personal data, including the right to:\n• request access to personal data;\n• request correction or updating of inaccurate or incomplete data;\n• request deletion where legally applicable;\n• withdraw consent where processing is based on consent;\n• inquire about how personal data is processed;\n• submit complaints to the competent authority where permitted by law.\n\nTo exercise any privacy-related request, please contact us using the details below."
+    },
+    {
+      "title": "12. Restaurant Data and Customer Responsibility",
+      "content": "ScanEat may enable restaurants to present menus and facilitate customer ordering workflows. Restaurants using the platform may act as independent controllers of certain customer data they collect through their ScanEat-powered pages.\n\nIf you are a restaurant customer and have a question about a specific order, item, or restaurant handling of your information, you may also need to contact the relevant restaurant directly."
+    },
+    {
+      "title": "13. Children’s Privacy",
+      "content": "ScanEat is not intended for children, and we do not knowingly collect personal data from children in violation of applicable law. If you believe that a child has provided personal data through the platform, please contact us so we can review and take appropriate action."
+    },
+    {
+      "title": "14. Changes to This Privacy Policy",
+      "content": "We may update this Privacy Policy from time to time to reflect service changes, legal developments, or operational requirements. When we do, we will update the “Last Updated” date on this page. Your continued use of the service after any updates becomes effective will be subject to the revised policy."
+    },
+    {
+      "title": "15. Contact Us",
+      "content": "If you have any questions, requests, or complaints regarding this Privacy Policy or our handling of personal data, please contact us at:\n\nEmail: privacy@scaneatksa.com\nWebsite: https://www.scaneatksa.com\n\nYou should replace the email above with your real privacy/support email and add your legal entity name and business address if available."
+    }
+  ]
+}

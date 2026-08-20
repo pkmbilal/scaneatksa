@@ -1,0 +1,190 @@
+{
+  "page": {
+    "loading": "جاري تحميل لوحة تحكم المشرف...",
+    "homeLabel": "لوحة تحكم المشرف",
+    "notificationsTitle": "الطلبات المعلقة",
+    "notificationsEmpty": "لا توجد طلبات مطاعم معلقة.",
+    "viewAllRequests": "عرض جميع الطلبات"
+  },
+  "nav": {
+    "pending": "الطلبات المعلقة",
+    "all": "جميع الطلبات",
+    "users": "المستخدمون",
+    "restaurants": "المطاعم",
+    "cities": "المدن",
+    "cuisines": "المطابخ"
+  },
+  "tabs": {
+    "pending": {
+      "title": "الطلبات المعلقة",
+      "description": "طلبات أصحاب المطاعم في انتظار موافقتك."
+    },
+    "all": {
+      "title": "جميع الطلبات",
+      "description": "السجل الكامل لطلبات المطاعم ونتائجها."
+    },
+    "users": {
+      "title": "المستخدمون",
+      "description": "إدارة الأدوار وحالة الحساب لكل مستخدم."
+    },
+    "restaurants": {
+      "title": "المطاعم",
+      "description": "جميع المطاعم المعتمدة على المنصة."
+    },
+    "cities": {
+      "title": "المدن",
+      "description": "إدارة المدن التي يمكن للعملاء اختيارها عند تصفح المطاعم."
+    },
+    "cuisines": {
+      "title": "المطابخ",
+      "description": "إدارة تصنيفات المطابخ التي يمكن تصفية المطاعم بواسطتها."
+    }
+  },
+  "stats": {
+    "pending": "قيد الانتظار",
+    "users": "المستخدمون",
+    "restaurants": "المطاعم",
+    "requests": "الطلبات",
+    "cities": "المدن",
+    "cuisines": "المطابخ"
+  },
+  "roles": {
+    "customer": "عميل",
+    "owner": "مالك",
+    "admin": "مشرف"
+  },
+  "status": {
+    "pending": "قيد الانتظار",
+    "approved": "مقبول",
+    "rejected": "مرفوض"
+  },
+  "dialogs": {
+    "okay": "حسنًا",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "errorTitle": "خطأ",
+    "successTitle": "نجاح",
+    "changeRoleTitle": "تغيير دور المستخدم",
+    "changeRoleDescription": "هل أنت متأكد أنك تريد تغيير دور هذا المستخدم إلى {role}؟",
+    "userRoleChanged": "تم تغيير دور المستخدم إلى {role}",
+    "disableUserTitle": "تعطيل المستخدم",
+    "enableUserTitle": "تفعيل المستخدم",
+    "disableUserDescription": "هل أنت متأكد أنك تريد تعطيل هذا المستخدم؟",
+    "enableUserDescription": "هل أنت متأكد أنك تريد تفعيل هذا المستخدم؟",
+    "userDisabled": "تم تعطيل المستخدم بنجاح",
+    "userEnabled": "تم تفعيل المستخدم بنجاح",
+    "deleteUserTitle": "حذف المستخدم",
+    "deleteUserDescription": "سيؤدي هذا إلى حذف المستخدم وجميع بياناته نهائيًا. اكتب \"{name}\" للتأكيد.",
+    "deleteUserConfirm": "حذف المستخدم",
+    "userDeleted": "تم حذف المستخدم بنجاح",
+    "deleteKeyword": "احذف",
+    "approveRequestTitle": "الموافقة على الطلب",
+    "approveRequestDescription": "هل تريد الموافقة على {name}؟ سيؤدي هذا إلى إنشاء المطعم وترقية المستخدم إلى مالك.",
+    "requestApproved": "تمت الموافقة على الطلب! تم إنشاء المطعم.",
+    "errorCreatingRestaurant": "خطأ في إنشاء المطعم: {message}",
+    "errorCreatingRestaurantGeneric": "فشل إنشاء المطعم",
+    "errorUpdatingRole": "خطأ في تحديث دور المستخدم: {message}",
+    "errorUpdatingRequest": "خطأ في تحديث الطلب: {message}",
+    "requestRejected": "تم رفض الطلب.",
+    "rejectRequestTitle": "رفض الطلب",
+    "rejectRequestDescription": "يرجى تقديم سبب لرفض هذا الطلب.",
+    "rejectReasonPlaceholder": "سبب الرفض...",
+    "rejectConfirm": "رفض"
+  },
+  "citiesTab": {
+    "addHeading": "إضافة مدينة",
+    "namePlaceholder": "مثال: الرياض",
+    "addingButton": "جارٍ الإضافة...",
+    "addButton": "إضافة",
+    "emptyState": "لا توجد مدن بعد. أضف أول مدينة.",
+    "nameEmptyError": "لا يمكن أن يكون اسم المدينة فارغًا",
+    "duplicateError": "المدينة موجودة بالفعل.",
+    "disableTitle": "تعطيل المدينة",
+    "enableTitle": "تفعيل المدينة",
+    "disableDescription": "هل أنت متأكد أنك تريد تعطيل {name}؟",
+    "enableDescription": "هل أنت متأكد أنك تريد تفعيل {name}؟",
+    "deleteTitle": "حذف المدينة",
+    "deleteDescription": "اكتب \"{name}\" لحذف هذه المدينة:",
+    "deleteConfirm": "حذف"
+  },
+  "cuisinesTab": {
+    "addHeading": "إضافة مطبخ",
+    "namePlaceholder": "مثال: عربي، هندي جنوبي",
+    "addingButton": "جارٍ الإضافة...",
+    "addButton": "إضافة",
+    "emptyState": "لا توجد مطابخ بعد. أضف أول مطبخ.",
+    "nameEmptyError": "لا يمكن أن يكون اسم المطبخ فارغًا",
+    "duplicateError": "المطبخ موجود بالفعل.",
+    "disableTitle": "تعطيل المطبخ",
+    "enableTitle": "تفعيل المطبخ",
+    "disableDescription": "هل أنت متأكد أنك تريد تعطيل {name}؟",
+    "enableDescription": "هل أنت متأكد أنك تريد تفعيل {name}؟",
+    "deleteTitle": "حذف المطبخ",
+    "deleteDescription": "اكتب \"{name}\" لحذف هذا المطبخ:",
+    "deleteConfirm": "حذف"
+  },
+  "pill": {
+    "renameTooltip": "إعادة تسمية",
+    "disableTooltip": "تعطيل",
+    "enableTooltip": "تفعيل",
+    "deleteTooltip": "حذف",
+    "saveTooltip": "حفظ",
+    "cancelTooltip": "إلغاء",
+    "renameFailedError": "فشلت إعادة التسمية",
+    "renameEmptyError": "لا يمكن أن يكون الاسم فارغًا"
+  },
+  "allRequestsTab": {
+    "emptyState": "لا توجد طلبات بعد.",
+    "reasonLabel": "السبب: {reason}"
+  },
+  "pendingRequestsTab": {
+    "emptyState": "لا توجد طلبات معلقة",
+    "requestedByLabel": "مقدَّم من:",
+    "unknownUser": "غير معروف",
+    "phoneLabel": "الهاتف:",
+    "submittedLabel": "تاريخ التقديم:",
+    "addressLabel": "العنوان:",
+    "descriptionLabel": "الوصف:",
+    "approveButton": "موافقة",
+    "rejectButton": "رفض"
+  },
+  "restaurantsTab": {
+    "emptyState": "لا توجد مطاعم بعد",
+    "disabledBadge": "معطل",
+    "activeBadge": "نشط",
+    "urlLabel": "الرابط:",
+    "viewLink": "عرض ←",
+    "ownerLabel": "المالك:",
+    "phoneLabel": "الهاتف:",
+    "addressLabel": "العنوان:",
+    "menuItemsLabel": "عناصر القائمة:",
+    "createdLabel": "تاريخ الإنشاء:",
+    "approvedLabel": "تاريخ الموافقة:",
+    "viewMenuButton": "عرض القائمة",
+    "qrCodeButton": "رمز الاستجابة السريعة",
+    "disableButton": "تعطيل المطعم",
+    "enableButton": "تفعيل المطعم",
+    "deleteButton": "حذف المطعم",
+    "disableTitle": "تعطيل المطعم",
+    "enableTitle": "تفعيل المطعم",
+    "disableDescription": "هل أنت متأكد أنك تريد تعطيل {name}؟",
+    "enableDescription": "هل أنت متأكد أنك تريد تفعيل {name}؟",
+    "disabledSuccess": "تم تعطيل المطعم بنجاح",
+    "enabledSuccess": "تم تفعيل المطعم بنجاح",
+    "deleteTitle": "حذف المطعم",
+    "deleteDescription": "سيؤدي هذا إلى حذف \"{name}\" وجميع عناصر قائمته نهائيًا! اكتب \"{name}\" للتأكيد:",
+    "deleteConfirm": "حذف",
+    "deletedSuccess": "تم حذف المطعم بنجاح"
+  },
+  "usersTab": {
+    "noName": "بدون اسم",
+    "disabledBadge": "معطل",
+    "idLabel": "المعرف: {id}",
+    "phoneLabel": "الهاتف: {phone}",
+    "createdLabel": "تاريخ الإنشاء: {date}",
+    "disableButton": "تعطيل المستخدم",
+    "enableButton": "تفعيل المستخدم",
+    "deleteButton": "حذف المستخدم",
+    "selfModifyWarning": "لا يمكنك تعديل حسابك الخاص"
+  }
+}

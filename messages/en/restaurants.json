@@ -1,0 +1,34 @@
+{
+  "page": {
+    "title": "Restaurants",
+    "subtitle": "Search by restaurant, city, cuisine, or food item"
+  },
+  "empty": {
+    "title": "No results found",
+    "subtitle": "Try changing filters or search type."
+  },
+  "filters": {
+    "searchForLabel": "Search For",
+    "typeRestaurants": "Restaurants",
+    "typeFood": "Food",
+    "mobileSearchPlaceholder": "Search for a Restaurant or Meal",
+    "cityLabel": "City",
+    "cityAllOption": "All cities",
+    "cuisineLabel": "Cuisine",
+    "cuisinesLabel": "Cuisines",
+    "cuisineAllOption": "All cuisines",
+    "restaurantNameLabel": "Restaurant name",
+    "foodNameLabel": "Food name",
+    "restaurantNamePlaceholder": "e.g., Pizza Palace...",
+    "foodNamePlaceholder": "e.g., biriyani...",
+    "vegetarianLabel": "Vegetarian",
+    "vegPill": "Veg",
+    "apply": "Apply",
+    "clear": "Clear",
+    "tip": "Tip: Choose <b>Food</b> to find restaurants that have that item in their menu."
+  },
+  "card": {
+    "noAddress": "No address provided",
+    "cityNotSet": "City not set"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "page": {
+    "nav": {
+      "overview": "Overview",
+      "orders": "Orders",
+      "favorites": "Favorites",
+      "requests": "My Requests"
+    },
+    "siteNav": {
+      "about": "About",
+      "howItWorks": "How It Works",
+      "restaurants": "Restaurants",
+      "contact": "Contact"
+    },
+    "homeLabel": "My Account",
+    "loading": "Loading your dashboard...",
+    "stats": {
+      "orders": "Orders",
+      "favorites": "Favorites",
+      "requests": "Requests"
+    },
+    "tabTitles": {
+      "overview": "Overview",
+      "orders": "Orders",
+      "favorites": "Favorites",
+      "requests": "My Requests"
+    },
+    "tabDescriptions": {
+      "overview": "Your account details and quick actions.",
+      "orders": "Track your past and current orders.",
+      "favorites": "Restaurants you've saved for quick access.",
+      "requests": "Track the status of your restaurant ownership requests."
+    }
+  },
+  "profileCard": {
+    "title": "Your Profile",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "notSet": "Not set",
+    "emailFallback": "—",
+    "editProfile": "Edit Profile",
+    "roles": {
+      "admin": "Admin",
+      "owner": "Owner",
+      "customer": "Customer"
+    }
+  },
+  "requestOwnerCard": {
+    "quickAction": "Quick action",
+    "title": "Own a Restaurant?",
+    "description": "Create your digital menu and manage orders easily.",
+    "cta": "Request Owner"
+  },
+  "favoritesCard": {
+    "emptyTitle": "No favorites yet",
+    "emptyDescription": "Browse restaurants and save your top picks.",
+    "browseRestaurants": "Browse Restaurants",
+    "viewMenu": "View Menu",
+    "detailsNotLoaded": "Restaurant details not loaded",
+    "removeFavorite": "Remove from favorites",
+    "restaurantFallback": "Restaurant ({id})"
+  },
+  "requestsCard": {
+    "submitted": "Submitted",
+    "reason": "Reason"
+  },
+  "requestStatus": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "ordersTab": {
+    "empty": "No orders yet.",
+    "table": "Table {number}",
+    "delivery": "Delivery",
+    "pickup": "Pickup",
+    "orderFallback": "Order",
+    "notes": "Notes:"
+  },
+  "status": {
+    "new": "New",
+    "accepted": "Accepted",
+    "preparing": "Preparing",
+    "ready": "Ready",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  },
+  "requestRestaurantPage": {
+    "backToDashboard": "Back to Dashboard",
+    "heading": "Request to Become Owner",
+    "subheading": "Submit your restaurant details for admin review. Once approved, you'll be able to manage your menu and orders.",
+    "loadingData": "Loading your data…",
+    "successTitle": "Request submitted successfully",
+    "successDescription": "Your request is pending admin approval. Redirecting to your dashboard…",
+    "pendingTitle": "Pending request",
+    "pendingDescription": "You already have a pending request. Please wait for admin review before submitting another one.",
+    "formTitle": "Restaurant Information",
+    "formDescription": "Provide accurate details so the admin team can verify your business quickly.",
+    "fields": {
+      "restaurantName": "Restaurant Name",
+      "restaurantNamePlaceholder": "e.g., Pizza Palace",
+      "restaurantNameHelp": "Use the official business name.",
+      "city": "City",
+      "cityPlaceholder": "Select a city",
+      "cityHelp": "Choose the city where your restaurant is located.",
+      "whatsapp": "WhatsApp Number",
+      "whatsappPlaceholder": "966501234567",
+      "whatsappHelp": "Include country code (e.g., 966 for Saudi Arabia). No \"+\" or spaces.",
+      "address": "Address",
+      "addressPlaceholder": "Street, District, City",
+      "addressHelp": "Full physical location of your restaurant.",
+      "description": "Description",
+      "descriptionPlaceholder": "Cuisine type, branches, why you want to join…",
+      "descriptionHelp": "Optional — helps us understand your business better."
+    },
+    "errors": {
+      "invalidPhone": "Please enter a valid phone number (include country code, no spaces).",
+      "genericTitle": "Something went wrong",
+      "unexpected": "Something went wrong: {message}"
+    },
+    "submit": {
+      "submitting": "Submitting…",
+      "alreadyPending": "Request Already Pending",
+      "submit": "Submit Request"
+    },
+    "sidebar": {
+      "nextSteps": {
+        "title": "What happens next",
+        "subtitle": "Typical review flow",
+        "step1": "Your request is sent to the admin team",
+        "step2": "Admin reviews restaurant details",
+        "step3": "You'll be notified of approval/rejection",
+        "step4": "Once approved, you can manage your menu"
+      },
+      "requirements": {
+        "title": "Requirements",
+        "subtitle": "Minimum needed to approve",
+        "item1": "Valid restaurant name",
+        "item2": "Active WhatsApp number",
+        "item3": "Physical restaurant location",
+        "item4": "Keep menu updated"
+      },
+      "previousRequests": {
+        "title": "Your previous requests",
+        "subtitle": "History & status"
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "notFound": {
+    "title": "Restaurant not found",
+    "subtitle": "This restaurant may be unavailable or the link is incorrect.",
+    "backLink": "Back to restaurants"
+  },
+  "header": {
+    "openNow": "Open now",
+    "delivery": "Delivery",
+    "pickup": "Pickup",
+    "multiCuisine": "Multi-cuisine",
+    "call": "Call"
+  },
+  "uncategorized": "Uncategorized",
+  "search": {
+    "placeholder": "Search food..."
+  },
+  "categories": {
+    "all": "All"
+  },
+  "empty": {
+    "title": "No items found",
+    "subtitle": "Try adjusting your search or filters."
+  },
+  "item": {
+    "soldOutOverlay": "SOLD OUT",
+    "soldOutButton": "Sold Out",
+    "soldOutBadge": "Sold out",
+    "add": "Add",
+    "addToCart": "Add to Cart",
+    "decreaseAria": "Decrease",
+    "increaseAria": "Increase",
+    "decreaseQtyAria": "Decrease quantity",
+    "increaseQtyAria": "Increase quantity",
+    "price": "SAR {amount}",
+    "prepTime": "{minutes}min"
+  }
+}

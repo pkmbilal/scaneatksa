@@ -5,6 +5,7 @@ const supabase = supabaseBrowser();
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   getCurrentUser,
   getUserProfile,
@@ -16,6 +17,7 @@ const inputClass =
   "w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white";
 
 export default function EditMenuItemPage() {
+  const t = useTranslations("dashboard.owner");
   const router = useRouter();
   const params = useParams();
   const itemId = params.itemId;
@@ -65,7 +67,7 @@ export default function EditMenuItemPage() {
       currentUser.id,
     );
     if (restErr || !userRestaurant) {
-      setError("No restaurant found for this owner.");
+      setError(t("editMenuItemPage.errors.noRestaurant"));
       setLoading(false);
       return;
     }
@@ -88,14 +90,14 @@ export default function EditMenuItemPage() {
       .single();
 
     if (itemErr || !itemData) {
-      setError("Menu item not found.");
+      setError(t("editMenuItemPage.errors.itemNotFound"));
       setLoading(false);
       return;
     }
 
     // ✅ SECURITY CHECK: make sure this item belongs to this owner’s restaurant
     if (itemData.restaurant_id !== userRestaurant.id) {
-      setError("You are not allowed to edit this item.");
+      setError(t("editMenuItemPage.errors.notAllowed"));
       setLoading(false);
       return;
     }
@@ -123,7 +125,7 @@ export default function EditMenuItemPage() {
 
     const priceNum = Number.parseFloat(formData.price);
     if (Number.isNaN(priceNum)) {
-      setError("Please enter a valid price.");
+      setError(t("editMenuItemPage.errors.invalidPrice"));
       setSaving(false);
       return;
     }
@@ -160,7 +162,7 @@ export default function EditMenuItemPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading item...</p>
+          <p className="text-gray-600 dark:text-gray-400">{t("editMenuItemPage.loading")}</p>
         </div>
       </div>
     );
@@ -171,11 +173,11 @@ export default function EditMenuItemPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="rounded-2xl border border-gray-200 bg-white p-6 max-w-md w-full dark:border-gray-800 dark:bg-white/[0.03]">
           <h1 className="text-xl font-bold text-gray-800 dark:text-white/90 mb-2">
-            Edit Menu Item
+            {t("editMenuItemPage.title")}
           </h1>
           <p className="text-error-600 dark:text-error-400 text-sm mb-4">{error}</p>
           <Link href="/dashboard/owner" className="text-brand-600 dark:text-brand-400 font-semibold">
-            ← Back to dashboard
+            {t("editMenuItemPage.backToDashboard")}
           </Link>
         </div>
       </div>
@@ -189,7 +191,7 @@ export default function EditMenuItemPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">
-                Edit Menu Item
+                {t("editMenuItemPage.title")}
               </h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm">{item?.name}</p>
             </div>
@@ -197,14 +199,14 @@ export default function EditMenuItemPage() {
               href="/dashboard/owner"
               className="text-sm font-semibold text-brand-600 dark:text-brand-400"
             >
-              ← Back
+              {t("editMenuItemPage.back")}
             </Link>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Item Name *
+                {t("editMenuItemPage.nameLabel")}
               </label>
               <input
                 type="text"
@@ -219,7 +221,7 @@ export default function EditMenuItemPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Description *
+                {t("editMenuItemPage.descriptionLabel")}
               </label>
               <textarea
                 rows="3"
@@ -235,7 +237,7 @@ export default function EditMenuItemPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Price (SAR) *
+                  {t("editMenuItemPage.priceLabel")}
                 </label>
                 <input
                   type="number"
@@ -251,7 +253,7 @@ export default function EditMenuItemPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Category
+                  {t("editMenuItemPage.categoryLabel")}
                 </label>
                 <select
                   value={formData.category_id || ""}
@@ -260,7 +262,7 @@ export default function EditMenuItemPage() {
                   }
                   className={inputClass}
                 >
-                  <option value="">Uncategorized</option>
+                  <option value="">{t("common.uncategorized")}</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -272,7 +274,7 @@ export default function EditMenuItemPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Image URL
+                {t("editMenuItemPage.imageUrlLabel")}
               </label>
               <input
                 type="url"
@@ -286,7 +288,7 @@ export default function EditMenuItemPage() {
                 <div className="mt-3">
                   <img
                     src={formData.image_url}
-                    alt="Preview"
+                    alt={t("editMenuItemPage.imagePreviewAlt")}
                     className="w-full max-h-64 object-cover rounded-lg border border-gray-200 dark:border-gray-800"
                   />
                 </div>
@@ -299,7 +301,7 @@ export default function EditMenuItemPage() {
                 htmlFor="is_available"
                 className="text-sm font-semibold text-gray-700 dark:text-gray-300"
               >
-                Available for ordering
+                {t("editMenuItemPage.availableLabel")}
               </label>
               <Switch
                 id="is_available"
@@ -317,10 +319,10 @@ export default function EditMenuItemPage() {
                   htmlFor="is_veg"
                   className="text-sm font-semibold text-gray-700 dark:text-gray-300"
                 >
-                  Veg item
+                  {t("editMenuItemPage.vegLabel")}
                 </label>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {formData.is_veg ? "🥗 Veg" : "🍗 Non-veg"}
+                  {formData.is_veg ? t("editMenuItemPage.vegBadge") : t("editMenuItemPage.nonVegBadge")}
                 </span>
               </div>
               <Switch
@@ -342,14 +344,14 @@ export default function EditMenuItemPage() {
                 disabled={saving}
                 className="flex-1 bg-brand-500 hover:bg-brand-600 text-white py-3 rounded-lg font-semibold disabled:bg-gray-400 transition-colors cursor-pointer"
               >
-                {saving ? "Saving..." : "Save Changes"}
+                {saving ? t("editMenuItemPage.saving") : t("editMenuItemPage.save")}
               </button>
 
               <Link
                 href="/dashboard/owner"
                 className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold transition-colors text-center dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
               >
-                Cancel
+                {t("editMenuItemPage.cancel")}
               </Link>
             </div>
           </form>

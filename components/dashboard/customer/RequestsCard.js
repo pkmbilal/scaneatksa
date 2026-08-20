@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Clock, CheckCircle2, XCircle } from 'lucide-react'
 
 const statusTint = {
@@ -15,6 +16,7 @@ const statusIcon = {
 }
 
 function StatusBadge({ status }) {
+  const t = useTranslations('dashboard.customer')
   const Icon = statusIcon[status] || statusIcon.pending
 
   return (
@@ -24,15 +26,17 @@ function StatusBadge({ status }) {
       }`}
     >
       <Icon className="h-3.5 w-3.5" />
-      {status === 'pending' ? 'Pending' : status === 'approved' ? 'Approved' : 'Rejected'}
+      {status === 'pending' ? t('requestStatus.pending') : status === 'approved' ? t('requestStatus.approved') : t('requestStatus.rejected')}
     </span>
   )
 }
 
 export default function RequestsCard({ requests }) {
+  const t = useTranslations('dashboard.customer')
+
   if (!requests || requests.length === 0) return null
 
-  const scrollClass = requests.length > 4 ? 'max-h-[320px] overflow-auto pr-3' : ''
+  const scrollClass = requests.length > 4 ? 'max-h-[320px] overflow-auto pe-3' : ''
 
   return (
     <div>
@@ -57,12 +61,12 @@ export default function RequestsCard({ requests }) {
             )}
 
             <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-              Submitted: {new Date(request.created_at).toLocaleDateString()}
+              {t('requestsCard.submitted')}: {new Date(request.created_at).toLocaleDateString()}
             </p>
 
             {request.status === 'rejected' && request.rejection_reason && (
               <div className="mt-3 rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-700 dark:border-error-800 dark:bg-error-500/10 dark:text-error-400">
-                <span className="font-semibold">Reason: </span>
+                <span className="font-semibold">{t('requestsCard.reason')}: </span>
                 {request.rejection_reason}
               </div>
             )}

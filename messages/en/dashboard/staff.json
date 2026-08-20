@@ -1,0 +1,46 @@
+{
+  "queue": {
+    "orderLabel": "Order",
+    "loading": "Loading orders…",
+    "empty": "No orders in your queue.",
+    "notesLabel": "Notes:",
+    "total": "Total: SAR {amount}",
+    "updating": "Updating…",
+    "noRestaurantAssigned": "Your account isn't assigned to a restaurant yet. Ask your restaurant owner to check your staff account.",
+    "channel": {
+      "dineIn": "Table {table}",
+      "delivery": "Delivery",
+      "pickup": "Pickup"
+    },
+    "status": {
+      "new": "New",
+      "accepted": "Accepted",
+      "preparing": "Preparing",
+      "ready": "Ready",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    }
+  },
+  "kitchen": {
+    "title": "Kitchen Queue",
+    "homeLabel": "Kitchen",
+    "loadingMessage": "Loading your kitchen queue...",
+    "descriptionWithRestaurant": "New orders for {restaurantName} waiting to be started.",
+    "descriptionGeneric": "New orders waiting to be started.",
+    "actions": {
+      "startPreparing": "Start Preparing"
+    }
+  },
+  "waiter": {
+    "title": "Floor Queue",
+    "homeLabel": "Waiter",
+    "loadingMessage": "Loading your floor queue...",
+    "descriptionWithRestaurant": "Orders for {restaurantName} that are preparing or ready to serve.",
+    "descriptionGeneric": "Orders that are preparing or ready to serve.",
+    "actions": {
+      "markReady": "Mark Ready",
+      "markDelivered": "Mark Delivered"
+    }
+  }
+}

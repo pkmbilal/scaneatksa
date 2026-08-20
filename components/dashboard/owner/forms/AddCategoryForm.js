@@ -3,9 +3,11 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 const supabase = supabaseBrowser();
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { DialogFooter } from "@/components/ui/dialog";
 
 export default function AddCategoryForm({ restaurantId, onSuccess }) {
+  const t = useTranslations("dashboard.owner");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -17,7 +19,7 @@ export default function AddCategoryForm({ restaurantId, onSuccess }) {
 
     const cleanName = name.trim();
     if (!cleanName) {
-      setError("Category name is required.");
+      setError(t("addCategoryForm.nameRequired"));
       setLoading(false);
       return;
     }
@@ -28,7 +30,7 @@ export default function AddCategoryForm({ restaurantId, onSuccess }) {
 
     if (dbError) {
       const msg = dbError.message?.toLowerCase().includes("duplicate")
-        ? "This category already exists."
+        ? t("addCategoryForm.duplicate")
         : dbError.message;
       setError(msg);
       setLoading(false);
@@ -44,12 +46,12 @@ export default function AddCategoryForm({ restaurantId, onSuccess }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-          Category Name
+          {t("addCategoryForm.nameLabel")}
         </label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g., Biriyani"
+          placeholder={t("addCategoryForm.namePlaceholder")}
           className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
         />
       </div>
@@ -66,7 +68,7 @@ export default function AddCategoryForm({ restaurantId, onSuccess }) {
           disabled={loading}
           className="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600 disabled:opacity-50 cursor-pointer"
         >
-          {loading ? "Adding…" : "Add Category"}
+          {loading ? t("addCategoryForm.submitting") : t("addCategoryForm.submit")}
         </button>
       </DialogFooter>
     </form>

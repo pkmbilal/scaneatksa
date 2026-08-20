@@ -1,0 +1,38 @@
+{
+  "notFound": {
+    "title": "المطعم غير موجود",
+    "subtitle": "قد يكون هذا المطعم غير متاح أو الرابط غير صحيح.",
+    "backLink": "العودة إلى المطاعم"
+  },
+  "header": {
+    "openNow": "مفتوح الآن",
+    "delivery": "توصيل",
+    "pickup": "استلام",
+    "multiCuisine": "مطابخ متعددة",
+    "call": "اتصال"
+  },
+  "uncategorized": "غير مصنف",
+  "search": {
+    "placeholder": "ابحث عن طعام..."
+  },
+  "categories": {
+    "all": "الكل"
+  },
+  "empty": {
+    "title": "لا توجد أصناف",
+    "subtitle": "جرّب تعديل بحثك أو عوامل التصفية."
+  },
+  "item": {
+    "soldOutOverlay": "نفدت الكمية",
+    "soldOutButton": "نفدت الكمية",
+    "soldOutBadge": "نفدت الكمية",
+    "add": "إضافة",
+    "addToCart": "أضف إلى السلة",
+    "decreaseAria": "إنقاص",
+    "increaseAria": "زيادة",
+    "decreaseQtyAria": "إنقاص الكمية",
+    "increaseQtyAria": "زيادة الكمية",
+    "price": "{amount} ريال",
+    "prepTime": "{minutes} د"
+  }
+}

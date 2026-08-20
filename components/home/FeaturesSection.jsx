@@ -1,20 +1,35 @@
-export default function FeaturesSection({ data }) {
+import { getTranslations } from "next-intl/server";
+import {
+  ScanLine,
+  NotebookPen,
+  MessageCircleMore,
+  Smartphone,
+  Languages,
+  Store,
+} from "lucide-react";
+
+const icons = [ScanLine, NotebookPen, MessageCircleMore, Smartphone, Languages, Store];
+
+export default async function FeaturesSection() {
+  const t = await getTranslations("home.features");
+  const items = t.raw("items");
+
   return (
     <section className="bg-slate-50 py-20">
       <div className="mx-auto max-w-7xl px-4">
         <div className="mx-auto mb-14 max-w-3xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
-            {data.eyebrow}
+            {t("eyebrow")}
           </p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
-            {data.title}
+            {t("title")}
           </h2>
-          <p className="mt-4 text-lg text-slate-600">{data.description}</p>
+          <p className="mt-4 text-lg text-slate-600">{t("description")}</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {data.items.map((feature) => {
-            const Icon = feature.icon;
+          {items.map((feature, index) => {
+            const Icon = icons[index];
 
             return (
               <div

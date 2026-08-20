@@ -1,10 +1,12 @@
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
 import FavoriteButton from "@/components/FavoriteButton"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { UtensilsCrossed, MapPin, Star, Clock } from "lucide-react"
 
-export default function RestaurantCard({ restaurant }) {
+export default async function RestaurantCard({ restaurant }) {
+  const t = await getTranslations('restaurants')
   const { id, slug, name, address, image_url } = restaurant
   const cityName = restaurant?.cities?.name || restaurant?.city || null
 
@@ -15,7 +17,7 @@ export default function RestaurantCard({ restaurant }) {
   return (
     <div className="relative group">
       {/* Favorite */}
-      <div className="absolute top-2 right-2 z-20">
+      <div className="absolute top-2 end-2 z-20">
         <FavoriteButton restaurantId={id} />
       </div>
 
@@ -80,14 +82,14 @@ export default function RestaurantCard({ restaurant }) {
                   <div className="mt-1 flex items-start gap-2 text-sm text-gray-600">
                     <MapPin className="h-4 w-4 mt-0.5 text-emerald-600 shrink-0" />
                     <span className="line-clamp-1 sm:line-clamp-2 leading-snug">
-                      {address || "No address provided"}
+                      {address || t('card.noAddress')}
                     </span>
                   </div>
 
                   {/* City pill (tight) */}
                   <div className="mt-1">
                     <span className="inline-flex items-center rounded-full border bg-gray-50 px-2.5 py-0.5 text-xs font-semibold text-gray-700">
-                      {cityName || "City not set"}
+                      {cityName || t('card.cityNotSet')}
                     </span>
                   </div>
                 </div>

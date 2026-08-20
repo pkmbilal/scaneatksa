@@ -1,0 +1,69 @@
+{
+  "metadata": {
+    "title": "Contact Us | ScanEat",
+    "description": "Contact ScanEat for QR menu setup, WhatsApp ordering, onboarding support, and digital menu solutions for restaurants across Saudi Arabia."
+  },
+  "quickItems": [
+    {
+      "key": "restaurants",
+      "title": "Built for restaurants",
+      "text": "For dine-in, takeaway, and QR ordering workflows."
+    },
+    {
+      "key": "support",
+      "title": "Direct support",
+      "text": "Fast help for onboarding, demos, and setup questions."
+    },
+    {
+      "key": "launch",
+      "title": "Quick launch",
+      "text": "Get your digital menu live with minimal friction."
+    }
+  ],
+  "contactMethods": {
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "hours": "Hours",
+    "hoursValue": "Sun to Thu · 9:00 AM to 6:00 PM",
+    "serviceArea": "Service area",
+    "serviceAreaValue": "Restaurants across Saudi Arabia"
+  },
+  "hero": {
+    "badge": "Contact ScanEat",
+    "title": "Contact our team for QR menu setup and support",
+    "description": "Talk to us about digital QR menus, WhatsApp ordering, onboarding, and restaurant launch support across Saudi Arabia.",
+    "whatsappCta": "Chat on WhatsApp",
+    "emailCta": "Email us",
+    "imageAlt": "ScanEat contact support",
+    "fastResponse": "Fast response",
+    "whatsappFirst": "WhatsApp-first support"
+  },
+  "info": {
+    "eyebrow": "Get in touch",
+    "title": "We're here to help",
+    "description": "Reach out for pricing, demos, onboarding, or setup guidance for your restaurant.",
+    "fasterResponse": "Faster response",
+    "preferWhatsapp": "Prefer WhatsApp?",
+    "whatsappText": "For quick questions, demos, and onboarding help, message us directly on WhatsApp.",
+    "startWhatsappChat": "Start WhatsApp Chat"
+  },
+  "form": {
+    "eyebrow": "Send us a message",
+    "title": "Tell us about your restaurant",
+    "description": "Share your restaurant details and what you need from ScanEat.",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Your full name",
+    "phone": "Phone Number",
+    "phonePlaceholder": "Your phone number",
+    "email": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "business": "Restaurant / Business Name",
+    "businessPlaceholder": "Your restaurant or business name",
+    "message": "Message",
+    "messagePlaceholder": "Tell us about your restaurant, branch count, and what you need from ScanEat...",
+    "send": "Send Message",
+    "whatsappCta": "Contact via WhatsApp",
+    "disclaimer": "This form is UI-only for now. You can connect it with Supabase, Resend, or Formspree."
+  }
+}

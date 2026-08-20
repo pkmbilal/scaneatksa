@@ -1,9 +1,11 @@
+import { getTranslations } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import RestaurantCard from '@/components/restaurant/RestaurantCard'
 import RestaurantsFilters from '@/components/restaurant/RestaurantsFilters'
 
 export default async function RestaurantsPage({ searchParams }) {
   const supabase = supabaseServer();
+  const t = await getTranslations('restaurants')
   const params = await Promise.resolve(searchParams ?? {})
 
   const type = (params?.type ?? 'restaurants').toString()
@@ -100,8 +102,8 @@ export default async function RestaurantsPage({ searchParams }) {
     <section className="pt-4 pb-4 md:py-10 bg-gray-50 h-screen">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-4 md:mb-8">
-          <h2 className="text-2xl text-center md:text-5xl font-bold text-gray-900 md:mb-3">Restaurants</h2>
-          <p className="md:text-lg text-center text-gray-600">Search by restaurant, city, cuisine, or food item</p>
+          <h2 className="text-2xl text-center md:text-5xl font-bold text-gray-900 md:mb-3">{t('page.title')}</h2>
+          <p className="md:text-lg text-center text-gray-600">{t('page.subtitle')}</p>
         </div>
 
         <div className="mb-4 md:mb-8">
@@ -117,8 +119,8 @@ export default async function RestaurantsPage({ searchParams }) {
         ) : (
           <div className="text-center py-16 bg-white rounded-2xl border">
             <div className="text-6xl mb-4">🔎</div>
-            <p className="text-xl text-gray-700 font-semibold">No results found</p>
-            <p className="text-sm text-gray-500 mt-2">Try changing filters or search type.</p>
+            <p className="text-xl text-gray-700 font-semibold">{t('empty.title')}</p>
+            <p className="text-sm text-gray-500 mt-2">{t('empty.subtitle')}</p>
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ const supabase = supabaseBrowser();
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { getCurrentUser, getUserProfile, getUserRestaurant } from '@/lib/auth/client'
 import { Switch } from '@/components/ui/switch'
 
@@ -12,6 +13,7 @@ const inputClass =
   'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white'
 
 export default function EditRestaurantPage() {
+  const t = useTranslations('dashboard.owner')
   const router = useRouter()
 
   const [loading, setLoading] = useState(true)
@@ -113,7 +115,7 @@ export default function EditRestaurantPage() {
 
     const { data: userRestaurant, error: restaurantError } = await getUserRestaurant(currentUser.id)
     if (restaurantError || !userRestaurant) {
-      setError('No restaurant found for this owner. Please contact admin.')
+      setError(t('editRestaurantPage.errors.noRestaurant'))
       setLoading(false)
       return
     }
@@ -149,7 +151,7 @@ export default function EditRestaurantPage() {
 
     // Optional: at least one option must be enabled
     if (!formData.delivery_available && !formData.pickup_available) {
-      setError('Please enable at least Delivery or Pickup.')
+      setError(t('editRestaurantPage.errors.needServiceOption'))
       setSaving(false)
       return
     }
@@ -173,7 +175,7 @@ export default function EditRestaurantPage() {
       .eq('id', restaurant.id)
 
     if (dbError) {
-      setError('Failed to update: ' + dbError.message)
+      setError(t('editRestaurantPage.errors.updateFailed', { message: dbError.message }))
       setSaving(false)
       return
     }
@@ -185,7 +187,7 @@ export default function EditRestaurantPage() {
       .eq('restaurant_id', restaurant.id)
 
     if (delError) {
-      setError('Restaurant saved, but failed to update cuisines: ' + delError.message)
+      setError(t('editRestaurantPage.errors.cuisinesUpdateFailed', { message: delError.message }))
       setSaving(false)
       return
     }
@@ -199,13 +201,13 @@ export default function EditRestaurantPage() {
       const { error: insError } = await supabase.from('restaurant_cuisines').insert(rows)
 
       if (insError) {
-        setError('Restaurant saved, but failed to update cuisines: ' + insError.message)
+        setError(t('editRestaurantPage.errors.cuisinesUpdateFailed', { message: insError.message }))
         setSaving(false)
         return
       }
     }
 
-    setSuccess('Saved ✅')
+    setSuccess(t('editRestaurantPage.success.saved'))
     setSaving(false)
 
     setTimeout(() => {
@@ -218,7 +220,7 @@ export default function EditRestaurantPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          <p className="text-gray-600 dark:text-gray-400">{t('editRestaurantPage.loading')}</p>
         </div>
       </div>
     )
@@ -229,15 +231,15 @@ export default function EditRestaurantPage() {
       <div className="max-w-3xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white/90">Edit Restaurant</h1>
-            <p className="text-gray-600 dark:text-gray-400">Update your restaurant details</p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white/90">{t('editRestaurantPage.title')}</h1>
+            <p className="text-gray-600 dark:text-gray-400">{t('editRestaurantPage.subtitle')}</p>
           </div>
 
           <Link
             href="/dashboard/owner"
             className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 font-semibold dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/5"
           >
-            ← Back
+            {t('editRestaurantPage.back')}
           </Link>
         </div>
 
@@ -246,7 +248,7 @@ export default function EditRestaurantPage() {
             {/* Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Restaurant Name *
+                {t('editRestaurantPage.nameLabel')}
               </label>
               <input
                 type="text"
@@ -259,7 +261,7 @@ export default function EditRestaurantPage() {
 
             {/* City dropdown */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">City *</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('editRestaurantPage.cityLabel')}</label>
               <select
                 value={formData.city_id}
                 onChange={(e) => setFormData({ ...formData, city_id: e.target.value })}
@@ -267,7 +269,7 @@ export default function EditRestaurantPage() {
                 required
               >
                 <option value="" disabled>
-                  Select city
+                  {t('editRestaurantPage.selectCity')}
                 </option>
                 {cities.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -278,7 +280,7 @@ export default function EditRestaurantPage() {
 
               {cities.length === 0 && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  No active cities found. Ask admin to add cities.
+                  {t('editRestaurantPage.noCitiesHint')}
                 </p>
               )}
             </div>
@@ -286,14 +288,14 @@ export default function EditRestaurantPage() {
             {/* ✅ Delivery / Pickup */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Service Options
+                {t('editRestaurantPage.serviceOptionsLabel')}
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex items-center justify-between gap-3 p-3 border border-gray-200 rounded-xl dark:border-gray-800">
                   <div>
-                    <div className="font-semibold text-gray-800 dark:text-white/90">🚚 Delivery</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">You can deliver to customers</div>
+                    <div className="font-semibold text-gray-800 dark:text-white/90">{t('editRestaurantPage.deliveryTitle')}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{t('editRestaurantPage.deliveryHint')}</div>
                   </div>
                   <Switch
                     checked={formData.delivery_available}
@@ -303,8 +305,8 @@ export default function EditRestaurantPage() {
 
                 <div className="flex items-center justify-between gap-3 p-3 border border-gray-200 rounded-xl dark:border-gray-800">
                   <div>
-                    <div className="font-semibold text-gray-800 dark:text-white/90">🏃 Pickup</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Customers can pick up from you</div>
+                    <div className="font-semibold text-gray-800 dark:text-white/90">{t('editRestaurantPage.pickupTitle')}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{t('editRestaurantPage.pickupHint')}</div>
                   </div>
                   <Switch
                     checked={formData.pickup_available}
@@ -314,13 +316,13 @@ export default function EditRestaurantPage() {
               </div>
 
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                Tip: Enable at least one option.
+                {t('editRestaurantPage.serviceOptionsTip')}
               </p>
             </div>
 
             {/* ✅ Cuisines multi-select */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Cuisines</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('editRestaurantPage.cuisinesLabel')}</label>
 
               <select
                 multiple
@@ -339,10 +341,10 @@ export default function EditRestaurantPage() {
               </select>
 
               {cuisines.length === 0 ? (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">No cuisines found. Ask admin to add cuisines.</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('editRestaurantPage.noCuisinesHint')}</p>
               ) : (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Tip: Hold Ctrl (Windows) / Cmd (Mac) to select multiple.
+                  {t('editRestaurantPage.cuisinesTip')}
                 </p>
               )}
 
@@ -367,20 +369,20 @@ export default function EditRestaurantPage() {
             {/* Phone */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                WhatsApp Number
+                {t('editRestaurantPage.phoneLabel')}
               </label>
               <input
                 type="text"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="966501234567"
+                placeholder={t('editRestaurantPage.phonePlaceholder')}
                 className={inputClass}
               />
             </div>
 
             {/* Address */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Address</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('editRestaurantPage.addressLabel')}</label>
               <input
                 type="text"
                 value={formData.address}
@@ -392,22 +394,22 @@ export default function EditRestaurantPage() {
             {/* Image URL */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Restaurant Image URL
+                {t('editRestaurantPage.imageUrlLabel')}
               </label>
               <input
                 type="url"
                 value={formData.image_url}
                 onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                placeholder="https://images.unsplash.com/..."
+                placeholder={t('editRestaurantPage.imageUrlPlaceholder')}
                 className={inputClass}
               />
 
               {!!formData.image_url?.trim() && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Preview</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t('editRestaurantPage.imagePreviewLabel')}</p>
                   <img
                     src={formData.image_url}
-                    alt="Restaurant preview"
+                    alt={t('editRestaurantPage.imagePreviewAlt')}
                     className="w-full h-44 object-cover rounded-lg border border-gray-200 dark:border-gray-800"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none'
@@ -420,7 +422,7 @@ export default function EditRestaurantPage() {
             {/* Active toggle */}
             <div className="flex items-center justify-between gap-3 pt-2">
               <label htmlFor="is_active" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Restaurant is active (visible to customers)
+                {t('editRestaurantPage.activeLabel')}
               </label>
               <Switch
                 id="is_active"
@@ -448,7 +450,7 @@ export default function EditRestaurantPage() {
                 disabled={saving || cities.length === 0}
                 className="flex-1 bg-brand-500 hover:bg-brand-600 text-white py-3 rounded-lg font-semibold disabled:bg-gray-400 transition-colors"
               >
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? t('editRestaurantPage.saving') : t('editRestaurantPage.save')}
               </button>
 
               <button
@@ -456,7 +458,7 @@ export default function EditRestaurantPage() {
                 onClick={() => router.push('/dashboard/owner')}
                 className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold transition-colors dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
               >
-                Cancel
+                {t('editRestaurantPage.cancel')}
               </button>
             </div>
           </form>

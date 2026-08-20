@@ -11,6 +11,7 @@ const supabase = supabaseBrowser();
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { getCurrentUser, getUserProfile } from "@/lib/auth/client";
 
@@ -44,6 +45,7 @@ import {
 } from "lucide-react";
 
 export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
+  const t = useTranslations("dashboard.common.editProfile");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({
@@ -86,15 +88,15 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
   }
 
   const roleBadge = (role) => {
-    if (role === "admin") return <Badge className="bg-violet-600 hover:bg-violet-600">admin</Badge>;
-    if (role === "owner") return <Badge className="bg-blue-600 hover:bg-blue-600">owner</Badge>;
-    return <Badge variant="secondary">customer</Badge>;
+    if (role === "admin") return <Badge className="bg-violet-600 hover:bg-violet-600">{t("roleLabels.admin")}</Badge>;
+    if (role === "owner") return <Badge className="bg-blue-600 hover:bg-blue-600">{t("roleLabels.owner")}</Badge>;
+    return <Badge variant="secondary">{t("roleLabels.customer")}</Badge>;
   };
 
   const roleHint = (role) => {
-    if (role === "admin") return "Full system access";
-    if (role === "owner") return "You can manage restaurants";
-    return "Want to manage a restaurant? Request owner access!";
+    if (role === "admin") return t("roleHints.admin");
+    if (role === "owner") return t("roleHints.owner");
+    return t("roleHints.customer");
   };
 
   const handleSubmit = async (e) => {
@@ -128,7 +130,7 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
         router.push(backHref);
       }, 2000);
     } catch (err) {
-      setError("Something went wrong: " + err.message);
+      setError(t("genericError", { message: err.message }));
       setSaving(false);
     }
   };
@@ -141,7 +143,7 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
             <CardContent className="py-14">
               <div className="flex flex-col items-center gap-3 text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Loading your profile…</p>
+                <p className="text-sm text-muted-foreground">{t("loading")}</p>
               </div>
             </CardContent>
           </Card>
@@ -161,8 +163,8 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
             href={backHref}
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+            <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+            {t("backToDashboard")}
           </Link>
 
           <div className="mt-4 flex items-start gap-3">
@@ -170,9 +172,9 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
               <UserIcon className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-3xl font-semibold tracking-tight">Edit Profile</h1>
+              <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Update your personal information and keep your account details current.
+                {t("subtitle")}
               </p>
             </div>
           </div>
@@ -182,15 +184,15 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
         {success && (
           <Alert className="mb-6 border-emerald-200 bg-emerald-50 text-emerald-950">
             <CheckCircle2 className="h-4 w-4" />
-            <AlertTitle>Profile updated</AlertTitle>
-            <AlertDescription>Changes saved successfully. Redirecting…</AlertDescription>
+            <AlertTitle>{t("updatedTitle")}</AlertTitle>
+            <AlertDescription>{t("updatedDescription")}</AlertDescription>
           </Alert>
         )}
 
         {error && (
           <Alert variant="destructive" className="mb-6">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Update failed</AlertTitle>
+            <AlertTitle>{t("failedTitle")}</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -199,8 +201,8 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
           {/* Main Form */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="text-xl">Profile Details</CardTitle>
-              <CardDescription>These details help restaurants contact you if needed.</CardDescription>
+              <CardTitle className="text-xl">{t("detailsTitle")}</CardTitle>
+              <CardDescription>{t("detailsDescription")}</CardDescription>
             </CardHeader>
 
             <CardContent>
@@ -209,22 +211,22 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
-                    Email Address
+                    {t("emailLabel")}
                   </Label>
                   <Input value={user?.email || ""} disabled />
-                  <p className="text-xs text-muted-foreground">Email cannot be changed.</p>
+                  <p className="text-xs text-muted-foreground">{t("emailHint")}</p>
                 </div>
 
                 {/* Full name */}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <UserIcon className="h-4 w-4 text-muted-foreground" />
-                    Full Name
+                    {t("fullNameLabel")}
                   </Label>
                   <Input
                     value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                    placeholder="Enter your full name"
+                    placeholder={t("fullNamePlaceholder")}
                   />
                 </div>
 
@@ -232,17 +234,17 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    Phone Number
+                    {t("phoneLabel")}
                   </Label>
                   <Input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="e.g., 966501234567"
+                    placeholder={t("phonePlaceholder")}
                     inputMode="numeric"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Include country code (e.g., 966 for Saudi Arabia).
+                    {t("phoneHint")}
                   </p>
                 </div>
 
@@ -256,21 +258,21 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving…
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                      {t("saving")}
                     </>
                   ) : success ? (
                     <>
-                      <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Saved!
+                      <CheckCircle2 className="me-2 h-4 w-4" />
+                      {t("saved")}
                     </>
                   ) : (
-                    "Save Changes"
+                    t("saveChanges")
                   )}
                 </Button>
 
                 <Button asChild variant="secondary" className="w-full h-12 text-base font-semibold">
-                  <Link href={backHref}>Cancel</Link>
+                  <Link href={backHref}>{t("cancel")}</Link>
                 </Button>
               </form>
             </CardContent>
@@ -283,13 +285,13 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <Shield className="h-4 w-4 text-muted-foreground" />
-                  Account Type
+                  {t("accountType")}
                 </CardTitle>
-                <CardDescription>Your permission level</CardDescription>
+                <CardDescription>{t("accountTypeSubtitle")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Role</span>
+                  <span className="text-sm text-muted-foreground">{t("role")}</span>
                   {roleBadge(role)}
                 </div>
                 <p className="text-sm">{roleHint(role)}</p>
@@ -299,14 +301,14 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
             {/* Account info */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Account Information</CardTitle>
-                <CardDescription>Basic account metadata</CardDescription>
+                <CardTitle className="text-base">{t("accountInfo")}</CardTitle>
+                <CardDescription>{t("accountInfoSubtitle")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span>Created</span>
+                    <span>{t("created")}</span>
                   </div>
                   <span>
                     {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}
@@ -316,7 +318,7 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span>Updated</span>
+                    <span>{t("updated")}</span>
                   </div>
                   <span>
                     {profile?.updated_at ? new Date(profile.updated_at).toLocaleDateString() : "—"}
@@ -328,13 +330,13 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Activity className="h-4 w-4" />
-                    <span>Status</span>
+                    <span>{t("status")}</span>
                   </div>
 
                   {profile?.is_active ? (
-                    <Badge className="bg-emerald-600 hover:bg-emerald-600">Active</Badge>
+                    <Badge className="bg-emerald-600 hover:bg-emerald-600">{t("active")}</Badge>
                   ) : (
-                    <Badge variant="destructive">Inactive</Badge>
+                    <Badge variant="destructive">{t("inactive")}</Badge>
                   )}
                 </div>
               </CardContent>

@@ -1,0 +1,321 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "okay": "Okay",
+    "error": "Error",
+    "uncategorized": "Uncategorized",
+    "price": "SAR {amount}"
+  },
+  "itemStatus": {
+    "veg": "Veg",
+    "nonVeg": "Non-veg",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "soldOut": "Sold Out",
+    "live": "Live"
+  },
+  "status": {
+    "new": "New",
+    "accepted": "Accepted",
+    "preparing": "Preparing",
+    "ready": "Ready",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  },
+  "page": {
+    "loading": "Loading owner dashboard...",
+    "homeLabel": "Owner Dashboard",
+    "noRestaurant": {
+      "title": "No Restaurant Found",
+      "description": "Please contact admin for assistance."
+    },
+    "nav": {
+      "overview": "Overview",
+      "items": "Menu Items",
+      "categories": "Categories",
+      "tables": "Tables & QR",
+      "orders": "Orders",
+      "staff": "Staff",
+      "restaurant": "Restaurant"
+    },
+    "siteNav": {
+      "about": "About",
+      "howItWorks": "How It Works",
+      "restaurants": "Restaurants",
+      "contact": "Contact"
+    },
+    "tabDescriptions": {
+      "overview": "A quick snapshot of your restaurant's menu, tables, and orders.",
+      "items": "Manage the dishes on your menu, prices, and availability.",
+      "categories": "Organize your menu items into categories.",
+      "tables": "Generate QR codes so orders automatically tag the right table.",
+      "orders": "Dine-in orders show a table number. Online orders show pickup or delivery.",
+      "staff": "Create kitchen and waiter accounts for your restaurant.",
+      "restaurant": "Manage your restaurant's public details and settings."
+    },
+    "stats": {
+      "menuItems": "Menu Items",
+      "categories": "Categories",
+      "tables": "Tables",
+      "orders": "Orders"
+    },
+    "actions": {
+      "refreshOrders": "Refresh Orders",
+      "refreshingOrders": "Refreshing...",
+      "editRestaurant": "Edit Restaurant"
+    },
+    "deleteItemDialog": {
+      "title": "Delete Item",
+      "description": "Are you sure you want to delete this item? This action cannot be undone."
+    },
+    "deleteCategoryDialog": {
+      "title": "Delete Category",
+      "description": "Delete this category? Items under it will become Uncategorized."
+    },
+    "deleteTableDialog": {
+      "title": "Delete Table",
+      "titleWithNumber": "Delete Table {number}",
+      "description": "This can't be undone. If this table has past orders, deletion will be blocked — deactivate it instead."
+    },
+    "errors": {
+      "updateOrderFailedTitle": "Couldn't update order",
+      "tryAgain": "Please try again.",
+      "deleteCategoryFailed": "Failed to delete category: {message}",
+      "updateTableFailed": "Failed to update table.",
+      "deleteTableFailed": "Failed to delete table.",
+      "deleteTableServerError": "Server error deleting table.",
+      "categoryNameEmpty": "Name cannot be empty",
+      "categoryDuplicate": "This category already exists."
+    }
+  },
+  "categoriesPanel": {
+    "empty": "No categories yet. Add one to organize your menu."
+  },
+  "categoryPill": {
+    "rename": "Rename",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "renameFailed": "Failed to rename"
+  },
+  "addCategoryDialog": {
+    "trigger": "Add Category",
+    "title": "Add Category",
+    "description": "Create a new category for your menu items."
+  },
+  "addCategoryForm": {
+    "nameLabel": "Category Name",
+    "namePlaceholder": "e.g., Biriyani",
+    "nameRequired": "Category name is required.",
+    "duplicate": "This category already exists.",
+    "submit": "Add Category",
+    "submitting": "Adding…"
+  },
+  "addItemDialog": {
+    "trigger": "Add Item",
+    "title": "Add Menu Item",
+    "description": "Create a new item. You can mark it sold out anytime."
+  },
+  "addItemForm": {
+    "invalidPrice": "Please enter a valid price.",
+    "nameLabel": "Item Name",
+    "namePlaceholder": "e.g., Chicken Mandi",
+    "priceLabel": "Price (SAR)",
+    "pricePlaceholder": "12.00",
+    "categoryLabel": "Category",
+    "selectCategoryPlaceholder": "Select category",
+    "noCategoriesHint": "Add a category first to create items.",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Short description…",
+    "imageUrlLabel": "Image URL (optional)",
+    "imageUrlPlaceholder": "https://…",
+    "available": "Available",
+    "availableHint": "Shown to customers",
+    "veg": "Veg",
+    "vegItem": "Veg item",
+    "nonVegItem": "Non-veg item",
+    "soldOut": "Sold Out",
+    "soldOutHint": "Disables add button",
+    "submit": "Add Item",
+    "submitting": "Adding…"
+  },
+  "addTableDialog": {
+    "trigger": "Add Table",
+    "title": "Add Table(s)",
+    "description": "New tables continue from your current highest table number — e.g. if you have Table 1–8, this adds Table 9 onward."
+  },
+  "addTableForm": {
+    "countLabel": "Number of tables to add",
+    "countPlaceholder": "e.g., 5",
+    "hint": "New tables continue from your current highest table number — e.g. if you have Table 1–8, this adds Table 9 onward.",
+    "invalidCount": "Please enter a valid number of tables (1 to 200).",
+    "failedGeneric": "Failed to add tables.",
+    "serverError": "Server error adding tables.",
+    "submit": "Add Table",
+    "submitting": "Adding…"
+  },
+  "menuItemsTab": {
+    "empty": "No items yet. Add your first item ✨"
+  },
+  "menuItemsTable": {
+    "columns": {
+      "item": "Item",
+      "category": "Category",
+      "type": "Type",
+      "price": "Price",
+      "available": "Available",
+      "soldOut": "Sold Out",
+      "actions": "Actions"
+    },
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "menuItemsMobile": {
+    "itemCount": "{count, plural, one {# item} other {# items}}",
+    "liveToggleLabel": "Live",
+    "soldToggleLabel": "Sold",
+    "editItem": "Edit item",
+    "deleteItem": "Delete item"
+  },
+  "ownerStats": {
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "soldOut": "Sold Out"
+  },
+  "ownerOrdersTab": {
+    "loading": "Loading orders…",
+    "empty": "No orders yet.",
+    "orderLabel": "Order",
+    "channel": {
+      "dineIn": "Table {number}",
+      "delivery": "Delivery",
+      "pickup": "Pickup"
+    },
+    "totalLabel": "Total: SAR {amount}",
+    "notesLabel": "Notes:",
+    "changeStatus": "Change status",
+    "updating": "Updating…"
+  },
+  "ownerTablesQrTab": {
+    "onlineLinkTitle": "Online ordering link",
+    "copyLink": "Copy link",
+    "copied": "Copied ✅",
+    "copyFailed": "Copy failed (browser blocked clipboard).",
+    "tableQrsTitle": "Table QRs",
+    "tableCount": "{count, plural, one {# table} other {# tables}}",
+    "loadingTables": "Loading tables…",
+    "noTablesYet": "No tables yet. Click <b>Add Table</b> above.",
+    "tableLabel": "Table {number}",
+    "active": "Active",
+    "inactive": "Inactive",
+    "qrCode": "QR Code",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete",
+    "nextStepNote": "Next step: add a “Download QR Pack (PDF)” button to print all tables in one click."
+  },
+  "restaurantInfoCard": {
+    "title": "Restaurant Info",
+    "subtitle": "Quick reference details for customers.",
+    "name": "Name",
+    "whatsapp": "WhatsApp",
+    "slug": "Slug",
+    "address": "Address",
+    "notSet": "Not set"
+  },
+  "restaurantTab": {
+    "viewMenu": "View Menu",
+    "qrCode": "QR Code"
+  },
+  "staffTab": {
+    "role": {
+      "kitchen": "Kitchen",
+      "waiter": "Waiter"
+    },
+    "fullNamePlaceholder": "Full name",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Temporary password",
+    "submit": "Add Staff",
+    "submitting": "Creating…",
+    "hint": "Share the email and password with your staff member so they can log in directly — no invite email is sent.",
+    "errors": {
+      "emailPasswordRequired": "Email and password are required.",
+      "passwordTooShort": "Password must be at least 6 characters."
+    },
+    "loading": "Loading staff…",
+    "empty": "No staff accounts yet.",
+    "noName": "No name",
+    "disabled": "DISABLED",
+    "addedOn": "Added {date}",
+    "disable": "Disable",
+    "enable": "Enable"
+  },
+  "editMenuItemPage": {
+    "loading": "Loading item...",
+    "title": "Edit Menu Item",
+    "backToDashboard": "← Back to dashboard",
+    "back": "← Back",
+    "errors": {
+      "noRestaurant": "No restaurant found for this owner.",
+      "itemNotFound": "Menu item not found.",
+      "notAllowed": "You are not allowed to edit this item.",
+      "invalidPrice": "Please enter a valid price."
+    },
+    "nameLabel": "Item Name *",
+    "descriptionLabel": "Description *",
+    "priceLabel": "Price (SAR) *",
+    "categoryLabel": "Category",
+    "imageUrlLabel": "Image URL",
+    "imagePreviewAlt": "Preview",
+    "availableLabel": "Available for ordering",
+    "vegLabel": "Veg item",
+    "vegBadge": "🥗 Veg",
+    "nonVegBadge": "🍗 Non-veg",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "cancel": "Cancel"
+  },
+  "editRestaurantPage": {
+    "loading": "Loading...",
+    "title": "Edit Restaurant",
+    "subtitle": "Update your restaurant details",
+    "back": "← Back",
+    "errors": {
+      "noRestaurant": "No restaurant found for this owner. Please contact admin.",
+      "needServiceOption": "Please enable at least Delivery or Pickup.",
+      "updateFailed": "Failed to update: {message}",
+      "cuisinesUpdateFailed": "Restaurant saved, but failed to update cuisines: {message}"
+    },
+    "success": {
+      "saved": "Saved ✅"
+    },
+    "nameLabel": "Restaurant Name *",
+    "cityLabel": "City *",
+    "selectCity": "Select city",
+    "noCitiesHint": "No active cities found. Ask admin to add cities.",
+    "serviceOptionsLabel": "Service Options",
+    "deliveryTitle": "🚚 Delivery",
+    "deliveryHint": "You can deliver to customers",
+    "pickupTitle": "🏃 Pickup",
+    "pickupHint": "Customers can pick up from you",
+    "serviceOptionsTip": "Tip: Enable at least one option.",
+    "cuisinesLabel": "Cuisines",
+    "noCuisinesHint": "No cuisines found. Ask admin to add cuisines.",
+    "cuisinesTip": "Tip: Hold Ctrl (Windows) / Cmd (Mac) to select multiple.",
+    "phoneLabel": "WhatsApp Number",
+    "phonePlaceholder": "966501234567",
+    "addressLabel": "Address",
+    "imageUrlLabel": "Restaurant Image URL",
+    "imageUrlPlaceholder": "https://images.unsplash.com/...",
+    "imagePreviewLabel": "Preview",
+    "imagePreviewAlt": "Restaurant preview",
+    "activeLabel": "Restaurant is active (visible to customers)",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "cancel": "Cancel"
+  }
+}

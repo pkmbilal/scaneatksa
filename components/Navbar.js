@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { getCurrentUser, getUserProfile, signOut } from "@/lib/auth/client";
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +44,7 @@ import {
 import Image from "next/image";
 
 export default function Navbar() {
+  const t = useTranslations("common");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -48,6 +52,7 @@ export default function Navbar() {
 
   const router = useRouter();
   const pathname = usePathname();
+  const { isRTL } = useLanguage();
 
   // ✅ compute this early, but DON'T return yet (hooks must run first)
   const hideNavbar =
@@ -111,6 +116,15 @@ export default function Navbar() {
     return "/dashboard/customer";
   };
 
+  const roleLabels = {
+    admin: t("roleLabels.admin"),
+    owner: t("roleLabels.owner"),
+    customer: t("roleLabels.customer"),
+    kitchen: t("roleLabels.kitchen"),
+    waiter: t("roleLabels.waiter"),
+  };
+  const getRoleLabel = () => roleLabels[profile?.role] || profile?.role;
+
   // ✅ safe to return AFTER hooks
   if (hideNavbar) return null;
 
@@ -144,7 +158,7 @@ export default function Navbar() {
                 href="/about"
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
-                About
+                {t("nav.about")}
               </Link>
             </p>
             <p>
@@ -152,7 +166,7 @@ export default function Navbar() {
                 href="/#how-it-works"
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
-                How It Works
+                {t("nav.howItWorks")}
               </Link>
             </p>
             <p>
@@ -160,7 +174,7 @@ export default function Navbar() {
                 href="/restaurants"
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
-                Restaurants
+                {t("nav.restaurants")}
               </Link>
             </p>
             <p>
@@ -168,7 +182,7 @@ export default function Navbar() {
                 href="/contact"
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
-                Contact
+                {t("nav.contact")}
               </Link>
             </p>
           </div>
@@ -176,6 +190,8 @@ export default function Navbar() {
 
         {/* Desktop Right */}
         <div className="hidden md:flex items-center gap-3">
+          <LanguageSwitcher />
+
           {user && profile ? (
             <DropdownMenu >
               <DropdownMenuTrigger asChild className="cursor-pointer">
@@ -188,13 +204,13 @@ export default function Navbar() {
 
                   <div className="flex flex-col items-start leading-tight">
                     <span className="text-sm font-medium">
-                      {profile.full_name || "User"}
+                      {profile.full_name || t("defaultUserName")}
                     </span>
                     <Badge
                       variant="secondary"
                       className="text-white text-xs h-4 px-1 bg-primary pb-1"
                     >
-                      {profile.role}
+                      {getRoleLabel()}
                     </Badge>
                   </div>
                 </Button>
@@ -203,10 +219,10 @@ export default function Navbar() {
               <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuItem asChild>
                   <Link href={getDashboardLink()} className="cursor-pointer">
-                    <span className="mr-1">
+                    <span className="me-1">
                       <LayoutDashboard color="#00c951" size={20} />
                     </span>
-                    Dashboard
+                    {t("userMenu.dashboard")}
                   </Link>
                 </DropdownMenuItem>
 
@@ -216,10 +232,10 @@ export default function Navbar() {
                       href="/dashboard/customer/request-restaurant"
                       className="cursor-pointer"
                     >
-                      <span className="mr-1">
+                      <span className="me-1">
                         <ShieldUser color="#00c951" size={20} />
                       </span>
-                      Request Owner Access
+                      {t("userMenu.requestOwnerAccess")}
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -229,10 +245,10 @@ export default function Navbar() {
                     href="/dashboard/customer/edit-profile"
                     className="cursor-pointer"
                   >
-                    <span className="mr-1">
+                    <span className="me-1">
                       <UserRoundPen color="#00c951" size={20} />
                     </span>
-                    Edit Profile
+                    {t("userMenu.editProfile")}
                   </Link>
                 </DropdownMenuItem>
 
@@ -240,16 +256,16 @@ export default function Navbar() {
                   onClick={handleLogout}
                   className="cursor-pointer"
                 >
-                  <span className="mr-2">
-                    <LogOut color="#00c951" size={20} />
+                  <span className="me-2">
+                    <LogOut color="#00c951" size={20} className="rtl:-scale-x-100" />
                   </span>
-                  Logout
+                  {t("userMenu.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button asChild>
-              <Link href="/auth/login">Login / Sign Up</Link>
+              <Link href="/auth/login">{t("guest.loginSignup")}</Link>
             </Button>
           )}
         </div>
@@ -258,14 +274,14 @@ export default function Navbar() {
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open menu">
+              <Button variant="ghost" size="icon" aria-label={t("openMenu")}>
                 <Menu className="!h-6 !w-6" color="#00c951" />
               </Button>
             </SheetTrigger>
 
             {/* ✅ IMPORTANT: SheetContent must stay INSIDE Sheet */}
             <SheetContent
-              side="right"
+              side={isRTL ? "left" : "right"}
               className="w-[320px] sm:w-[380px] p-0 flex flex-col"
             >
               {/* Top Header (delivery app style) */}
@@ -277,7 +293,7 @@ export default function Navbar() {
                     </span>
                     <div className="leading-tight">
                       <p className="font-bold text-base ">ScanEat</p>
-                      <p className="text-xs text-muted-foreground">QR Menu</p>
+                      <p className="text-xs text-muted-foreground">{t("brand.tagline")}</p>
                     </div>
                   </SheetTitle>
                 </SheetHeader>
@@ -285,6 +301,10 @@ export default function Navbar() {
 
               {/* Scroll area */}
               <div className="flex-1 overflow-auto px-4 pb-4">
+                <div className="mb-4">
+                  <LanguageSwitcher className="w-full justify-center" />
+                </div>
+
                 {/* User card */}
                 {user && profile ? (
                   <div className="rounded-xl border p-4 mb-4 bg-muted/30">
@@ -297,7 +317,7 @@ export default function Navbar() {
 
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold truncate text-sm">
-                          {profile.full_name || "User"}
+                          {profile.full_name || t("defaultUserName")}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
                           {user.email}
@@ -305,7 +325,7 @@ export default function Navbar() {
 
                         <div className="mt-2">
                           <Badge className="bg-primary text-white text-xs rounded-full px-2 py-0.5">
-                            {profile.role}
+                            {getRoleLabel()}
                           </Badge>
                         </div>
                       </div>
@@ -313,9 +333,9 @@ export default function Navbar() {
                   </div>
                 ) : (
                   <div className="rounded-2xl border p-4 mb-4 bg-muted/30">
-                    <p className="text-sm font-semibold">Welcome 👋</p>
+                    <p className="text-sm font-semibold">{t("guest.welcomeTitle")}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Login to save favorites and access your dashboard.
+                      {t("guest.welcomeSubtitle")}
                     </p>
 
                     <Button
@@ -326,7 +346,7 @@ export default function Navbar() {
                         href="/auth/login"
                         onClick={() => setMobileOpen(false)}
                       >
-                        Login / Sign Up
+                        {t("guest.loginSignup")}
                       </Link>
                     </Button>
                   </div>
@@ -344,7 +364,7 @@ export default function Navbar() {
                         className={mobileLinkClass(isActive("/dashboard"))}
                       >
                         <LayoutDashboard className="h-5 w-5 text-primary" />
-                        Dashboard
+                        {t("userMenu.dashboard")}
                       </Link>
 
                       <Link
@@ -355,7 +375,7 @@ export default function Navbar() {
                         )}
                       >
                         <UserRoundPen className="h-5 w-5 text-primary" />
-                        Edit Profile
+                        {t("userMenu.editProfile")}
                       </Link>
 
                       {profile.role === "customer" && (
@@ -367,7 +387,7 @@ export default function Navbar() {
                           )}
                         >
                           <ShieldUser className="h-5 w-5 text-primary" />
-                          Request Owner Access
+                          {t("userMenu.requestOwnerAccess")}
                         </Link>
                       )}
                     </>
@@ -378,7 +398,7 @@ export default function Navbar() {
                     className={mobileLinkClass(isActive("/about"))}
                   >
                     <House className="h-5 w-5 text-primary" />
-                    About
+                    {t("nav.about")}
                   </Link>
 
                   <Link
@@ -387,7 +407,7 @@ export default function Navbar() {
                     className={mobileLinkClass(isActive("/restaurants"))}
                   >
                     <Pizza className="h-5 w-5 text-primary" />
-                    Restaurants
+                    {t("nav.restaurants")}
                   </Link>
 
                   <Link
@@ -398,7 +418,7 @@ export default function Navbar() {
                     <span className="text-lg">
                       <Gauge color="#00c951" size={20} />
                     </span>
-                    How It Works
+                    {t("nav.howItWorks")}
                   </Link>
 
                   <Link
@@ -407,7 +427,7 @@ export default function Navbar() {
                     className={mobileLinkClass(isActive("/restaurants"))}
                   >
                     <Headset className="h-5 w-5 text-primary" />
-                    Contact
+                    {t("nav.contact")}
                   </Link>
                 </div>
               </div>
@@ -420,8 +440,8 @@ export default function Navbar() {
                     className="w-full rounded-xl bg-primary"
                     onClick={handleLogout}
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
+                    <LogOut className="h-4 w-4 me-2 rtl:-scale-x-100" />
+                    {t("userMenu.logout")}
                   </Button>
                 </div>
               )}

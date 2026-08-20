@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
 
 import MenuClient from "@/components/MenuClient";
@@ -23,6 +24,7 @@ function Pill({ children, className = "" }) {
 
 export default async function MenuPage({ params, searchParams }) {
   const supabase = supabaseServer();
+  const t = await getTranslations("menu");
 
   // ✅ Next 16: params/searchParams may be Promises
   const p = await Promise.resolve(params);
@@ -50,12 +52,12 @@ export default async function MenuPage({ params, searchParams }) {
   if (!restaurant || restaurant.is_active === false) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold">Restaurant not found</h1>
+        <h1 className="text-2xl font-bold">{t("notFound.title")}</h1>
         <p className="text-muted-foreground mt-2">
-          This restaurant may be unavailable or the link is incorrect.
+          {t("notFound.subtitle")}
         </p>
         <Link href="/restaurants" className="underline mt-4 inline-block">
-          Back to restaurants
+          {t("notFound.backLink")}
         </Link>
       </div>
     );
@@ -109,12 +111,12 @@ export default async function MenuPage({ params, searchParams }) {
                 </h1>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Pill className="bg-emerald-500/25 border-emerald-300/30">🟢 Open now</Pill>
+                  <Pill className="bg-emerald-500/25 border-emerald-300/30">🟢 {t("header.openNow")}</Pill>
 
                   {cityName && <Pill className="bg-white/10">📍 {cityName}</Pill>}
 
-                  {restaurant.delivery_available && <Pill className="bg-white/10">🚚 Delivery</Pill>}
-                  {restaurant.pickup_available && <Pill className="bg-white/10">🧍 Pickup</Pill>}
+                  {restaurant.delivery_available && <Pill className="bg-white/10">🚚 {t("header.delivery")}</Pill>}
+                  {restaurant.pickup_available && <Pill className="bg-white/10">🧍 {t("header.pickup")}</Pill>}
 
                   {cuisinePills.slice(0, 8).map((c) => (
                     <Pill key={c} className="bg-white/10">
@@ -122,7 +124,7 @@ export default async function MenuPage({ params, searchParams }) {
                     </Pill>
                   ))}
 
-                  {cuisinePills.length === 0 && <Pill className="bg-white/10">🍽️ Multi-cuisine</Pill>}
+                  {cuisinePills.length === 0 && <Pill className="bg-white/10">🍽️ {t("header.multiCuisine")}</Pill>}
                 </div>
 
                 <div className="mt-4 space-y-2">
@@ -150,7 +152,7 @@ export default async function MenuPage({ params, searchParams }) {
                       className="w-fit rounded-xl bg-white/10 border border-white/20 px-4 py-2 font-semibold hover:bg-white/15 transition flex items-center gap-2"
                     >
                       <Phone size={16} />
-                      Call
+                      {t("header.call")}
                     </a>
                   )}
                 </div>
@@ -166,7 +168,7 @@ export default async function MenuPage({ params, searchParams }) {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <MenuClient
           items={menuItems}
-          categories={[...new Set(menuItems.map((item) => item?.categories?.name || "Uncategorized"))].sort()}
+          categories={[...new Set(menuItems.map((item) => item?.categories?.name || t("uncategorized")))].sort()}
           restaurant={restaurant}
         />
       </div>

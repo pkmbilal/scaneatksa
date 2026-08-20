@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import Script from "next/script";
 
 import HeroSection from "@/components/home/HeroSection";
@@ -13,12 +14,7 @@ import SiteFooter from "@/components/home/SiteFooter";
 
 import {
   heroData,
-  trustStripData,
-  howItWorksData,
-  featuresData,
-  benefitsData,
   featuredRestaurantsData,
-  faqData,
   finalCtaData,
   footerData,
 } from "@/lib/siteData";
@@ -101,6 +97,9 @@ export default async function HomePage() {
 
   const restaurantCount = restaurants?.length || 0;
 
+  const t = await getTranslations("home");
+  const faqItems = t.raw("faq.items");
+
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -146,12 +145,12 @@ export default async function HomePage() {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqData.items.map((item) => ({
+    mainEntity: faqItems.map((item) => ({
       "@type": "Question",
-      name: item.q,
+      name: item.question,
       acceptedAnswer: {
         "@type": "Answer",
-        text: item.a,
+        text: item.answer,
       },
     })),
   };
@@ -181,15 +180,15 @@ export default async function HomePage() {
 
       <div className="min-h-screen bg-white text-slate-900">
         <HeroSection data={heroData} />
-        <TrustStrip data={trustStripData} restaurantCount={restaurantCount} />
-        <HowItWorksSection data={howItWorksData} />
-        <FeaturesSection data={featuresData} />
-        <BenefitsSection data={benefitsData} />
+        <TrustStrip restaurantCount={restaurantCount} />
+        <HowItWorksSection />
+        <FeaturesSection />
+        <BenefitsSection />
         <FeaturedRestaurantsSection
           data={featuredRestaurantsData}
           restaurants={restaurants}
         />
-        <FAQSection data={faqData} />
+        <FAQSection />
         <FinalCTASection data={finalCtaData} />
         <SiteFooter data={footerData} />
       </div>

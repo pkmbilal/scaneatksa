@@ -4,6 +4,7 @@ const supabase = supabaseBrowser();
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import {
@@ -47,6 +48,7 @@ import {
 } from "lucide-react";
 
 export default function RequestRestaurantPage() {
+  const t = useTranslations("dashboard.customer");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [existingRequests, setExistingRequests] = useState([]);
@@ -105,9 +107,9 @@ export default function RequestRestaurantPage() {
   );
 
   const statusBadge = (status) => {
-    if (status === "pending") return <Badge variant="secondary">pending</Badge>;
-    if (status === "approved") return <Badge className="bg-emerald-600 hover:bg-emerald-600">approved</Badge>;
-    return <Badge variant="destructive">rejected</Badge>;
+    if (status === "pending") return <Badge variant="secondary">{t("requestStatus.pending")}</Badge>;
+    if (status === "approved") return <Badge className="bg-emerald-600 hover:bg-emerald-600">{t("requestStatus.approved")}</Badge>;
+    return <Badge variant="destructive">{t("requestStatus.rejected")}</Badge>;
   };
 
   const handleSubmit = async (e) => {
@@ -116,7 +118,7 @@ export default function RequestRestaurantPage() {
     setSubmitting(true);
 
     if (formData.phone.trim().length < 10) {
-      setError("Please enter a valid phone number (include country code, no spaces).");
+      setError(t("requestRestaurantPage.errors.invalidPhone"));
       setSubmitting(false);
       return;
     }
@@ -154,7 +156,7 @@ export default function RequestRestaurantPage() {
         router.push("/dashboard/customer");
       }, 3000);
     } catch (err) {
-      setError("Something went wrong: " + err.message);
+      setError(t("requestRestaurantPage.errors.unexpected", { message: err.message }));
       setSubmitting(false);
     }
   };
@@ -167,7 +169,7 @@ export default function RequestRestaurantPage() {
             <CardContent className="py-14">
               <div className="flex flex-col items-center gap-3 text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Loading your data…</p>
+                <p className="text-sm text-muted-foreground">{t("requestRestaurantPage.loadingData")}</p>
               </div>
             </CardContent>
           </Card>
@@ -185,20 +187,20 @@ export default function RequestRestaurantPage() {
             href="/dashboard/customer"
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+            <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+            {t("requestRestaurantPage.backToDashboard")}
           </Link>
 
           <div className="mt-4 flex items-start gap-3">
             <div className="hidden md:block mt-1 rounded-lg border bg-muted/40 p-2">
               <Store className="h-5 w-5 " />
             </div>
-            <div className="text-left">
+            <div className="text-start">
               <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
-                Request to Become Owner
+                {t("requestRestaurantPage.heading")}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Submit your restaurant details for admin review. Once approved, you’ll be able to manage your menu and orders.
+                {t("requestRestaurantPage.subheading")}
               </p>
             </div>
           </div>
@@ -208,9 +210,9 @@ export default function RequestRestaurantPage() {
         {success && (
           <Alert className="mb-6 border-emerald-200 bg-emerald-50 text-emerald-950">
             <CheckCircle2 className="h-4 w-4" />
-            <AlertTitle>Request submitted successfully</AlertTitle>
+            <AlertTitle>{t("requestRestaurantPage.successTitle")}</AlertTitle>
             <AlertDescription>
-              Your request is pending admin approval. Redirecting to your dashboard…
+              {t("requestRestaurantPage.successDescription")}
             </AlertDescription>
           </Alert>
         )}
@@ -218,9 +220,9 @@ export default function RequestRestaurantPage() {
         {hasPendingRequest && !success && (
           <Alert className="mb-6 border-amber-200 bg-amber-50 text-amber-950">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Pending request</AlertTitle>
+            <AlertTitle>{t("requestRestaurantPage.pendingTitle")}</AlertTitle>
             <AlertDescription>
-              You already have a pending request. Please wait for admin review before submitting another one.
+              {t("requestRestaurantPage.pendingDescription")}
             </AlertDescription>
           </Alert>
         )}
@@ -229,9 +231,9 @@ export default function RequestRestaurantPage() {
           {/* Form */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="text-xl">Restaurant Information</CardTitle>
+              <CardTitle className="text-xl">{t("requestRestaurantPage.formTitle")}</CardTitle>
               <CardDescription>
-                Provide accurate details so the admin team can verify your business quickly.
+                {t("requestRestaurantPage.formDescription")}
               </CardDescription>
             </CardHeader>
 
@@ -241,19 +243,19 @@ export default function RequestRestaurantPage() {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <Store className="h-4 w-4 text-muted-foreground" />
-                    Restaurant Name <span className="text-destructive">*</span>
+                    {t("requestRestaurantPage.fields.restaurantName")} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     value={formData.restaurantName}
                     onChange={(e) =>
                       setFormData({ ...formData, restaurantName: e.target.value })
                     }
-                    placeholder="e.g., Pizza Palace"
+                    placeholder={t("requestRestaurantPage.fields.restaurantNamePlaceholder")}
                     required
                     disabled={hasPendingRequest}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Use the official business name.
+                    {t("requestRestaurantPage.fields.restaurantNameHelp")}
                   </p>
                 </div>
 
@@ -261,7 +263,7 @@ export default function RequestRestaurantPage() {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                    City <span className="text-destructive">*</span>
+                    {t("requestRestaurantPage.fields.city")} <span className="text-destructive">*</span>
                   </Label>
 
                   <Select
@@ -270,7 +272,7 @@ export default function RequestRestaurantPage() {
                     disabled={hasPendingRequest}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a city" />
+                      <SelectValue placeholder={t("requestRestaurantPage.fields.cityPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((c) => (
@@ -282,7 +284,7 @@ export default function RequestRestaurantPage() {
                   </Select>
 
                   <p className="text-xs text-muted-foreground">
-                    Choose the city where your restaurant is located.
+                    {t("requestRestaurantPage.fields.cityHelp")}
                   </p>
                 </div>
 
@@ -290,19 +292,19 @@ export default function RequestRestaurantPage() {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    WhatsApp Number <span className="text-destructive">*</span>
+                    {t("requestRestaurantPage.fields.whatsapp")} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="966501234567"
+                    placeholder={t("requestRestaurantPage.fields.whatsappPlaceholder")}
                     required
                     disabled={hasPendingRequest}
                     inputMode="numeric"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Include country code (e.g., 966 for Saudi Arabia). No “+” or spaces.
+                    {t("requestRestaurantPage.fields.whatsappHelp")}
                   </p>
                 </div>
 
@@ -310,17 +312,17 @@ export default function RequestRestaurantPage() {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <MapPinned className="h-4 w-4 text-muted-foreground" />
-                    Address <span className="text-destructive">*</span>
+                    {t("requestRestaurantPage.fields.address")} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Street, District, City"
+                    placeholder={t("requestRestaurantPage.fields.addressPlaceholder")}
                     required
                     disabled={hasPendingRequest}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Full physical location of your restaurant.
+                    {t("requestRestaurantPage.fields.addressHelp")}
                   </p>
                 </div>
 
@@ -328,26 +330,26 @@ export default function RequestRestaurantPage() {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-muted-foreground" />
-                    Description
+                    {t("requestRestaurantPage.fields.description")}
                   </Label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
                     }
-                    placeholder="Cuisine type, branches, why you want to join…"
+                    placeholder={t("requestRestaurantPage.fields.descriptionPlaceholder")}
                     rows={4}
                     disabled={hasPendingRequest}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Optional — helps us understand your business better.
+                    {t("requestRestaurantPage.fields.descriptionHelp")}
                   </p>
                 </div>
 
                 {error && (
                   <Alert variant="destructive">
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Something went wrong</AlertTitle>
+                    <AlertTitle>{t("requestRestaurantPage.errors.genericTitle")}</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
@@ -362,18 +364,18 @@ export default function RequestRestaurantPage() {
                 >
                   {submitting ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting…
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                      {t("requestRestaurantPage.submit.submitting")}
                     </>
                   ) : hasPendingRequest ? (
                     <>
-                      <Clock className="mr-2 h-4 w-4" />
-                      Request Already Pending
+                      <Clock className="me-2 h-4 w-4" />
+                      {t("requestRestaurantPage.submit.alreadyPending")}
                     </>
                   ) : (
                     <>
-                      <ClipboardList className="mr-2 h-4 w-4" />
-                      Submit Request
+                      <ClipboardList className="me-2 h-4 w-4" />
+                      {t("requestRestaurantPage.submit.submit")}
                     </>
                   )}
                 </Button>
@@ -387,51 +389,51 @@ export default function RequestRestaurantPage() {
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-muted-foreground" />
-                  What happens next
+                  {t("requestRestaurantPage.sidebar.nextSteps.title")}
                 </CardTitle>
-                <CardDescription>Typical review flow</CardDescription>
+                <CardDescription>{t("requestRestaurantPage.sidebar.nextSteps.subtitle")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div className="flex gap-2">
                   <span className="text-muted-foreground">1.</span>
-                  <span>Your request is sent to the admin team</span>
+                  <span>{t("requestRestaurantPage.sidebar.nextSteps.step1")}</span>
                 </div>
                 <div className="flex gap-2">
                   <span className="text-muted-foreground">2.</span>
-                  <span>Admin reviews restaurant details</span>
+                  <span>{t("requestRestaurantPage.sidebar.nextSteps.step2")}</span>
                 </div>
                 <div className="flex gap-2">
                   <span className="text-muted-foreground">3.</span>
-                  <span>You’ll be notified of approval/rejection</span>
+                  <span>{t("requestRestaurantPage.sidebar.nextSteps.step3")}</span>
                 </div>
                 <div className="flex gap-2">
                   <span className="text-muted-foreground">4.</span>
-                  <span>Once approved, you can manage your menu</span>
+                  <span>{t("requestRestaurantPage.sidebar.nextSteps.step4")}</span>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Requirements</CardTitle>
-                <CardDescription>Minimum needed to approve</CardDescription>
+                <CardTitle className="text-base">{t("requestRestaurantPage.sidebar.requirements.title")}</CardTitle>
+                <CardDescription>{t("requestRestaurantPage.sidebar.requirements.subtitle")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  Valid restaurant name
+                  {t("requestRestaurantPage.sidebar.requirements.item1")}
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  Active WhatsApp number
+                  {t("requestRestaurantPage.sidebar.requirements.item2")}
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  Physical restaurant location
+                  {t("requestRestaurantPage.sidebar.requirements.item3")}
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  Keep menu updated
+                  {t("requestRestaurantPage.sidebar.requirements.item4")}
                 </div>
               </CardContent>
             </Card>
@@ -439,8 +441,8 @@ export default function RequestRestaurantPage() {
             {existingRequests.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Your previous requests</CardTitle>
-                  <CardDescription>History & status</CardDescription>
+                  <CardTitle className="text-base">{t("requestRestaurantPage.sidebar.previousRequests.title")}</CardTitle>
+                  <CardDescription>{t("requestRestaurantPage.sidebar.previousRequests.subtitle")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {existingRequests.map((req) => (

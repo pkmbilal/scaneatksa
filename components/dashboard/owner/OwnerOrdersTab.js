@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { STATUS_LABELS, STATUS_TINTS } from "@/lib/orderStatus";
 import { notifyStatusChange } from "@/lib/whatsappClient";
 
@@ -10,6 +11,7 @@ const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-n
 const ALL_STATUSES = Object.keys(STATUS_LABELS);
 
 export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onStatusChange }) {
+  const t = useTranslations("dashboard.owner");
   const [updatingId, setUpdatingId] = useState(null);
 
   const formatDate = (iso) => {
@@ -34,19 +36,19 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
   return (
     <div>
       {ordersLoading ? (
-        <div className="text-sm text-gray-500 dark:text-gray-400">Loading orders…</div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">{t("ownerOrdersTab.loading")}</div>
       ) : orders.length === 0 ? (
-        <div className="py-12 text-center text-gray-500 dark:text-gray-400">No orders yet.</div>
+        <div className="py-12 text-center text-gray-500 dark:text-gray-400">{t("ownerOrdersTab.empty")}</div>
       ) : (
         <div className="space-y-3">
           {orders.map((o) => {
             const tableNum = o?.restaurant_tables?.table_number;
             const where =
               o.channel === "dine_in"
-                ? `Table ${tableNum ?? "?"}`
+                ? t("ownerOrdersTab.channel.dineIn", { number: tableNum ?? "?" })
                 : o.channel === "delivery"
-                ? "Delivery"
-                : "Pickup";
+                ? t("ownerOrdersTab.channel.delivery")
+                : t("ownerOrdersTab.channel.pickup");
 
             return (
               <div
@@ -55,15 +57,15 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
               >
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold text-gray-800 dark:text-white/90">Order</p>
+                    <p className="font-semibold text-gray-800 dark:text-white/90">{t("ownerOrdersTab.orderLabel")}</p>
                     <span className={`${pillClass} ${channelTint}`}>{where}</span>
                     <span className={`${pillClass} ${STATUS_TINTS[o.status] || STATUS_TINTS.new}`}>
-                      {STATUS_LABELS[o.status] || o.status}
+                      {o.status && STATUS_LABELS[o.status] ? t(`status.${o.status}`) : o.status}
                     </span>
                   </div>
 
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    {formatDate(o.created_at)} • Total: SAR {Number(o.total || 0).toFixed(2)}
+                    {formatDate(o.created_at)} • {t("ownerOrdersTab.totalLabel", { amount: Number(o.total || 0).toFixed(2) })}
                   </p>
 
                   {(o.customer_phone || o.delivery_address) && (
@@ -75,7 +77,7 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
 
                   {o.notes && (
                     <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                      <span className="font-semibold text-gray-800 dark:text-white/90">Notes:</span> {o.notes}
+                      <span className="font-semibold text-gray-800 dark:text-white/90">{t("ownerOrdersTab.notesLabel")}</span> {o.notes}
                     </p>
                   )}
 
@@ -90,11 +92,11 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
                     className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                   >
                     <option value="" disabled>
-                      {updatingId === o.id ? "Updating…" : "Change status"}
+                      {updatingId === o.id ? t("ownerOrdersTab.updating") : t("ownerOrdersTab.changeStatus")}
                     </option>
                     {ALL_STATUSES.filter((s) => s !== o.status).map((s) => (
                       <option key={s} value={s}>
-                        {STATUS_LABELS[s]}
+                        {t(`status.${s}`)}
                       </option>
                     ))}
                   </select>

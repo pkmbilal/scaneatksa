@@ -8,6 +8,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { LogOut, ChevronDown, User as UserIcon, KeyRound, ShieldUser } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { signOut } from '@/lib/auth/client'
@@ -18,9 +19,11 @@ export default function UserDropdown({
   user,
   profile,
   homeHref = '/dashboard',
-  homeLabel = 'Dashboard',
+  homeLabel,
   editProfileHref = '/dashboard/customer/edit-profile',
 }) {
+  const t = useTranslations('dashboard.common')
+  const resolvedHomeLabel = homeLabel ?? t('dashboardLabel')
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
 
@@ -55,14 +58,14 @@ export default function UserDropdown({
         onClick={toggleDropdown}
         className="dropdown-toggle flex items-center text-gray-700 dark:text-gray-400"
       >
-        <Avatar className="mr-3 h-11 w-11">
+        <Avatar className="me-3 h-11 w-11">
           <AvatarFallback className="bg-brand-50 text-brand-600 font-semibold dark:bg-brand-500/15 dark:text-brand-400">
             {getInitials()}
           </AvatarFallback>
         </Avatar>
 
-        <span className="hidden sm:block mr-1 font-medium text-theme-sm">
-          {profile?.full_name || homeLabel}
+        <span className="hidden sm:block me-1 font-medium text-theme-sm">
+          {profile?.full_name || resolvedHomeLabel}
         </span>
 
         <ChevronDown
@@ -75,11 +78,11 @@ export default function UserDropdown({
       <Dropdown
         isOpen={isOpen}
         onClose={closeDropdown}
-        className="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+        className="absolute end-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {profile?.full_name || homeLabel}
+            {profile?.full_name || resolvedHomeLabel}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
             {user?.email}
@@ -94,7 +97,7 @@ export default function UserDropdown({
               href={homeHref}
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              {homeLabel}
+              {resolvedHomeLabel}
             </DropdownItem>
           </li>
           {profile?.role === 'customer' && (
@@ -106,7 +109,7 @@ export default function UserDropdown({
                 className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
               >
                 <ShieldUser className="size-5 stroke-gray-500 group-hover:stroke-gray-700 dark:group-hover:stroke-gray-300" />
-                Request Owner Access
+                {t('userMenu.requestOwnerAccess')}
               </DropdownItem>
             </li>
           )}
@@ -118,7 +121,7 @@ export default function UserDropdown({
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <UserIcon className="size-5 stroke-gray-500 group-hover:stroke-gray-700 dark:group-hover:stroke-gray-300" />
-              Edit Profile
+              {t('userMenu.editProfile')}
             </DropdownItem>
           </li>
           <li>
@@ -129,7 +132,7 @@ export default function UserDropdown({
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <KeyRound className="size-5 stroke-gray-500 group-hover:stroke-gray-700 dark:group-hover:stroke-gray-300" />
-              Change Password
+              {t('userMenu.changePassword')}
             </DropdownItem>
           </li>
         </ul>
@@ -139,8 +142,8 @@ export default function UserDropdown({
           onClick={handleSignOut}
           className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
-          <LogOut className="size-5 stroke-gray-500 group-hover:stroke-gray-700 dark:group-hover:stroke-gray-300" />
-          Sign out
+          <LogOut className="size-5 stroke-gray-500 group-hover:stroke-gray-700 dark:group-hover:stroke-gray-300 rtl:-scale-x-100" />
+          {t('userMenu.signOut')}
         </button>
       </Dropdown>
     </div>

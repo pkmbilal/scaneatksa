@@ -1,22 +1,29 @@
-import { Pizza } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { Pizza, Clock3, Wallet, BadgeCheck } from "lucide-react";
 
-export default function BenefitsSection({ data }) {
+const icons = [Clock3, Wallet, BadgeCheck];
+
+export default async function BenefitsSection() {
+  const t = await getTranslations("home.benefits");
+  const items = t.raw("items");
+  const panelStats = t.raw("panel.stats");
+
   return (
     <section className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-4">
         <div className="grid gap-12 md:grid-cols-2 md:items-center">
           <div>
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
-              {data.eyebrow}
+              {t("eyebrow")}
             </p>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
-              {data.title}
+              {t("title")}
             </h2>
-            <p className="mt-5 text-lg leading-8 text-slate-600">{data.description}</p>
+            <p className="mt-5 text-lg leading-8 text-slate-600">{t("description")}</p>
 
             <div className="mt-8 space-y-5">
-              {data.items.map((item) => {
-                const Icon = item.icon;
+              {items.map((item, index) => {
+                const Icon = icons[index];
 
                 return (
                   <div key={item.title} className="flex gap-4 rounded-2xl bg-slate-50 p-5">
@@ -39,13 +46,13 @@ export default function BenefitsSection({ data }) {
                 <Pizza className="h-7 w-7 text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-300">{data.panel.subtitle}</p>
-                <h3 className="text-2xl font-bold">{data.panel.title}</h3>
+                <p className="text-sm text-slate-300">{t("panel.subtitle")}</p>
+                <h3 className="text-2xl font-bold">{t("panel.title")}</h3>
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {data.panel.stats.map((stat) => (
+              {panelStats.map((stat) => (
                 <div key={stat.value} className="rounded-2xl bg-white/5 p-5">
                   <div className="text-3xl font-bold">{stat.value}</div>
                   <p className="mt-2 text-slate-300">{stat.text}</p>
