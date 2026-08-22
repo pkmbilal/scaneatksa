@@ -19,9 +19,10 @@ import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
 import OrderQueue from "@/components/dashboard/staff/OrderQueue";
 import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
 
-// Kitchen's queue is orders in `new` status only -- their single action
-// (Start Preparing) moves an order to `preparing` and then it's the
-// waiter's queue's concern. See lib/orderStatus.js for the transition rules.
+// Kitchen's queue is orders in `new` or `preparing` status -- kitchen starts
+// an order (`new` -> `preparing`) and then marks it ready (`preparing` ->
+// `ready`), at which point it's the waiter's queue's concern. See
+// lib/orderStatus.js for the transition rules.
 export default function KitchenDashboardPage() {
   const t = useTranslations("dashboard.staff");
   const [user, setUser] = useState(null);
@@ -79,7 +80,7 @@ export default function KitchenDashboardPage() {
       .from("orders")
       .select("id, created_at, channel, status, total, customer_name, customer_phone, notes")
       .eq("restaurant_id", restaurantId)
-      .eq("status", "new")
+      .in("status", ["new", "preparing"])
       .order("created_at", { ascending: true });
 
     if (!error) setOrders(data || []);

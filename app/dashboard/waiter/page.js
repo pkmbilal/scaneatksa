@@ -19,9 +19,9 @@ import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
 import OrderQueue from "@/components/dashboard/staff/OrderQueue";
 import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
 
-// Waiter's queue is orders in `preparing` or `ready`. Waiter owns both
-// transitions from here: marking food ready (preparing -> ready) and
-// handing it over (ready -> delivered). See lib/orderStatus.js.
+// Waiter's queue is orders in `ready` status only -- kitchen marks food
+// ready, and waiter's single action here hands it over (ready -> delivered).
+// See lib/orderStatus.js.
 export default function WaiterDashboardPage() {
   const t = useTranslations("dashboard.staff");
   const [user, setUser] = useState(null);
@@ -81,7 +81,7 @@ export default function WaiterDashboardPage() {
         "id, created_at, channel, status, total, customer_name, customer_phone, delivery_address, notes, restaurant_tables ( table_number )"
       )
       .eq("restaurant_id", restaurantId)
-      .in("status", ["preparing", "ready"])
+      .eq("status", "ready")
       .order("created_at", { ascending: true });
 
     if (!error) setOrders(data || []);

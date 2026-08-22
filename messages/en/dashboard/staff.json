@@ -26,20 +26,20 @@
     "title": "Kitchen Queue",
     "homeLabel": "Kitchen",
     "loadingMessage": "Loading your kitchen queue...",
-    "descriptionWithRestaurant": "New orders for {restaurantName} waiting to be started.",
-    "descriptionGeneric": "New orders waiting to be started.",
+    "descriptionWithRestaurant": "Orders for {restaurantName} that are new or being prepared.",
+    "descriptionGeneric": "Orders that are new or being prepared.",
     "actions": {
-      "startPreparing": "Start Preparing"
+      "startPreparing": "Start Preparing",
+      "markReady": "Mark Ready"
     }
   },
   "waiter": {
     "title": "Floor Queue",
     "homeLabel": "Waiter",
     "loadingMessage": "Loading your floor queue...",
-    "descriptionWithRestaurant": "Orders for {restaurantName} that are preparing or ready to serve.",
-    "descriptionGeneric": "Orders that are preparing or ready to serve.",
+    "descriptionWithRestaurant": "Orders for {restaurantName} that are ready to serve.",
+    "descriptionGeneric": "Orders that are ready to serve.",
     "actions": {
-      "markReady": "Mark Ready",
       "markDelivered": "Mark Delivered"
     }
   }

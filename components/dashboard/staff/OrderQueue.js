@@ -15,7 +15,7 @@ const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-n
 // shared state-machine source of truth.
 function actionLabelKey(role, status) {
   if (role === "kitchen" && status === "new") return "kitchen.actions.startPreparing";
-  if (role === "waiter" && status === "preparing") return "waiter.actions.markReady";
+  if (role === "kitchen" && status === "preparing") return "kitchen.actions.markReady";
   if (role === "waiter" && status === "ready") return "waiter.actions.markDelivered";
   return null;
 }

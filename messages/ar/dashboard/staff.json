@@ -26,20 +26,20 @@
     "title": "قائمة المطبخ",
     "homeLabel": "المطبخ",
     "loadingMessage": "جارٍ تحميل قائمة المطبخ...",
-    "descriptionWithRestaurant": "طلبات جديدة لمطعم {restaurantName} بانتظار البدء في تحضيرها.",
-    "descriptionGeneric": "طلبات جديدة بانتظار البدء في تحضيرها.",
+    "descriptionWithRestaurant": "طلبات لمطعم {restaurantName} جديدة أو قيد التحضير.",
+    "descriptionGeneric": "طلبات جديدة أو قيد التحضير.",
     "actions": {
-      "startPreparing": "بدء التحضير"
+      "startPreparing": "بدء التحضير",
+      "markReady": "جاهز للتقديم"
     }
   },
   "waiter": {
     "title": "قائمة الصالة",
     "homeLabel": "النادل",
     "loadingMessage": "جارٍ تحميل قائمة الصالة...",
-    "descriptionWithRestaurant": "طلبات لمطعم {restaurantName} قيد التحضير أو جاهزة للتقديم.",
-    "descriptionGeneric": "طلبات قيد التحضير أو جاهزة للتقديم.",
+    "descriptionWithRestaurant": "طلبات لمطعم {restaurantName} جاهزة للتقديم.",
+    "descriptionGeneric": "طلبات جاهزة للتقديم.",
     "actions": {
-      "markReady": "جاهز للتقديم",
       "markDelivered": "تم التسليم"
     }
   }

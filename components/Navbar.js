@@ -65,7 +65,9 @@ export default function Navbar() {
     pathname === "/dashboard" ||
     pathname?.startsWith("/dashboard/admin") ||
     pathname?.startsWith("/dashboard/owner") ||
-    pathname?.startsWith("/dashboard/customer");
+    pathname?.startsWith("/dashboard/customer") ||
+    pathname?.startsWith("/dashboard/kitchen") ||
+    pathname?.startsWith("/dashboard/waiter");
 
   useEffect(() => {
     // ✅ if navbar is hidden, don't do auth/profile loading
