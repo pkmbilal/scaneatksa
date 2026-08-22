@@ -568,47 +568,47 @@ export default function OwnerDashboardPage() {
             action={headerActions[activeTab]}
           />
 
-          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div className="p-6">
-              {activeTab === "overview" && <OverviewTab restaurant={restaurant} />}
+          {activeTab === "orders" ? (
+            <OwnerOrdersTab
+              restaurant={restaurant}
+              orders={orders}
+              ordersLoading={ordersLoading}
+              onStatusChange={updateOrderStatus}
+            />
+          ) : (
+            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+              <div className="p-6">
+                {activeTab === "overview" && <OverviewTab restaurant={restaurant} />}
 
-              {activeTab === "items" && (
-                <MenuItemsTab menuItems={menuItems} categoryMap={categoryMap} actions={menuActions} />
-              )}
+                {activeTab === "items" && (
+                  <MenuItemsTab menuItems={menuItems} categoryMap={categoryMap} actions={menuActions} />
+                )}
 
-              {activeTab === "categories" && <CategoriesTab categories={categories} actions={menuActions} />}
+                {activeTab === "categories" && <CategoriesTab categories={categories} actions={menuActions} />}
 
-              {activeTab === "tables" && (
-                <OwnerTablesQrTab
-                  restaurant={restaurant}
-                  tables={tables}
-                  tablesLoading={tablesLoading}
-                  onToggleActive={toggleTableActive}
-                  onDeleteTable={deleteTable}
-                />
-              )}
+                {activeTab === "tables" && (
+                  <OwnerTablesQrTab
+                    restaurant={restaurant}
+                    tables={tables}
+                    tablesLoading={tablesLoading}
+                    onToggleActive={toggleTableActive}
+                    onDeleteTable={deleteTable}
+                  />
+                )}
 
-              {activeTab === "orders" && (
-                <OwnerOrdersTab
-                  restaurant={restaurant}
-                  orders={orders}
-                  ordersLoading={ordersLoading}
-                  onStatusChange={updateOrderStatus}
-                />
-              )}
+                {activeTab === "staff" && (
+                  <StaffTab
+                    staff={staff}
+                    staffLoading={staffLoading}
+                    onAdd={addStaffMember}
+                    onToggleActive={toggleStaffActive}
+                  />
+                )}
 
-              {activeTab === "staff" && (
-                <StaffTab
-                  staff={staff}
-                  staffLoading={staffLoading}
-                  onAdd={addStaffMember}
-                  onToggleActive={toggleStaffActive}
-                />
-              )}
-
-              {activeTab === "restaurant" && <RestaurantTab restaurant={restaurant} />}
+                {activeTab === "restaurant" && <RestaurantTab restaurant={restaurant} />}
+              </div>
             </div>
-          </div>
+          )}
         </DashboardMain>
       </div>
 

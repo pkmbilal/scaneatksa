@@ -140,19 +140,21 @@ export default function CustomerDashboardPage() {
 
           <TabSectionHeader title={tabTitles[activeTab]} description={tabDescriptions[activeTab]} />
 
-          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div className="p-6">
-              {activeTab === 'overview' && <OverviewTab user={user} profile={profile} />}
+          {activeTab === 'orders' ? (
+            <OrdersTab orders={orders} />
+          ) : (
+            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+              <div className="p-6">
+                {activeTab === 'overview' && <OverviewTab user={user} profile={profile} />}
 
-              {activeTab === 'orders' && <OrdersTab orders={orders} />}
+                {activeTab === 'favorites' && (
+                  <FavoritesTab favorites={favorites} onRemove={handleRemoveFavorite} />
+                )}
 
-              {activeTab === 'favorites' && (
-                <FavoritesTab favorites={favorites} onRemove={handleRemoveFavorite} />
-              )}
-
-              {activeTab === 'requests' && <RequestsTab requests={requests} />}
+                {activeTab === 'requests' && <RequestsTab requests={requests} />}
+              </div>
             </div>
-          </div>
+          )}
         </DashboardMain>
       </div>
     </DashboardSidebarProvider>

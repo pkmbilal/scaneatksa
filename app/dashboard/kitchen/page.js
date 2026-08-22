@@ -154,17 +154,13 @@ export default function KitchenDashboardPage() {
             }
           />
 
-          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div className="p-6">
-              <OrderQueue
-                role="kitchen"
-                restaurantName={restaurant?.name}
-                orders={orders}
-                loading={ordersLoading}
-                onAction={handleAction}
-              />
-            </div>
-          </div>
+          <OrderQueue
+            role="kitchen"
+            restaurantName={restaurant?.name}
+            orders={orders}
+            loading={ordersLoading}
+            onAction={handleAction}
+          />
         </DashboardMain>
       </div>
     </DashboardSidebarProvider>
