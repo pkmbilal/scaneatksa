@@ -595,7 +595,15 @@ export default function AdminDashboard() {
   return (
     <DashboardSidebarProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
-        <DashboardSidebar navItems={navItems} activeTab={activeTab} onSelectTab={setActiveTab} />
+        <DashboardSidebar
+          navItems={navItems}
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          user={user}
+          profile={profile}
+          homeLabel={t('page.homeLabel')}
+          editProfileHref="/dashboard/admin/edit-profile"
+        />
         <DashboardBackdrop />
 
         <DashboardMain

@@ -125,7 +125,15 @@ export default function WaiterDashboardPage() {
   return (
     <DashboardSidebarProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
-        <DashboardSidebar navItems={navItems} activeTab="queue" onSelectTab={() => {}} />
+        <DashboardSidebar
+          navItems={navItems}
+          activeTab="queue"
+          onSelectTab={() => {}}
+          user={user}
+          profile={profile}
+          homeLabel={t("waiter.homeLabel")}
+          editProfileHref="/dashboard/waiter"
+        />
         <DashboardBackdrop />
 
         <DashboardMain

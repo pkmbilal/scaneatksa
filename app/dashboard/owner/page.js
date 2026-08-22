@@ -535,6 +535,10 @@ export default function OwnerDashboardPage() {
           activeTab={activeTab}
           onSelectTab={setActiveTab}
           siteNavItems={siteNavItems}
+          user={user}
+          profile={profile}
+          homeLabel={t("page.homeLabel")}
+          editProfileHref="/dashboard/owner/edit-profile"
         />
         <DashboardBackdrop />
 

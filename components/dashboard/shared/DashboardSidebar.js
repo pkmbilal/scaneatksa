@@ -10,16 +10,51 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { useTheme } from 'next-themes'
+import { LogOut, Sun, Moon, UserRoundPen, ShieldUser, KeyRound } from 'lucide-react'
 import { useDashboardSidebar } from '@/context/DashboardSidebarContext'
 import { useLanguage } from '@/context/LanguageContext'
+import { signOut } from '@/lib/auth/client'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
-export default function DashboardSidebar({ navItems, activeTab, onSelectTab, siteNavItems }) {
+export default function DashboardSidebar({
+  navItems,
+  activeTab,
+  onSelectTab,
+  siteNavItems,
+  user,
+  profile,
+  homeLabel,
+  editProfileHref = '/dashboard/customer/edit-profile',
+}) {
   const t = useTranslations('dashboard.common')
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useDashboardSidebar()
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleMobileSidebar } = useDashboardSidebar()
   const { isRTL } = useLanguage()
+  const { setTheme, resolvedTheme } = useTheme()
   const pathname = usePathname()
+  const router = useRouter()
+  const isDark = resolvedTheme === 'dark'
+
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    }
+    return user?.email?.[0]?.toUpperCase() || 'U'
+  }
+
+  const handleSignOut = async () => {
+    toggleMobileSidebar()
+    await signOut()
+    router.push('/')
+  }
 
   const showLabels = isExpanded || isHovered || isMobileOpen
   const showFullLogo = isExpanded || isMobileOpen
@@ -49,7 +84,7 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
         )}
       </div>
 
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+      <div className="flex flex-1 flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>
@@ -150,6 +185,86 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
           </div>
         </nav>
       </div>
+
+      {/* Language switcher, theme toggle & user menu — mobile-only; on lg+ these
+          live in DashboardHeader's desktop row instead. */}
+      {user && (
+        <div className="mt-auto shrink-0 border-t border-gray-200 py-4 dark:border-gray-800 lg:hidden">
+          <div className="flex items-center gap-3 pb-4">
+            <LanguageSwitcher variant="icon" />
+            <button
+              type="button"
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
+              className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-gray-700 h-11 w-11 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+              aria-label={t('header.toggleDarkMode')}
+            >
+              {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-3 dark:border-gray-800">
+            <Avatar className="h-10 w-10 shrink-0">
+              <AvatarFallback className="bg-brand-50 text-brand-600 font-semibold dark:bg-brand-500/15 dark:text-brand-400">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+                {profile?.full_name || homeLabel || t('dashboardLabel')}
+              </p>
+              <p className="truncate text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+            </div>
+          </div>
+
+          <ul className="flex flex-col gap-1 mt-3">
+            <li>
+              <Link
+                href={editProfileHref}
+                onClick={toggleMobileSidebar}
+                className="menu-item menu-item-inactive"
+              >
+                <UserRoundPen className="size-5" />
+                {t('userMenu.editProfile')}
+              </Link>
+            </li>
+
+            {profile?.role === 'customer' && (
+              <li>
+                <Link
+                  href="/dashboard/customer/request-restaurant"
+                  onClick={toggleMobileSidebar}
+                  className="menu-item menu-item-inactive"
+                >
+                  <ShieldUser className="size-5" />
+                  {t('userMenu.requestOwnerAccess')}
+                </Link>
+              </li>
+            )}
+
+            <li>
+              <Link
+                href="/dashboard/change-password"
+                onClick={toggleMobileSidebar}
+                className="menu-item menu-item-inactive"
+              >
+                <KeyRound className="size-5" />
+                {t('userMenu.changePassword')}
+              </Link>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="menu-item menu-item-inactive cursor-pointer"
+              >
+                <LogOut className="size-5 rtl:-scale-x-100" />
+                {t('userMenu.signOut')}
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
     </aside>
   )
 }

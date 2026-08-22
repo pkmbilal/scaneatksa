@@ -123,7 +123,15 @@ export default function KitchenDashboardPage() {
   return (
     <DashboardSidebarProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
-        <DashboardSidebar navItems={navItems} activeTab="queue" onSelectTab={() => {}} />
+        <DashboardSidebar
+          navItems={navItems}
+          activeTab="queue"
+          onSelectTab={() => {}}
+          user={user}
+          profile={profile}
+          homeLabel={t("kitchen.homeLabel")}
+          editProfileHref="/dashboard/kitchen"
+        />
         <DashboardBackdrop />
 
         <DashboardMain

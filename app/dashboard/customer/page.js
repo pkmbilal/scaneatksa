@@ -112,6 +112,10 @@ export default function CustomerDashboardPage() {
           activeTab={activeTab}
           onSelectTab={setActiveTab}
           siteNavItems={siteNavItems}
+          user={user}
+          profile={profile}
+          homeLabel={t('page.homeLabel')}
+          editProfileHref="/dashboard/customer/edit-profile"
         />
         <DashboardBackdrop />
 
