@@ -31,7 +31,7 @@ export default function LoadingScreen({ message = 'Loading...' }) {
   const icon = FOOD_ICONS[index]
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="text-center">
         <div className="relative mx-auto mb-4 h-24 w-24">
           <div

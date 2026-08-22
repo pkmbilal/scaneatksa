@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { getCurrentUser, getUserProfile, signOut } from "@/lib/auth/client";
+import { getSessionUser, getUserProfile, signOut } from "@/lib/auth/client";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -70,7 +70,7 @@ export default function Navbar() {
   }, [hideNavbar, pathname]);
 
   async function loadUser() {
-    const { user: currentUser } = await getCurrentUser();
+    const { user: currentUser } = await getSessionUser();
 
     if (currentUser) {
       setUser(currentUser);
