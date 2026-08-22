@@ -158,6 +158,25 @@
     "submit": "Add Table",
     "submitting": "Adding…"
   },
+  "addStaffDialog": {
+    "trigger": "Add Staff",
+    "title": "Add Staff",
+    "description": "Create a kitchen or waiter account for your restaurant."
+  },
+  "addStaffForm": {
+    "fullNameLabel": "Full Name",
+    "fullNamePlaceholder": "Full name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Email",
+    "passwordLabel": "Temporary Password",
+    "passwordPlaceholder": "Temporary password",
+    "roleLabel": "Role",
+    "submit": "Add Staff",
+    "submitting": "Creating…",
+    "hint": "Share the email and password with your staff member so they can log in directly — no invite email is sent.",
+    "emailPasswordRequired": "Email and password are required.",
+    "passwordTooShort": "Password must be at least 6 characters."
+  },
   "menuItemsTab": {
     "empty": "No items yet. Add your first item ✨"
   },
@@ -235,16 +254,6 @@
     "role": {
       "kitchen": "Kitchen",
       "waiter": "Waiter"
-    },
-    "fullNamePlaceholder": "Full name",
-    "emailPlaceholder": "Email",
-    "passwordPlaceholder": "Temporary password",
-    "submit": "Add Staff",
-    "submitting": "Creating…",
-    "hint": "Share the email and password with your staff member so they can log in directly — no invite email is sent.",
-    "errors": {
-      "emailPasswordRequired": "Email and password are required.",
-      "passwordTooShort": "Password must be at least 6 characters."
     },
     "loading": "Loading staff…",
     "empty": "No staff accounts yet.",

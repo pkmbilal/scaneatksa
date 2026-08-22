@@ -53,6 +53,7 @@ import StaffTab from "@/components/dashboard/owner/tabs/StaffTab";
 import AddItemDialog from "@/components/dashboard/owner/dialogs/AddItemDialog";
 import AddCategoryDialog from "@/components/dashboard/owner/dialogs/AddCategoryDialog";
 import AddTableDialog from "@/components/dashboard/owner/dialogs/AddTableDialog";
+import AddStaffDialog from "@/components/dashboard/owner/dialogs/AddStaffDialog";
 
 // ✅ Shadcn Dialogs
 import {
@@ -516,6 +517,7 @@ export default function OwnerDashboardPage() {
         {ordersLoading ? t("page.actions.refreshingOrders") : t("page.actions.refreshOrders")}
       </button>
     ),
+    staff: <AddStaffDialog onAdd={addStaffMember} />,
     restaurant: (
       <Link
         href="/dashboard/owner/restaurant/edit"
@@ -575,6 +577,8 @@ export default function OwnerDashboardPage() {
               ordersLoading={ordersLoading}
               onStatusChange={updateOrderStatus}
             />
+          ) : activeTab === "staff" ? (
+            <StaffTab staff={staff} staffLoading={staffLoading} onToggleActive={toggleStaffActive} />
           ) : (
             <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
               <div className="p-6">
@@ -593,15 +597,6 @@ export default function OwnerDashboardPage() {
                     tablesLoading={tablesLoading}
                     onToggleActive={toggleTableActive}
                     onDeleteTable={deleteTable}
-                  />
-                )}
-
-                {activeTab === "staff" && (
-                  <StaffTab
-                    staff={staff}
-                    staffLoading={staffLoading}
-                    onAdd={addStaffMember}
-                    onToggleActive={toggleStaffActive}
                   />
                 )}
 
