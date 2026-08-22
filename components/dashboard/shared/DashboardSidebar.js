@@ -70,7 +70,8 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
                       <button
                         type="button"
                         onClick={() => onSelectTab(item.key)}
-                        className={`menu-item group cursor-pointer ${
+                        style={{ gap: showLabels ? '0.75rem' : '0px' }}
+                        className={`menu-item group cursor-pointer transition-all duration-300 ease-in-out ${
                           isActive ? 'menu-item-active' : 'menu-item-inactive'
                         } ${!showLabels ? 'lg:justify-center' : 'lg:justify-start'}`}
                       >
@@ -83,9 +84,19 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
                             </span>
                           )}
                         </span>
-                        {showLabels && <span className="menu-item-text">{item.label}</span>}
-                        {showLabels && typeof item.count === 'number' && item.count > 0 && (
-                          <span className="ms-auto rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+                        <span
+                          className={`menu-item-text overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
+                            showLabels ? 'max-w-[160px] opacity-100' : 'max-w-0 opacity-0'
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                        {typeof item.count === 'number' && item.count > 0 && (
+                          <span
+                            className={`ms-auto overflow-hidden rounded-full bg-brand-50 text-xs font-semibold text-brand-600 transition-all duration-300 ease-in-out dark:bg-brand-500/15 dark:text-brand-400 ${
+                              showLabels ? 'max-w-[40px] px-2 py-0.5 opacity-100' : 'max-w-0 px-0 py-0.5 opacity-0'
+                            }`}
+                          >
                             {item.count}
                           </span>
                         )}
@@ -114,14 +125,21 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
                       <li key={item.href}>
                         <Link
                           href={item.href}
-                          className={`menu-item group cursor-pointer ${
+                          style={{ gap: showLabels ? '0.75rem' : '0px' }}
+                          className={`menu-item group cursor-pointer transition-all duration-300 ease-in-out ${
                             isActive ? 'menu-item-active' : 'menu-item-inactive'
                           } ${!showLabels ? 'lg:justify-center' : 'lg:justify-start'}`}
                         >
                           <span className={isActive ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}>
                             <Icon className="size-5" />
                           </span>
-                          {showLabels && <span className="menu-item-text">{item.label}</span>}
+                          <span
+                            className={`menu-item-text overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
+                              showLabels ? 'max-w-[160px] opacity-100' : 'max-w-0 opacity-0'
+                            }`}
+                          >
+                            {item.label}
+                          </span>
                         </Link>
                       </li>
                     )
