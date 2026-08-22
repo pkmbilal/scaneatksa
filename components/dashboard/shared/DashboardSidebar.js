@@ -104,7 +104,10 @@ export default function DashboardSidebar({
                     <li key={item.key}>
                       <button
                         type="button"
-                        onClick={() => onSelectTab(item.key)}
+                        onClick={() => {
+                          onSelectTab(item.key)
+                          if (isMobileOpen) toggleMobileSidebar()
+                        }}
                         style={{ gap: showLabels ? '0.75rem' : '0px' }}
                         className={`menu-item group cursor-pointer transition-all duration-300 ease-in-out ${
                           isActive ? 'menu-item-active' : 'menu-item-inactive'
@@ -160,6 +163,9 @@ export default function DashboardSidebar({
                       <li key={item.href}>
                         <Link
                           href={item.href}
+                          onClick={() => {
+                            if (isMobileOpen) toggleMobileSidebar()
+                          }}
                           style={{ gap: showLabels ? '0.75rem' : '0px' }}
                           className={`menu-item group cursor-pointer transition-all duration-300 ease-in-out ${
                             isActive ? 'menu-item-active' : 'menu-item-inactive'

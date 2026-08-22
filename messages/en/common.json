@@ -27,5 +27,6 @@
     "kitchen": "Kitchen",
     "waiter": "Waiter"
   },
-  "openMenu": "Open menu"
+  "openMenu": "Open menu",
+  "toggleDarkMode": "Toggle dark mode"
 }

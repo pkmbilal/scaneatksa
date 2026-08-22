@@ -27,5 +27,6 @@
     "kitchen": "المطبخ",
     "waiter": "النادل"
   },
-  "openMenu": "فتح القائمة"
+  "openMenu": "فتح القائمة",
+  "toggleDarkMode": "تبديل الوضع الداكن"
 }
