@@ -195,7 +195,7 @@ export default function DashboardSidebar({
       {/* Language switcher, theme toggle & user menu — mobile-only; on lg+ these
           live in DashboardHeader's desktop row instead. */}
       {user && (
-        <div className="mt-auto shrink-0 border-t border-gray-200 py-4 dark:border-gray-800 lg:hidden">
+        <div className="mt-auto shrink-0 overflow-hidden border-t border-gray-200 py-4 dark:border-gray-800 lg:hidden">
           <div className="flex items-center gap-3 pb-4">
             <LanguageSwitcher variant="icon" />
             <button
