@@ -22,6 +22,7 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
   const pathname = usePathname()
 
   const showLabels = isExpanded || isHovered || isMobileOpen
+  const showFullLogo = isExpanded || isMobileOpen
 
   return (
     <aside
@@ -40,11 +41,11 @@ export default function DashboardSidebar({ navItems, activeTab, onSelectTab, sit
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={`py-8 flex ${!showLabels ? 'lg:justify-center' : 'justify-start'}`}>
-        {showLabels ? (
+      <div className={`py-8 flex ${!showFullLogo ? 'lg:justify-center' : 'justify-start'}`}>
+        {showFullLogo ? (
           <Image src="/logo.svg" alt="ScanEat Logo" width={140} height={38} priority />
         ) : (
-          <Image src="/logo.svg" alt="ScanEat Logo" width={32} height={32} priority />
+          <Image src="/icon-only-logo.svg" alt="ScanEat Logo" width={32} height={32} priority />
         )}
       </div>
 
