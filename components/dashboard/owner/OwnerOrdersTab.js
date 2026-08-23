@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { List, LayoutGrid } from "lucide-react";
 import { STATUS_LABELS, STATUS_TINTS } from "@/lib/orderStatus";
 import { notifyStatusChange } from "@/lib/whatsappClient";
 
@@ -13,6 +14,7 @@ const ALL_STATUSES = Object.keys(STATUS_LABELS);
 export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onStatusChange }) {
   const t = useTranslations("dashboard.owner");
   const [updatingId, setUpdatingId] = useState(null);
+  const [viewMode, setViewMode] = useState("list");
 
   const formatDate = (iso) => {
     try {
@@ -40,7 +42,41 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
       ) : orders.length === 0 ? (
         <div className="py-12 text-center text-gray-500 dark:text-gray-400">{t("ownerOrdersTab.empty")}</div>
       ) : (
-        <div className="space-y-3">
+        <>
+          <div className="mb-3 flex justify-end">
+            <div className="inline-flex rounded-lg border border-gray-200 p-0.5 dark:border-gray-800">
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                aria-pressed={viewMode === "list"}
+                aria-label={t("ownerOrdersTab.viewList")}
+                title={t("ownerOrdersTab.viewList")}
+                className={`rounded-md p-1.5 transition-colors cursor-pointer ${
+                  viewMode === "list"
+                    ? "bg-brand-500 text-white"
+                    : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                }`}
+              >
+                <List className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("card")}
+                aria-pressed={viewMode === "card"}
+                aria-label={t("ownerOrdersTab.viewCard")}
+                title={t("ownerOrdersTab.viewCard")}
+                className={`rounded-md p-1.5 transition-colors cursor-pointer ${
+                  viewMode === "card"
+                    ? "bg-brand-500 text-white"
+                    : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                }`}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className={viewMode === "card" ? "grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
           {orders.map((o) => {
             const tableNum = o?.restaurant_tables?.table_number;
             const where =
@@ -53,7 +89,11 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
             return (
               <div
                 key={o.id}
-                className="flex flex-col gap-3 rounded-xl border border-gray-200 p-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between"
+                className={
+                  viewMode === "card"
+                    ? "flex flex-col gap-3 rounded-xl border border-gray-200 p-4 dark:border-gray-800"
+                    : "flex flex-col gap-3 rounded-xl border border-gray-200 p-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between"
+                }
               >
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
@@ -104,7 +144,8 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
               </div>
             );
           })}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
