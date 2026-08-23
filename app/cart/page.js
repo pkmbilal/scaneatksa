@@ -293,8 +293,10 @@ export default function CartPage() {
         return t("errors.invalidPhonePickup");
     }
 
-    if (isDineIn && !tableCode) {
-      return t("errors.missingTableCode");
+    if (isDineIn) {
+      if (customerPhoneDigits.length < 9 || customerPhoneDigits.length > 15)
+        return t("errors.invalidPhoneDineIn");
+      if (!tableCode) return t("errors.missingTableCode");
     }
 
     return "";
@@ -352,7 +354,7 @@ export default function CartPage() {
                 <Button asChild className="w-full">
                   <Link href="/dashboard/customer">{t("confirmation.trackOrder")}</Link>
                 </Button>
-              ) : placedOrder.channel !== "dine_in" && customerPhone.trim() ? (
+              ) : customerPhone.trim() ? (
                 <p className="text-sm text-muted-foreground rounded-lg border bg-background p-3">
                   {t("confirmation.whatsappNotice", { phone: customerPhone.trim() })}
                 </p>
@@ -650,41 +652,39 @@ export default function CartPage() {
                   </div>
                 )}
 
-                {!isDineIn && (
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold">{t("summary.phoneLabel")}</p>
-                      <Input
-                        value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
-                        placeholder={t("summary.phonePlaceholder")}
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold">{t("summary.nameLabel")}</p>
-                      <Input
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        placeholder={t("summary.namePlaceholder")}
-                      />
-                    </div>
-
-                    {channel === "delivery" && (
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold flex items-center gap-2">
-                          <MapPin className="h-4 w-4" /> {t("summary.addressLabel")}
-                        </p>
-                        <Textarea
-                          value={deliveryAddress}
-                          onChange={(e) => setDeliveryAddress(e.target.value)}
-                          placeholder={t("summary.addressPlaceholder")}
-                          className="min-h-[80px]"
-                        />
-                      </div>
-                    )}
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold">{t("summary.phoneLabel")}</p>
+                    <Input
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder={t("summary.phonePlaceholder")}
+                    />
                   </div>
-                )}
+
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold">{t("summary.nameLabel")}</p>
+                    <Input
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder={t("summary.namePlaceholder")}
+                    />
+                  </div>
+
+                  {channel === "delivery" && (
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold flex items-center gap-2">
+                        <MapPin className="h-4 w-4" /> {t("summary.addressLabel")}
+                      </p>
+                      <Textarea
+                        value={deliveryAddress}
+                        onChange={(e) => setDeliveryAddress(e.target.value)}
+                        placeholder={t("summary.addressPlaceholder")}
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  )}
+                </div>
 
                 <div className="space-y-1">
                   <p className="text-sm font-semibold">{t("summary.notesLabel")}</p>
@@ -737,11 +737,9 @@ export default function CartPage() {
                   </Button>
                 </div>
 
-                {!isDineIn && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("summary.whatsappFooterNotice")}
-                  </p>
-                )}
+                <p className="text-xs text-muted-foreground">
+                  {t("summary.whatsappFooterNotice")}
+                </p>
               </CardContent>
             </Card>
           </div>

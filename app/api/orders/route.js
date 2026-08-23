@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { normalizeSaudiWhatsAppNumber } from "@/lib/whatsapp";
 
 export const runtime = "nodejs";
 
@@ -35,6 +36,14 @@ export async function POST(req) {
     if (channel === "dine_in") {
       if (!tableCode) {
         return NextResponse.json({ error: "Missing table code" }, { status: 400 });
+      }
+
+      const phoneDigits = normalizeSaudiWhatsAppNumber(customer?.phone);
+      if (phoneDigits.length < 9 || phoneDigits.length > 15) {
+        return NextResponse.json(
+          { error: "Valid WhatsApp number is required" },
+          { status: 400 }
+        );
       }
 
       const { data: table } = await supabaseAdmin

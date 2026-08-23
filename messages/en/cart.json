@@ -72,6 +72,7 @@
     "invalidPhoneDelivery": "Please enter a valid phone number for delivery.",
     "missingAddress": "Please enter delivery address.",
     "invalidPhonePickup": "Please enter a valid phone number for pickup.",
+    "invalidPhoneDineIn": "Please enter a valid WhatsApp number.",
     "missingTableCode": "Missing table code. Please scan the table QR again.",
     "menuChanged": "The menu changed while you were ordering. Return to the menu and review your cart.",
     "unableValidateCart": "Unable to validate your cart.",
