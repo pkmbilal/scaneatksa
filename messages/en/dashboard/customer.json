@@ -76,7 +76,8 @@
     "delivery": "Delivery",
     "pickup": "Pickup",
     "orderFallback": "Order",
-    "notes": "Notes:"
+    "notes": "Notes:",
+    "totalLabel": "Total: SAR {amount}"
   },
   "status": {
     "new": "New",

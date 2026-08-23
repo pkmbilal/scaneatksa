@@ -76,7 +76,8 @@
     "delivery": "توصيل",
     "pickup": "استلام",
     "orderFallback": "طلب",
-    "notes": "ملاحظات:"
+    "notes": "ملاحظات:",
+    "totalLabel": "الإجمالي: {amount} ر.س"
   },
   "status": {
     "new": "جديد",

@@ -2,32 +2,11 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { List, LayoutGrid, UtensilsCrossed, Bike, ShoppingBag } from "lucide-react";
-import { STATUS_LABELS, STATUS_TINTS } from "@/lib/orderStatus";
+import { List, LayoutGrid } from "lucide-react";
+import { STATUS_LABELS, STATUS_TINTS, CHANNEL_META, channelTint, pillClass } from "@/lib/orderStatus";
 import { notifyStatusChange } from "@/lib/whatsappClient";
 
-const channelTint = "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
-const pillClass = "text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap";
-
 const ALL_STATUSES = Object.keys(STATUS_LABELS);
-
-const CHANNEL_META = {
-  dine_in: {
-    icon: UtensilsCrossed,
-    accent: "border-l-brand-500",
-    badge: "bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400",
-  },
-  delivery: {
-    icon: Bike,
-    accent: "border-l-orange-500",
-    badge: "bg-orange-50 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400",
-  },
-  pickup: {
-    icon: ShoppingBag,
-    accent: "border-l-success-500",
-    badge: "bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-400",
-  },
-};
 
 export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onStatusChange }) {
   const t = useTranslations("dashboard.owner");
