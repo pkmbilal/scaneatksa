@@ -44,6 +44,7 @@ export function DashboardSidebarProvider({ children }) {
       value={{
         isExpanded: isMobile ? false : isExpanded,
         isMobileOpen,
+        isMobile,
         isHovered,
         toggleSidebar,
         toggleMobileSidebar,
