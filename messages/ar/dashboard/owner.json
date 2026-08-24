@@ -251,9 +251,7 @@
     "totalLabel": "الإجمالي: {amount} ر.س",
     "notesLabel": "ملاحظات:",
     "changeStatus": "تغيير الحالة",
-    "updating": "جارٍ التحديث…",
-    "viewList": "عرض القائمة",
-    "viewCard": "عرض البطاقات"
+    "updating": "جارٍ التحديث…"
   },
   "ownerTablesQrTab": {
     "onlineLinkTitle": "رابط الطلب عبر الإنترنت",
