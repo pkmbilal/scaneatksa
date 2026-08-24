@@ -62,7 +62,7 @@ export default function DashboardSidebar({
   return (
     <aside
       className={`fixed flex flex-col top-0 px-5 start-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-[999] border-e border-gray-200
-        ${isExpanded || isMobileOpen ? 'w-[290px]' : isHovered ? 'w-[290px]' : 'w-[90px]'}
+        w-[290px] ${isExpanded || isHovered ? 'lg:w-[290px]' : 'lg:w-[90px]'}
         ${
           // Resolved from isRTL in JS rather than an rtl: variant class: an
           // unprefixed off-canvas class and a Tailwind rtl: class carry equal
@@ -123,16 +123,16 @@ export default function DashboardSidebar({
                           )}
                         </span>
                         <span
-                          className={`menu-item-text overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
-                            showLabels ? 'max-w-[160px] opacity-100' : 'max-w-0 opacity-0'
+                          className={`menu-item-text overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out max-w-[160px] opacity-100 ${
+                            showLabels ? 'lg:max-w-[160px] lg:opacity-100' : 'lg:max-w-0 lg:opacity-0'
                           }`}
                         >
                           {item.label}
                         </span>
                         {typeof item.count === 'number' && item.count > 0 && (
                           <span
-                            className={`ms-auto overflow-hidden rounded-full bg-brand-50 text-xs font-semibold text-brand-600 transition-all duration-300 ease-in-out dark:bg-brand-500/15 dark:text-brand-400 ${
-                              showLabels ? 'max-w-[40px] px-2 py-0.5 opacity-100' : 'max-w-0 px-0 py-0.5 opacity-0'
+                            className={`ms-auto overflow-hidden rounded-full bg-brand-50 text-xs font-semibold text-brand-600 transition-all duration-300 ease-in-out dark:bg-brand-500/15 dark:text-brand-400 max-w-[40px] px-2 py-0.5 opacity-100 ${
+                              showLabels ? 'lg:max-w-[40px] lg:px-2 lg:py-0.5 lg:opacity-100' : 'lg:max-w-0 lg:px-0 lg:py-0.5 lg:opacity-0'
                             }`}
                           >
                             {item.count}
@@ -175,8 +175,8 @@ export default function DashboardSidebar({
                             <Icon className="size-5" />
                           </span>
                           <span
-                            className={`menu-item-text overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
-                              showLabels ? 'max-w-[160px] opacity-100' : 'max-w-0 opacity-0'
+                            className={`menu-item-text overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out max-w-[160px] opacity-100 ${
+                              showLabels ? 'lg:max-w-[160px] lg:opacity-100' : 'lg:max-w-0 lg:opacity-0'
                             }`}
                           >
                             {item.label}
