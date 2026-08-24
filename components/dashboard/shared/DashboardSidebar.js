@@ -31,7 +31,7 @@ export default function DashboardSidebar({
   editProfileHref = '/dashboard/customer/edit-profile',
 }) {
   const t = useTranslations('dashboard.common')
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleMobileSidebar } = useDashboardSidebar()
+  const { isExpanded, isMobileOpen, isMobile, isHovered, setIsHovered, toggleMobileSidebar } = useDashboardSidebar()
   const { isRTL } = useLanguage()
   const { setTheme, resolvedTheme } = useTheme()
   const pathname = usePathname()
@@ -56,13 +56,13 @@ export default function DashboardSidebar({
     router.push('/')
   }
 
-  const showLabels = isExpanded || isHovered || isMobileOpen
-  const showFullLogo = isExpanded || isMobileOpen
+  const showLabels = isMobile || isExpanded || isHovered
+  const showFullLogo = isMobile || isExpanded
 
   return (
     <aside
       className={`fixed flex flex-col top-0 px-5 start-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-[999] border-e border-gray-200
-        ${isExpanded || isMobileOpen ? 'w-[290px]' : isHovered ? 'w-[290px]' : 'w-[90px]'}
+        ${isMobile || isExpanded || isHovered ? 'w-[290px]' : 'w-[90px]'}
         ${
           // Resolved from isRTL in JS rather than an rtl: variant class: an
           // unprefixed off-canvas class and a Tailwind rtl: class carry equal

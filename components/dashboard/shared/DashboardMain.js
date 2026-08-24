@@ -13,7 +13,9 @@ export default function DashboardMain({ header, children }) {
   return (
     <div className={`flex-1 transition-all duration-300 ease-in-out ${marginLeft}`}>
       {header}
-      <div className="p-4 mx-auto max-w-screen-2xl md:p-6">{children}</div>
+      <div className="p-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] mx-auto max-w-screen-2xl md:p-6">
+        {children}
+      </div>
     </div>
   )
 }

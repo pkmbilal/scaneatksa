@@ -12,6 +12,10 @@ export const metadata = {
   description: 'Digital menu for restaurants',
 }
 
+export const viewport = {
+  viewportFit: 'cover',
+}
+
 export default async function RootLayout({ children }) {
   const locale = await getLocale()
   const messages = await getMessages()

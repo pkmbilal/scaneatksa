@@ -39,6 +39,7 @@
       "categories": "التصنيفات",
       "tables": "الطاولات ورموز QR",
       "orders": "الطلبات",
+      "analytics": "التحليلات",
       "staff": "الموظفون",
       "restaurant": "المطعم"
     },
@@ -54,6 +55,7 @@
       "categories": "نظّم عناصر قائمتك ضمن تصنيفات.",
       "tables": "أنشئ رموز QR لربط الطلبات تلقائيًا بالطاولة الصحيحة.",
       "orders": "طلبات الحضور تعرض رقم الطاولة. الطلبات عبر الإنترنت تعرض الاستلام أو التوصيل.",
+      "analytics": "الإيرادات وحجم الطلبات والعناصر الأكثر مبيعًا للفترة الزمنية المحددة.",
       "staff": "أنشئ حسابات للمطبخ والنُدُل الخاصة بمطعمك.",
       "restaurant": "إدارة تفاصيل مطعمك العامة وإعداداته."
     },
@@ -66,6 +68,7 @@
     "actions": {
       "refreshOrders": "تحديث الطلبات",
       "refreshingOrders": "جارٍ التحديث...",
+      "refreshAnalytics": "تحديث التحليلات",
       "editRestaurant": "تعديل المطعم"
     },
     "deleteItemDialog": {
@@ -205,6 +208,37 @@
     "unavailable": "غير متوفر",
     "soldOut": "نفدت الكمية"
   },
+  "analyticsTab": {
+    "loading": "جارٍ تحميل التحليلات…",
+    "loadFailed": "تعذّر تحميل التحليلات. يرجى المحاولة مرة أخرى.",
+    "totalRevenue": "إجمالي الإيرادات",
+    "totalOrders": "إجمالي الطلبات",
+    "avgOrderValue": "متوسط قيمة الطلب",
+    "topChannel": "القناة الأكثر نشاطًا",
+    "revenueDefinitionNote": "تشمل أرقام الإيرادات الطلبات المُسلَّمة والمكتملة فقط.",
+    "revenueOverTime": "الإيرادات عبر الزمن",
+    "revenueTooltip": "{amount} ر.س · {orders, plural, zero {لا طلبات} one {طلب واحد} two {طلبان} few {# طلبات} many {# طلبًا} other {# طلب}}",
+    "noRevenueYet": "لا توجد إيرادات في هذه الفترة بعد.",
+    "ordersByChannel": "الطلبات حسب القناة",
+    "noOrdersYet": "لا توجد طلبات في هذه الفترة بعد.",
+    "channelCount": "{count, plural, zero {لا طلبات} one {طلب واحد} two {طلبان} few {# طلبات} many {# طلبًا} other {# طلب}}",
+    "channelNames": {
+      "dine_in": "تناول داخلي",
+      "delivery": "توصيل",
+      "pickup": "استلام"
+    },
+    "topSellingItems": "العناصر الأكثر مبيعًا",
+    "noItemsYet": "لا توجد عناصر مباعة في هذه الفترة بعد.",
+    "unnamedItem": "عنصر بلا اسم",
+    "itemQuantity": "{count, plural, zero {لم يُبع} one {بيعت قطعة واحدة} two {بيعت قطعتان} few {بيعت # قطع} many {بيعت # قطعة} other {بيعت # قطعة}}",
+    "range": {
+      "label": "النطاق الزمني",
+      "today": "اليوم",
+      "last7": "آخر 7 أيام",
+      "last30": "آخر 30 يومًا",
+      "thisMonth": "هذا الشهر"
+    }
+  },
   "ownerOrdersTab": {
     "loading": "جارٍ تحميل الطلبات…",
     "empty": "لا توجد طلبات بعد.",
@@ -217,9 +251,7 @@
     "totalLabel": "الإجمالي: {amount} ر.س",
     "notesLabel": "ملاحظات:",
     "changeStatus": "تغيير الحالة",
-    "updating": "جارٍ التحديث…",
-    "viewList": "عرض القائمة",
-    "viewCard": "عرض البطاقات"
+    "updating": "جارٍ التحديث…"
   },
   "ownerTablesQrTab": {
     "onlineLinkTitle": "رابط الطلب عبر الإنترنت",

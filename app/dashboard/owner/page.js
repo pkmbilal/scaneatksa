@@ -32,6 +32,7 @@ import {
   Headset,
   Pencil,
   RefreshCw,
+  BarChart3,
 } from "lucide-react";
 
 import { DashboardSidebarProvider } from "@/context/DashboardSidebarContext";
@@ -50,6 +51,9 @@ import RestaurantTab from "@/components/dashboard/owner/tabs/RestaurantTab";
 import OwnerTablesQrTab from "@/components/dashboard/owner/OwnerTablesQrTab";
 import OwnerOrdersTab from "@/components/dashboard/owner/OwnerOrdersTab";
 import StaffTab from "@/components/dashboard/owner/tabs/StaffTab";
+import AnalyticsTab from "@/components/dashboard/owner/tabs/AnalyticsTab";
+import AnalyticsDateRangeSelect from "@/components/dashboard/owner/AnalyticsDateRangeSelect";
+import { useOwnerAnalytics } from "@/components/dashboard/owner/hooks/useOwnerAnalytics";
 import AddItemDialog from "@/components/dashboard/owner/dialogs/AddItemDialog";
 import AddCategoryDialog from "@/components/dashboard/owner/dialogs/AddCategoryDialog";
 import AddTableDialog from "@/components/dashboard/owner/dialogs/AddTableDialog";
@@ -109,6 +113,10 @@ export default function OwnerDashboardPage() {
   // Live order updates -- new orders placed, or status changes made by
   // kitchen/waiter -- so the owner never has to refresh to see them.
   useRestaurantOrdersRealtime(restaurant?.id, () => loadOrders(restaurant.id, { silent: true }));
+
+  // Analytics data/aggregation -- fetched only while the Analytics tab is
+  // active, and re-fetched when the selected date range changes.
+  const analytics = useOwnerAnalytics(restaurant?.id, { enabled: activeTab === "analytics" });
 
   async function loadOwnerData() {
     setLoading(true);
@@ -455,6 +463,7 @@ export default function OwnerDashboardPage() {
     { key: "categories", label: t("page.nav.categories"), icon: Tags },
     { key: "tables", label: t("page.nav.tables"), icon: QrCode },
     { key: "orders", label: t("page.nav.orders"), icon: Receipt, count: newOrdersCount, alert: newOrdersCount > 0 },
+    { key: "analytics", label: t("page.nav.analytics"), icon: BarChart3 },
     { key: "staff", label: t("page.nav.staff"), icon: Users, count: staff.length },
     { key: "restaurant", label: t("page.nav.restaurant"), icon: Store },
   ];
@@ -472,6 +481,7 @@ export default function OwnerDashboardPage() {
     categories: t("page.nav.categories"),
     tables: t("page.nav.tables"),
     orders: t("page.nav.orders"),
+    analytics: t("page.nav.analytics"),
     staff: t("page.nav.staff"),
     restaurant: t("page.nav.restaurant"),
   };
@@ -482,6 +492,7 @@ export default function OwnerDashboardPage() {
     categories: t("page.tabDescriptions.categories"),
     tables: t("page.tabDescriptions.tables"),
     orders: t("page.tabDescriptions.orders"),
+    analytics: t("page.tabDescriptions.analytics"),
     staff: t("page.tabDescriptions.staff"),
     restaurant: t("page.tabDescriptions.restaurant"),
   };
@@ -516,6 +527,21 @@ export default function OwnerDashboardPage() {
         <RefreshCw className="h-4 w-4" />
         {ordersLoading ? t("page.actions.refreshingOrders") : t("page.actions.refreshOrders")}
       </button>
+    ),
+    analytics: (
+      <div className="flex items-center gap-2">
+        <AnalyticsDateRangeSelect value={analytics.range} onChange={analytics.setRange} />
+        <button
+          type="button"
+          onClick={analytics.refresh}
+          disabled={analytics.loading}
+          aria-label={t("page.actions.refreshAnalytics")}
+          title={t("page.actions.refreshAnalytics")}
+          className="inline-flex items-center justify-center rounded-lg bg-gray-100 p-2 text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+        >
+          <RefreshCw className="h-4 w-4" />
+        </button>
+      </div>
     ),
     staff: <AddStaffDialog onAdd={addStaffMember} />,
     restaurant: (
@@ -577,6 +603,8 @@ export default function OwnerDashboardPage() {
               ordersLoading={ordersLoading}
               onStatusChange={updateOrderStatus}
             />
+          ) : activeTab === "analytics" ? (
+            <AnalyticsTab analytics={analytics} />
           ) : activeTab === "staff" ? (
             <StaffTab staff={staff} staffLoading={staffLoading} onToggleActive={toggleStaffActive} />
           ) : (
