@@ -1,0 +1,34 @@
+{
+  "page": {
+    "title": "المطاعم",
+    "subtitle": "ابحث عن طريق المطعم أو المدينة أو المطبخ أو الصنف"
+  },
+  "empty": {
+    "title": "لا توجد نتائج",
+    "subtitle": "جرّب تغيير عوامل التصفية أو نوع البحث."
+  },
+  "filters": {
+    "searchForLabel": "البحث عن",
+    "typeRestaurants": "المطاعم",
+    "typeFood": "الأطعمة",
+    "mobileSearchPlaceholder": "ابحث عن مطعم أو وجبة",
+    "cityLabel": "المدينة",
+    "cityAllOption": "جميع المدن",
+    "cuisineLabel": "المطبخ",
+    "cuisinesLabel": "المطابخ",
+    "cuisineAllOption": "جميع المطابخ",
+    "restaurantNameLabel": "اسم المطعم",
+    "foodNameLabel": "اسم الصنف",
+    "restaurantNamePlaceholder": "مثال: بيتزا بالاس...",
+    "foodNamePlaceholder": "مثال: برياني...",
+    "vegetarianLabel": "نباتي",
+    "vegPill": "نباتي",
+    "apply": "تطبيق",
+    "clear": "مسح",
+    "tip": "نصيحة: اختر <b>الأطعمة</b> للعثور على المطاعم التي تقدّم هذا الصنف في قائمتها."
+  },
+  "card": {
+    "noAddress": "لا يوجد عنوان",
+    "cityNotSet": "المدينة غير محددة"
+  }
+}

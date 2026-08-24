@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 import {
   AlertDialog,
@@ -41,6 +42,7 @@ function normalizeRestaurant(r) {
 }
 
 export function CartProvider({ children }) {
+  const t = useTranslations('cart')
   const router = useRouter()
 
   const [cartItems, setCartItems] = useState([])
@@ -209,18 +211,18 @@ export function CartProvider({ children }) {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <TriangleAlert className="h-5 w-5 text-destructive" />
-              One restaurant per order
+              {t('conflict.title')}
             </AlertDialogTitle>
 
             <AlertDialogDescription className="text-sm">
               {conflictInfo?.type === 'DIFFERENT_RESTAURANT' ? (
                 <>
-                  Your cart already has items from another restaurant.
+                  {t('conflict.differentRestaurant')}
                   <br />
-                  Please checkout or clear your cart before adding from a different one.
+                  {t('conflict.differentRestaurantHint')}
                 </>
               ) : (
-                <>We couldn’t identify the restaurant for this item. Please refresh and try again.</>
+                <>{t('conflict.missingRestaurant')}</>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -231,18 +233,18 @@ export function CartProvider({ children }) {
 
               <div className="grid gap-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm text-muted-foreground">Current cart</span>
+                  <span className="text-sm text-muted-foreground">{t('conflict.currentCart')}</span>
                   <Badge variant="secondary" className="gap-1">
                     <Store className="h-3.5 w-3.5" />
-                    {conflictInfo?.currentRestaurant?.name ?? 'Restaurant'}
+                    {conflictInfo?.currentRestaurant?.name ?? t('conflict.restaurantFallback')}
                   </Badge>
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm text-muted-foreground">Tried to add</span>
+                  <span className="text-sm text-muted-foreground">{t('conflict.triedToAdd')}</span>
                   <Badge variant="outline" className="gap-1">
                     <ShoppingCart className="h-3.5 w-3.5" />
-                    {conflictInfo?.incomingRestaurant?.name ?? 'Restaurant'}
+                    {conflictInfo?.incomingRestaurant?.name ?? t('conflict.restaurantFallback')}
                   </Badge>
                 </div>
               </div>
@@ -250,8 +252,8 @@ export function CartProvider({ children }) {
           )}
 
           <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
-            <AlertDialogAction onClick={goToCart}>Go to cart</AlertDialogAction>
+            <AlertDialogCancel>{t('conflict.close')}</AlertDialogCancel>
+            <AlertDialogAction onClick={goToCart}>{t('conflict.goToCart')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

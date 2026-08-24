@@ -1,50 +1,11 @@
 'use client'
 
-import { CheckCircle2 } from 'lucide-react'
-import { STATUS_LABELS, STATUS_TINTS, CUSTOMER_PROGRESS_STEPS } from '@/lib/orderStatus'
-
-const pillClass = 'text-xs px-2.5 py-0.5 rounded-full font-semibold whitespace-nowrap'
-
-function ProgressLine({ status }) {
-  // Cancelled orders don't fit the linear received → preparing → delivered
-  // line -- show a plain status pill instead.
-  if (!CUSTOMER_PROGRESS_STEPS.includes(status)) {
-    return (
-      <span className={`${pillClass} ${STATUS_TINTS[status] || STATUS_TINTS.new}`}>
-        {STATUS_LABELS[status] || status}
-      </span>
-    )
-  }
-
-  const currentIndex = CUSTOMER_PROGRESS_STEPS.indexOf(status)
-
-  return (
-    <div className="flex items-center gap-1.5">
-      {CUSTOMER_PROGRESS_STEPS.map((step, i) => {
-        const done = i <= currentIndex
-        return (
-          <div key={step} className="flex items-center gap-1.5">
-            <div
-              className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                done
-                  ? 'bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400'
-                  : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600'
-              }`}
-            >
-              {done && <CheckCircle2 className="h-3 w-3" />}
-              {STATUS_LABELS[step]}
-            </div>
-            {i < CUSTOMER_PROGRESS_STEPS.length - 1 && (
-              <div className={`h-px w-4 ${done ? 'bg-success-400' : 'bg-gray-200 dark:bg-gray-700'}`} />
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
+import { useTranslations } from 'next-intl'
+import { STATUS_TINTS, CHANNEL_META, channelTint, pillClass } from '@/lib/orderStatus'
 
 export default function OrdersTab({ orders }) {
+  const t = useTranslations('dashboard.customer')
+
   const formatDate = (iso) => {
     try {
       return new Date(iso).toLocaleString()
@@ -54,7 +15,7 @@ export default function OrdersTab({ orders }) {
   }
 
   if (!orders?.length) {
-    return <div className="py-12 text-center text-gray-500 dark:text-gray-400">No orders yet.</div>
+    return <div className="py-12 text-center text-gray-500 dark:text-gray-400">{t('ordersTab.empty')}</div>
   }
 
   return (
@@ -63,43 +24,61 @@ export default function OrdersTab({ orders }) {
         const tableNum = o?.restaurant_tables?.table_number
         const where =
           o.channel === 'dine_in'
-            ? `Table ${tableNum ?? '?'}`
+            ? t('ordersTab.table', { number: tableNum ?? '?' })
             : o.channel === 'delivery'
-            ? 'Delivery'
-            : 'Pickup'
+            ? t('ordersTab.delivery')
+            : t('ordersTab.pickup')
+        const meta = CHANNEL_META[o.channel] || CHANNEL_META.dine_in
+        const ChannelIcon = meta.icon
 
         return (
-          <div key={o.id} className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <p className="font-semibold text-gray-800 dark:text-white/90">
-                  {o.restaurants?.name || 'Order'}
-                </p>
-                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                  {where} • {formatDate(o.created_at)} • SAR {Number(o.total || 0).toFixed(2)}
-                </p>
+          <div
+            key={o.id}
+            className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-gray-200 bg-white p-4 shadow-theme-xs transition-all duration-200 hover:border-gray-300 hover:shadow-theme-md dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-gray-700 ${meta.accent}`}
+          >
+            <div className="flex min-w-0 items-start gap-3">
+              <div
+                title={where}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${meta.badge}`}
+              >
+                <ChannelIcon className="h-5 w-5" />
               </div>
-              <ProgressLine status={o.status} />
+
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold text-gray-800 dark:text-white/90">
+                    {o.restaurants?.name || t('ordersTab.orderFallback')}
+                  </p>
+                  <span className={`${pillClass} ${channelTint}`}>{where}</span>
+                  <span className={`${pillClass} ${STATUS_TINTS[o.status] || STATUS_TINTS.new}`}>
+                    {t.has(`status.${o.status}`) ? t(`status.${o.status}`) : o.status}
+                  </span>
+                </div>
+
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {formatDate(o.created_at)} • {t('ordersTab.totalLabel', { amount: Number(o.total || 0).toFixed(2) })}
+                </p>
+
+                {o.order_items?.length > 0 && (
+                  <ul className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-300">
+                    {o.order_items.map((item) => (
+                      <li key={item.id} className="flex justify-between">
+                        <span>
+                          {item.name} × {item.quantity}
+                        </span>
+                        <span>SAR {(Number(item.price) * Number(item.quantity)).toFixed(2)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {o.notes && (
+                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                    <span className="font-semibold text-gray-800 dark:text-white/90">{t('ordersTab.notes')}</span> {o.notes}
+                  </p>
+                )}
+              </div>
             </div>
-
-            {o.order_items?.length > 0 && (
-              <ul className="mt-3 space-y-1 text-sm text-gray-600 dark:text-gray-300">
-                {o.order_items.map((item) => (
-                  <li key={item.id} className="flex justify-between">
-                    <span>
-                      {item.name} × {item.quantity}
-                    </span>
-                    <span>SAR {(Number(item.price) * Number(item.quantity)).toFixed(2)}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {o.notes && (
-              <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                <span className="font-semibold text-gray-800 dark:text-white/90">Notes:</span> {o.notes}
-              </p>
-            )}
           </div>
         )
       })}

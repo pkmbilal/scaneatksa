@@ -1,0 +1,177 @@
+{
+  "hero": {
+    "badge": "Smart QR menus for modern restaurants",
+    "title": "Professional QR Menu & Ordering System for",
+    "highlight": "Restaurants, Cafes & Food Brands",
+    "description": "Let customers scan, browse your menu, and place orders instantly. No app downloads. No printed menu hassle. Just a faster, cleaner, more modern restaurant experience.",
+    "primaryCta": "Start Free Trial",
+    "secondaryCta": "Explore Restaurants",
+    "points": ["No app required", "Launch in minutes", "WhatsApp-friendly workflow"],
+    "dashboard": {
+      "panelLabel": "Restaurant Dashboard",
+      "panelTitle": "ScanEat Control Panel",
+      "tablesActiveLabel": "Tables Active",
+      "tablesActiveDelta": "+8 today",
+      "ordersReceivedLabel": "Orders Received",
+      "ordersReceivedNote": "Live via WhatsApp",
+      "menuPreviewTitle": "Sample Menu Preview",
+      "mobileFriendly": "Mobile Friendly",
+      "items": [
+        { "name": "Chicken Burger", "description": "Popular item with cheese" },
+        { "name": "Pasta Alfredo", "description": "Creamy white sauce pasta" },
+        { "name": "Fresh Mojito", "description": "Mint, lemon, sparkling" }
+      ],
+      "noPrintedMenus": "No printed menus needed",
+      "contactlessNote": "Clean, fast, contactless ordering"
+    }
+  },
+  "trustStrip": {
+    "eyebrow": "Built for modern hospitality",
+    "title": "Everything your restaurant needs to go digital with QR menus",
+    "stats": [
+      { "value": "0", "label": "Setup Fee" },
+      { "value": "5 min", "label": "To Launch" },
+      { "value": "24/7", "label": "Support" }
+    ],
+    "activeListings": "Active Listings"
+  },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "title": "Get started in 3 simple steps",
+    "description": "A smooth ordering experience for customers and a simple workflow for restaurant owners.",
+    "steps": [
+      {
+        "title": "1. Scan QR Code",
+        "description": "Customers scan the QR code using their phone camera and instantly open your menu."
+      },
+      {
+        "title": "2. Browse the Menu",
+        "description": "Guests view items, prices, photos, and descriptions on a clean mobile-first menu."
+      },
+      {
+        "title": "3. Order Instantly",
+        "description": "Orders are sent directly through WhatsApp for quick, familiar, low-friction ordering."
+      }
+    ]
+  },
+  "features": {
+    "eyebrow": "Core features",
+    "title": "Everything needed for a modern QR menu system",
+    "description": "Built to help restaurants launch faster, update menus easily, and serve customers better.",
+    "items": [
+      {
+        "title": "QR Code Per Table",
+        "description": "Generate unique QR codes for every table so customers can scan and start ordering instantly."
+      },
+      {
+        "title": "Live Menu Updates",
+        "description": "Change prices, items, photos, and availability anytime without reprinting physical menus."
+      },
+      {
+        "title": "WhatsApp Ordering",
+        "description": "Orders are sent directly through WhatsApp for a fast and familiar workflow."
+      },
+      {
+        "title": "Mobile-First Experience",
+        "description": "Menus are designed for phones first, with a smooth browsing and ordering experience."
+      },
+      {
+        "title": "Multi-Language Ready",
+        "description": "Serve local and international customers with multilingual digital menus."
+      },
+      {
+        "title": "Built for Restaurants",
+        "description": "Perfect for cafes, restaurants, bakeries, food trucks, and dine-in table ordering."
+      }
+    ]
+  },
+  "benefits": {
+    "eyebrow": "Why restaurants choose ScanEat",
+    "title": "Designed to reduce friction and improve service",
+    "description": "ScanEat helps restaurants modernize menu access, reduce manual effort, and create a cleaner customer journey from table scan to completed order.",
+    "items": [
+      {
+        "title": "Faster Service",
+        "text": "Guests browse and order without waiting for printed menus or staff availability."
+      },
+      {
+        "title": "Lower Costs",
+        "text": "No recurring printing costs for menu updates, promotions, or seasonal changes."
+      },
+      {
+        "title": "More Professional",
+        "text": "Give your restaurant a clean, modern, branded digital ordering experience."
+      }
+    ],
+    "panel": {
+      "title": "What owners care about",
+      "subtitle": "Restaurant success snapshot",
+      "stats": [
+        { "value": "Instant", "text": "Menu access through QR scan" },
+        { "value": "Easy", "text": "Manage items and pricing anytime" },
+        { "value": "Direct", "text": "WhatsApp-based order flow" },
+        { "value": "Modern", "text": "Professional digital experience" }
+      ]
+    }
+  },
+  "featuredRestaurants": {
+    "eyebrow": "Featured restaurants",
+    "title": "Discover live restaurants using ScanEat",
+    "description": "Browse a few active restaurants and see how digital menus can look in the real world.",
+    "cta": "View all restaurants",
+    "emptyState": {
+      "title": "No restaurants yet",
+      "description": "Be the first to join the platform and launch your digital menu."
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Common questions from restaurant owners",
+    "items": [
+      {
+        "question": "Do customers need to install an app?",
+        "answer": "No. Customers simply scan the QR code using their phone camera and the menu opens in the browser."
+      },
+      {
+        "question": "Can I update my menu anytime?",
+        "answer": "Yes. You can edit items, prices, photos, and availability at any time from your dashboard."
+      },
+      {
+        "question": "Can each table have its own QR code?",
+        "answer": "Yes. You can generate QR codes for individual tables so orders can be associated more accurately."
+      },
+      {
+        "question": "How long does setup take?",
+        "answer": "Most restaurants can get started in minutes by creating an account, adding menu items, and generating QR codes."
+      },
+      {
+        "question": "Is this suitable for small restaurants and cafes?",
+        "answer": "Yes. ScanEat is ideal for cafes, restaurants, bakeries, and small food businesses that want a simple digital menu workflow."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Ready to launch your restaurant QR menu?",
+    "description": "Start free, create your menu, generate QR codes, and give your customers a faster dining experience in just a few minutes.",
+    "primaryCta": "Get Started Free",
+    "secondaryCta": "Browse Restaurants"
+  },
+  "footer": {
+    "description": "ScanEat helps restaurants create professional digital menus and simple QR ordering experiences without the friction of traditional systems.",
+    "quickLinks": "Quick Links",
+    "company": "Company",
+    "productLinks": {
+      "about": "About",
+      "restaurants": "Restaurants",
+      "signUp": "Sign Up",
+      "signIn": "Sign In"
+    },
+    "companyLinks": {
+      "helpCenter": "Help Center",
+      "contactUs": "Contact Us",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "copyright": "© {year} ScanEat. All rights reserved.",
+    "designedBy": "Designed by"
+  }
+}

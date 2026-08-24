@@ -5,6 +5,7 @@ const supabase = supabaseBrowser();
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { Pizza, BadgeCheck } from "lucide-react";
@@ -19,8 +20,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function VerifyClient() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -76,7 +79,7 @@ export default function VerifyClient() {
       setLoading(false);
       setSuccessOpen(true);
     } catch (err) {
-      setError("Something went wrong: " + (err?.message || "Unknown error"));
+      setError(t("verify.unexpectedError", { message: err?.message || "Unknown error" }));
       setLoading(false);
     }
   };
@@ -100,11 +103,11 @@ export default function VerifyClient() {
         return;
       }
 
-      setInfo("OTP sent again! Please check your email.");
+      setInfo(t("verify.otpResentInfo"));
       setResendCooldown(60);
       setLoading(false);
     } catch (err) {
-      setError("Something went wrong: " + (err?.message || "Unknown error"));
+      setError(t("verify.unexpectedError", { message: err?.message || "Unknown error" }));
       setLoading(false);
     }
   };
@@ -112,10 +115,14 @@ export default function VerifyClient() {
   const goDashboard = () => router.push("/dashboard");
 
   const resendLabel =
-    resendCooldown > 0 ? `Resend OTP (${resendCooldown}s)` : "Resend OTP";
+    resendCooldown > 0
+      ? t("verify.resendOtpCooldown", { seconds: resendCooldown })
+      : t("verify.resendOtp");
 
   return (
     <>
+      <LanguageSwitcher className="fixed top-4 end-4 z-50" />
+
       {/* ✅ Success Dialog */}
       <Dialog
         open={successOpen}
@@ -130,21 +137,19 @@ export default function VerifyClient() {
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-green-50">
                 <BadgeCheck className="h-5 w-5 text-green-600" />
               </span>
-              Email verified 🎉
+              {t("verify.successDialog.title")}
             </DialogTitle>
             <DialogDescription className="mt-2">
-              Your email has been verified successfully.
-              <br />
-              Welcome to QR Menu System!
+              {t("verify.successDialog.description")}
             </DialogDescription>
           </DialogHeader>
 
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setSuccessOpen(false)}>
-              Close
+              {t("verify.successDialog.close")}
             </Button>
             <Button className="bg-primary hover:bg-green-600" onClick={goDashboard}>
-              Continue
+              {t("verify.successDialog.continue")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -157,22 +162,22 @@ export default function VerifyClient() {
             <div className="text-5xl mb-2">
               <Pizza size={48} color="#00c951" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Verify Email</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t("verify.title")}</h1>
             <p className="text-gray-600 text-center">
-              Enter the OTP code we sent to your email
+              {t("verify.subtitle")}
             </p>
           </div>
 
           <form onSubmit={handleVerify}>
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email
+                {t("verify.emailLabel")}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder={t("verify.emailPlaceholder")}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
@@ -180,7 +185,7 @@ export default function VerifyClient() {
 
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                OTP Code
+                {t("verify.otpLabel")}
               </label>
               <input
                 type="text"
@@ -188,7 +193,7 @@ export default function VerifyClient() {
                 autoComplete="one-time-code"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                placeholder="123456"
+                placeholder={t("verify.otpPlaceholder")}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
@@ -210,7 +215,7 @@ export default function VerifyClient() {
               disabled={loading}
               className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-400 cursor-pointer"
             >
-              {loading ? "Verifying..." : "Verify & Continue"}
+              {loading ? t("verify.verifying") : t("verify.verifyButton")}
             </button>
 
             <button
@@ -219,14 +224,14 @@ export default function VerifyClient() {
               disabled={loading || !email || resendCooldown > 0}
               className="w-full mt-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-lg font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Sending..." : resendLabel}
+              {loading ? t("verify.sendingOtp") : resendLabel}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <span className="text-gray-600 text-sm mb-3 mr-1">Already verified?</span>
+            <span className="text-gray-600 text-sm mb-3 me-1">{t("verify.alreadyVerified")}</span>
             <Link href="/auth/login" className="text-green-600">
-              Sign in
+              {t("verify.signIn")}
             </Link>
           </div>
         </div>
@@ -239,9 +244,9 @@ export default function VerifyClient() {
             <div className="text-5xl mb-2">
               <Pizza size={48} color="#00c951" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Verify Email</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t("verify.title")}</h1>
             <p className="text-gray-600 text-center">
-              Enter the OTP code we sent to your email
+              {t("verify.subtitle")}
             </p>
           </div>
 
@@ -249,13 +254,13 @@ export default function VerifyClient() {
             {/* same form */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email
+                {t("verify.emailLabel")}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder={t("verify.emailPlaceholder")}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
@@ -263,7 +268,7 @@ export default function VerifyClient() {
 
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                OTP Code
+                {t("verify.otpLabel")}
               </label>
               <input
                 type="text"
@@ -271,7 +276,7 @@ export default function VerifyClient() {
                 autoComplete="one-time-code"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                placeholder="123456"
+                placeholder={t("verify.otpPlaceholder")}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
@@ -293,7 +298,7 @@ export default function VerifyClient() {
               disabled={loading}
               className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-400 cursor-pointer"
             >
-              {loading ? "Verifying..." : "Verify & Continue"}
+              {loading ? t("verify.verifying") : t("verify.verifyButton")}
             </button>
 
             <button
@@ -302,14 +307,14 @@ export default function VerifyClient() {
               disabled={loading || !email || resendCooldown > 0}
               className="w-full mt-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-lg font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Sending..." : resendLabel}
+              {loading ? t("verify.sendingOtp") : resendLabel}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <span className="text-gray-600 text-sm mb-3 mr-1">Already verified?</span>
+            <span className="text-gray-600 text-sm mb-3 me-1">{t("verify.alreadyVerified")}</span>
             <Link href="/auth/login" className="text-green-600">
-              Sign in
+              {t("verify.signIn")}
             </Link>
           </div>
         </div>

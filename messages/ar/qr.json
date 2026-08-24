@@ -1,0 +1,42 @@
+{
+  "clientPage": {
+    "loading": "جارٍ تجهيز قالب رمز الاستجابة السريعة...",
+    "notFound": {
+      "title": "المطعم غير موجود",
+      "description": "تعذّر تحميل المطعم \"{slug}\".",
+      "backToDashboard": "العودة إلى لوحة التحكم"
+    },
+    "title": "مولّد قالب رمز الاستجابة السريعة",
+    "subtitle": "قم بتنزيل أو طباعة قالب احترافي لرمز الاستجابة السريعة (شعار + تعليمات + الرمز). اختر طاولة لإنشاء رمز خاص بها.",
+    "universalMenuQr": "رمز قائمة عام",
+    "tableSpecificQr": "رمز خاص بالطاولة {tableNumber}",
+    "qrTypeLabel": "نوع الرمز",
+    "generalMenuQrOption": "رمز القائمة العام",
+    "tableOption": "الطاولة {tableNumber}",
+    "noTables": "لا توجد طاولات. أنشئ طاولات أولاً لإنشاء رموز خاصة بالطاولات.",
+    "downloadTemplate": "تنزيل القالب PNG",
+    "printTemplate": "طباعة القالب",
+    "previewMenu": "معاينة القائمة",
+    "errors": {
+      "missingSlug": "الرابط المختصر للمطعم مفقود.",
+      "loginRequired": "يرجى تسجيل الدخول أولاً.",
+      "accessDenied": "تم رفض الوصول. صلاحيتك: {role}",
+      "restaurantNotFound": "المطعم غير موجود: {slug}",
+      "notOwner": "أنت لا تملك هذا المطعم.",
+      "generic": "حدث خطأ ما.",
+      "qrGenerationFailed": "فشل إنشاء رمز الاستجابة السريعة.",
+      "qrNotReady": "رمز الاستجابة السريعة غير جاهز بعد.",
+      "downloadFailed": "فشل تنزيل القالب."
+    },
+    "toast": {
+      "templateDownloaded": "تم تنزيل القالب ✅"
+    }
+  },
+  "template": {
+    "logoAlt": "شعار ScanEat",
+    "scanToOrder": "امسح للطلب",
+    "qrCodeAlt": "رمز الاستجابة السريعة",
+    "generating": "جارٍ الإنشاء...",
+    "table": "الطاولة {tableNumber}"
+  }
+}

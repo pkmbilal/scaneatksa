@@ -1,6 +1,7 @@
 'use client'
 
 import { forwardRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import NextImage from 'next/image'
 
@@ -8,6 +9,7 @@ const QRCodeTemplateCard = forwardRef(function QRCodeTemplateCard(
   { selectedTableId, selectedTable, qrCodeUrl },
   ref
 ) {
+  const t = useTranslations('qr.template')
   const showTable = selectedTableId !== 'general' && selectedTable?.table_number
 
   return (
@@ -26,7 +28,7 @@ const QRCodeTemplateCard = forwardRef(function QRCodeTemplateCard(
           <div className="w-full flex items-center justify-center pt-1 mb-3">
             <NextImage
               src="/logo.svg"
-              alt="ScanEat Logo"
+              alt={t('logoAlt')}
               width={180}
               height={50}
               priority
@@ -36,7 +38,7 @@ const QRCodeTemplateCard = forwardRef(function QRCodeTemplateCard(
           {/* Title */}
           <div className="text-center mb-2">
             <p className="text-md font-semibold text-gray-400 leading-none">
-              Scan to Order
+              {t('scanToOrder')}
             </p>
           </div>
 
@@ -46,7 +48,7 @@ const QRCodeTemplateCard = forwardRef(function QRCodeTemplateCard(
               {qrCodeUrl ? (
                 <img
                   src={qrCodeUrl}
-                  alt="QR Code"
+                  alt={t('qrCodeAlt')}
                   className="object-contain"
                   style={{ width: '5cm', height: '5cm' }}
                 />
@@ -55,7 +57,7 @@ const QRCodeTemplateCard = forwardRef(function QRCodeTemplateCard(
                   className="flex items-center justify-center text-xs text-muted-foreground"
                   style={{ width: '5cm', height: '5cm' }}
                 >
-                  Generating...
+                  {t('generating')}
                 </div>
               )}
             </div>
@@ -65,7 +67,7 @@ const QRCodeTemplateCard = forwardRef(function QRCodeTemplateCard(
           <div className="pb-1 text-center">
             {showTable ? (
               <p className="text-md font-semibold text-foreground">
-                Table {selectedTable.table_number}
+                {t('table', { tableNumber: selectedTable.table_number })}
               </p>
             ) : (
               <div className="h-[20px]" />

@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Search, ChevronDown } from "lucide-react";
 
 export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
+  const t = useTranslations("restaurants");
   const router = useRouter();
   const sp = useSearchParams();
 
@@ -60,7 +62,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
         <div className="relative">
           <Search
             size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400"
           />
           <input
             type="search"
@@ -73,8 +75,8 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
                 apply({ q: q.trim(), type }, base);
               }
             }}
-            placeholder="Search for a Restaurant or Meal"
-            className="w-full h-12 pl-11 pr-4 border rounded-2xl bg-gray-50 focus:bg-white outline-none"
+            placeholder={t("filters.mobileSearchPlaceholder")}
+            className="w-full h-12 ps-11 pe-4 border rounded-2xl bg-gray-50 focus:bg-white outline-none"
           />
         </div>
 
@@ -83,7 +85,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
           <div className="flex items-center gap-2 w-max pb-1">
             {/* Restaurants/Food pill */}
             <label className="relative">
-              <span className="sr-only">Search For</span>
+              <span className="sr-only">{t("filters.searchForLabel")}</span>
               <select
                 value={type}
                 onChange={(e) => {
@@ -92,20 +94,20 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
                   const base = new URLSearchParams(sp.toString());
                   apply({ type: v }, base);
                 }}
-                className="h-10 pl-4 pr-9 border rounded-xl bg-white text-sm font-semibold text-gray-900 appearance-none"
+                className="h-10 ps-4 pe-9 border rounded-xl bg-white text-sm font-semibold text-gray-900 appearance-none"
               >
-                <option value="restaurants">Restaurants</option>
-                <option value="food">Food</option>
+                <option value="restaurants">{t("filters.typeRestaurants")}</option>
+                <option value="food">{t("filters.typeFood")}</option>
               </select>
               <ChevronDown
                 size={16}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500"
               />
             </label>
 
             {/* City pill */}
             <label className="relative">
-              <span className="sr-only">City</span>
+              <span className="sr-only">{t("filters.cityLabel")}</span>
               <select
                 value={city}
                 onChange={(e) => {
@@ -114,9 +116,9 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
                   const base = new URLSearchParams(sp.toString());
                   apply({ city: v }, base);
                 }}
-                className="h-10 pl-4 pr-9 border rounded-xl bg-white text-sm font-semibold text-gray-900 appearance-none"
+                className="h-10 ps-4 pe-9 border rounded-xl bg-white text-sm font-semibold text-gray-900 appearance-none"
               >
-                <option value="">City</option>
+                <option value="">{t("filters.cityLabel")}</option>
                 {cities.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -125,13 +127,13 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
               </select>
               <ChevronDown
                 size={16}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500"
               />
             </label>
 
             {/* Cuisines pill */}
             <label className="relative">
-              <span className="sr-only">Cuisines</span>
+              <span className="sr-only">{t("filters.cuisinesLabel")}</span>
               <select
                 value={cuisine}
                 onChange={(e) => {
@@ -140,9 +142,9 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
                   const base = new URLSearchParams(sp.toString());
                   apply({ cuisine: v }, base);
                 }}
-                className="h-10 pl-4 pr-9 border rounded-xl bg-white text-sm font-semibold text-gray-900 appearance-none"
+                className="h-10 ps-4 pe-9 border rounded-xl bg-white text-sm font-semibold text-gray-900 appearance-none"
               >
-                <option value="">Cuisines</option>
+                <option value="">{t("filters.cuisinesLabel")}</option>
                 {cuisines.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -151,7 +153,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
               </select>
               <ChevronDown
                 size={16}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500"
               />
             </label>
 
@@ -171,7 +173,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
                   : "bg-white text-gray-900"
               }`}
             >
-              Veg
+              {t("filters.vegPill")}
             </button>
 
             {/* Clear pill */}
@@ -181,7 +183,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
                 onClick={clearAll}
                 className="h-10 px-4 border rounded-xl text-sm font-semibold bg-gray-100 text-gray-800"
               >
-                Clear
+                {t("filters.clear")}
               </button>
             )}
           </div>
@@ -194,7 +196,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
           {/* Search Type */}
           <div className="w-full md:w-44">
             <label className="block text-xs font-semibold text-gray-600 mb-2">
-              Search For
+              {t("filters.searchForLabel")}
             </label>
             <select
               value={type}
@@ -206,15 +208,15 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
               }}
               className="w-full h-11 px-3 border rounded-xl bg-white"
             >
-              <option value="restaurants">Restaurants</option>
-              <option value="food">Food</option>
+              <option value="restaurants">{t("filters.typeRestaurants")}</option>
+              <option value="food">{t("filters.typeFood")}</option>
             </select>
           </div>
 
           {/* Search */}
           <div className="w-full md:w-[300px]">
             <label className="block text-xs font-semibold text-gray-600 mb-2">
-              {type === "food" ? "Food name" : "Restaurant name"}
+              {type === "food" ? t("filters.foodNameLabel") : t("filters.restaurantNameLabel")}
             </label>
             <input
               type="search"
@@ -228,7 +230,9 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
                 }
               }}
               placeholder={
-                type === "food" ? "e.g., biriyani..." : "e.g., Pizza Palace..."
+                type === "food"
+                  ? t("filters.foodNamePlaceholder")
+                  : t("filters.restaurantNamePlaceholder")
               }
               className="w-full h-11 px-4 border rounded-xl"
             />
@@ -237,7 +241,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
           {/* City */}
           <div className="w-full md:w-56">
             <label className="block text-xs font-semibold text-gray-600 mb-2">
-              City
+              {t("filters.cityLabel")}
             </label>
             <select
               value={city}
@@ -249,7 +253,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
               }}
               className="w-full h-11 px-3 border rounded-xl bg-white"
             >
-              <option value="">All cities</option>
+              <option value="">{t("filters.cityAllOption")}</option>
               {cities.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -261,7 +265,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
           {/* Cuisine */}
           <div className="w-full md:w-56">
             <label className="block text-xs font-semibold text-gray-600 mb-2">
-              Cuisine
+              {t("filters.cuisineLabel")}
             </label>
             <select
               value={cuisine}
@@ -273,7 +277,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
               }}
               className="w-full h-11 px-3 border rounded-xl bg-white"
             >
-              <option value="">All cuisines</option>
+              <option value="">{t("filters.cuisineAllOption")}</option>
               {cuisines.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -285,7 +289,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
           {/* Vegetarian toggle */}
           <div className="w-full md:w-[75px]">
             <label className="block text-xs font-semibold text-gray-600 mb-2">
-              Vegetarian
+              {t("filters.vegetarianLabel")}
             </label>
 
             <div className="h-11 border rounded-xl px-2 flex items-center justify-center">
@@ -312,7 +316,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-2 w-full md:w-auto md:ml-auto">
+          <div className="flex gap-2 w-full md:w-auto md:ms-auto">
             <button
               type="button"
               onClick={() => {
@@ -321,7 +325,7 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
               }}
               className="h-11 px-4 rounded-xl bg-primary text-white font-semibold hover:bg-green-600 transition flex-1 md:flex-none"
             >
-              Apply
+              {t("filters.apply")}
             </button>
 
             <button
@@ -329,14 +333,13 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
               onClick={clearAll}
               className="h-11 px-4 rounded-xl bg-gray-100 text-gray-800 font-semibold hover:bg-gray-200 transition flex-1 md:flex-none"
             >
-              Clear
+              {t("filters.clear")}
             </button>
           </div>
         </div>
 
         <p className="text-xs text-gray-500 mt-3">
-          Tip: Choose <b>Food</b> to find restaurants that have that item in
-          their menu.
+          {t.rich("filters.tip", { b: (chunks) => <b>{chunks}</b> })}
         </p>
       </div>
     </div>

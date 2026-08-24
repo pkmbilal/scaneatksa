@@ -2,12 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { signIn } from "@/lib/auth/client";
+import { mapAuthError } from "@/lib/auth/errors";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 import { Pizza, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
+  const t = useTranslations("auth");
+
   // Hide navbar on this page
   useEffect(() => {
     document.body.classList.add("hide-navbar");
@@ -44,20 +49,22 @@ export default function LoginPage() {
           return;
         }
 
-        setError(signInError.message);
+        setError(mapAuthError(signInError.message, t));
         setLoading(false);
         return;
       }
 
       router.push("/dashboard");
     } catch (err) {
-      setError("Something went wrong: " + err.message);
+      setError(t("login.unexpectedError", { message: err.message }));
       setLoading(false);
     }
   };
 
   return (
     <>
+      <LanguageSwitcher className="fixed top-4 end-4 z-50" />
+
       {/* MOBILE wrapper */}
       <div className="md:hidden min-h-screen bg-white flex items-center justify-center px-0">
         <div className="w-full min-h-screen p-8 flex flex-col justify-center">
@@ -66,22 +73,22 @@ export default function LoginPage() {
               <Pizza size={48} color="#00c951" />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Welcome Back
+              {t("login.welcomeBack")}
             </h1>
-            <p className="text-gray-600">Sign in to your account</p>
+            <p className="text-gray-600">{t("login.signInSubtitle")}</p>
           </div>
 
           <form onSubmit={handleSubmit}>
             {/* Email */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email
+                {t("login.emailLabel")}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder={t("login.emailPlaceholder")}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
@@ -90,21 +97,22 @@ export default function LoginPage() {
             {/* Password */}
             <div className="mb-2">
               <label className="block text-sm font-semibold text-gray-700">
-                Password
+                {t("login.passwordLabel")}
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full px-4 py-3 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent pr-10"
+                  placeholder={t("login.passwordPlaceholder")}
+                  className="w-full px-4 py-3 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent pe-10"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="absolute end-3 top-3.5 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -116,7 +124,7 @@ export default function LoginPage() {
                 href="/auth/forgot-password"
                 className="text-sm text-muted-foreground hover:text-primary"
               >
-                Forgot password?
+                {t("login.forgotPassword")}
               </Link>
             </div>
 
@@ -133,17 +141,17 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-400 cursor-pointer"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? t("login.signingIn") : t("login.signIn")}
             </button>
           </form>
 
           {/* Signup Button */}
           <div className="mt-6 text-center">
-            <span className="text-gray-600 text-sm mb-3 mr-1">
-              Don't have an account?
+            <span className="text-gray-600 text-sm mb-3 me-1">
+              {t("login.noAccount")}
             </span>
             <Link href="/auth/signup" className="text-green-600">
-              Signup
+              {t("login.signup")}
             </Link>
           </div>
         </div>
@@ -157,22 +165,22 @@ export default function LoginPage() {
               <Pizza size={48} color="#00c951" />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Welcome Back
+              {t("login.welcomeBack")}
             </h1>
-            <p className="text-gray-600">Sign in to your account</p>
+            <p className="text-gray-600">{t("login.signInSubtitle")}</p>
           </div>
 
           <form onSubmit={handleSubmit}>
             {/* Email */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email
+                {t("login.emailLabel")}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder={t("login.emailPlaceholder")}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
@@ -181,21 +189,22 @@ export default function LoginPage() {
             {/* Password */}
             <div className="mb-2">
               <label className="block text-sm font-semibold text-gray-700">
-                Password
+                {t("login.passwordLabel")}
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full px-4 py-3 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent pr-10"
+                  placeholder={t("login.passwordPlaceholder")}
+                  className="w-full px-4 py-3 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent pe-10"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="absolute end-3 top-3.5 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -207,7 +216,7 @@ export default function LoginPage() {
                 href="/auth/forgot-password"
                 className="text-sm text-muted-foreground hover:text-primary"
               >
-                Forgot password?
+                {t("login.forgotPassword")}
               </Link>
             </div>
 
@@ -224,17 +233,17 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-400 cursor-pointer"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? t("login.signingIn") : t("login.signIn")}
             </button>
           </form>
 
           {/* Signup Button */}
           <div className="mt-6 text-center">
-            <span className="text-gray-600 text-sm mb-3 mr-1">
-              Don't have an account?
+            <span className="text-gray-600 text-sm mb-3 me-1">
+              {t("login.noAccount")}
             </span>
             <Link href="/auth/signup" className="text-green-600">
-              Signup
+              {t("login.signup")}
             </Link>
           </div>
         </div>

@@ -8,7 +8,7 @@ import { useDashboardSidebar } from '@/context/DashboardSidebarContext'
 
 export default function DashboardMain({ header, children }) {
   const { isExpanded, isHovered, isMobileOpen } = useDashboardSidebar()
-  const marginLeft = isMobileOpen ? '' : isExpanded || isHovered ? 'lg:ml-[290px]' : 'lg:ml-[90px]'
+  const marginLeft = isMobileOpen ? '' : isExpanded || isHovered ? 'lg:ms-[290px]' : 'lg:ms-[90px]'
 
   return (
     <div className={`flex-1 transition-all duration-300 ease-in-out ${marginLeft}`}>

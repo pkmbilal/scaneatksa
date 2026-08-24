@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "about": "About",
+    "howItWorks": "How It Works",
+    "restaurants": "Restaurants",
+    "contact": "Contact"
+  },
+  "brand": {
+    "tagline": "QR Menu"
+  },
+  "userMenu": {
+    "dashboard": "Dashboard",
+    "requestOwnerAccess": "Request Owner Access",
+    "editProfile": "Edit Profile",
+    "logout": "Logout"
+  },
+  "guest": {
+    "welcomeTitle": "Welcome 👋",
+    "welcomeSubtitle": "Login to save favorites and access your dashboard.",
+    "loginSignup": "Login / Sign Up"
+  },
+  "defaultUserName": "User",
+  "roleLabels": {
+    "admin": "Admin",
+    "owner": "Owner",
+    "customer": "Customer",
+    "kitchen": "Kitchen",
+    "waiter": "Waiter"
+  },
+  "openMenu": "Open menu",
+  "toggleDarkMode": "Toggle dark mode"
+}

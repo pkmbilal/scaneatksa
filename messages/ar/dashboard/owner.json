@@ -1,0 +1,332 @@
+{
+  "common": {
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "save": "حفظ",
+    "okay": "حسنًا",
+    "error": "خطأ",
+    "uncategorized": "بلا تصنيف",
+    "price": "{amount} ر.س"
+  },
+  "itemStatus": {
+    "veg": "نباتي",
+    "nonVeg": "غير نباتي",
+    "available": "متوفر",
+    "unavailable": "غير متوفر",
+    "soldOut": "نفدت الكمية",
+    "live": "نشط"
+  },
+  "status": {
+    "new": "جديد",
+    "accepted": "مقبول",
+    "preparing": "قيد التحضير",
+    "ready": "جاهز",
+    "delivered": "تم التسليم",
+    "cancelled": "ملغى",
+    "completed": "مكتمل"
+  },
+  "page": {
+    "loading": "جارٍ تحميل لوحة تحكم المالك...",
+    "homeLabel": "لوحة تحكم المالك",
+    "noRestaurant": {
+      "title": "لم يتم العثور على مطعم",
+      "description": "يرجى التواصل مع الإدارة للمساعدة."
+    },
+    "nav": {
+      "overview": "نظرة عامة",
+      "items": "عناصر القائمة",
+      "categories": "التصنيفات",
+      "tables": "الطاولات ورموز QR",
+      "orders": "الطلبات",
+      "staff": "الموظفون",
+      "restaurant": "المطعم"
+    },
+    "siteNav": {
+      "about": "من نحن",
+      "howItWorks": "كيف يعمل",
+      "restaurants": "المطاعم",
+      "contact": "تواصل معنا"
+    },
+    "tabDescriptions": {
+      "overview": "نظرة سريعة على قائمة مطعمك وطاولاته وطلباته.",
+      "items": "إدارة أطباق قائمتك وأسعارها ومدى توفرها.",
+      "categories": "نظّم عناصر قائمتك ضمن تصنيفات.",
+      "tables": "أنشئ رموز QR لربط الطلبات تلقائيًا بالطاولة الصحيحة.",
+      "orders": "طلبات الحضور تعرض رقم الطاولة. الطلبات عبر الإنترنت تعرض الاستلام أو التوصيل.",
+      "staff": "أنشئ حسابات للمطبخ والنُدُل الخاصة بمطعمك.",
+      "restaurant": "إدارة تفاصيل مطعمك العامة وإعداداته."
+    },
+    "stats": {
+      "menuItems": "عناصر القائمة",
+      "categories": "التصنيفات",
+      "tables": "الطاولات",
+      "orders": "الطلبات"
+    },
+    "actions": {
+      "refreshOrders": "تحديث الطلبات",
+      "refreshingOrders": "جارٍ التحديث...",
+      "editRestaurant": "تعديل المطعم"
+    },
+    "deleteItemDialog": {
+      "title": "حذف العنصر",
+      "description": "هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "deleteCategoryDialog": {
+      "title": "حذف التصنيف",
+      "description": "حذف هذا التصنيف؟ ستصبح العناصر ضمنه بلا تصنيف."
+    },
+    "deleteTableDialog": {
+      "title": "حذف الطاولة",
+      "titleWithNumber": "حذف الطاولة {number}",
+      "description": "لا يمكن التراجع عن هذا الإجراء. إذا كان لهذه الطاولة طلبات سابقة، سيُمنع الحذف — قم بإلغاء تفعيلها بدلًا من ذلك."
+    },
+    "errors": {
+      "updateOrderFailedTitle": "تعذّر تحديث الطلب",
+      "tryAgain": "يرجى المحاولة مرة أخرى.",
+      "deleteCategoryFailed": "فشل حذف التصنيف: {message}",
+      "updateTableFailed": "فشل تحديث الطاولة.",
+      "deleteTableFailed": "فشل حذف الطاولة.",
+      "deleteTableServerError": "خطأ في الخادم أثناء حذف الطاولة.",
+      "categoryNameEmpty": "لا يمكن أن يكون الاسم فارغًا",
+      "categoryDuplicate": "هذا التصنيف موجود بالفعل."
+    }
+  },
+  "categoriesPanel": {
+    "empty": "لا توجد تصنيفات بعد. أضف تصنيفًا لتنظيم قائمتك."
+  },
+  "categoryPill": {
+    "rename": "إعادة تسمية",
+    "delete": "حذف",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "renameFailed": "فشلت إعادة التسمية"
+  },
+  "addCategoryDialog": {
+    "trigger": "إضافة تصنيف",
+    "title": "إضافة تصنيف",
+    "description": "أنشئ تصنيفًا جديدًا لعناصر قائمتك."
+  },
+  "addCategoryForm": {
+    "nameLabel": "اسم التصنيف",
+    "namePlaceholder": "مثال: برياني",
+    "nameRequired": "اسم التصنيف مطلوب.",
+    "duplicate": "هذا التصنيف موجود بالفعل.",
+    "submit": "إضافة تصنيف",
+    "submitting": "جارٍ الإضافة…"
+  },
+  "addItemDialog": {
+    "trigger": "إضافة عنصر",
+    "title": "إضافة عنصر إلى القائمة",
+    "description": "أنشئ عنصرًا جديدًا. يمكنك تعليمه كنافد الكمية في أي وقت."
+  },
+  "addItemForm": {
+    "invalidPrice": "يرجى إدخال سعر صحيح.",
+    "nameLabel": "اسم العنصر",
+    "namePlaceholder": "مثال: مندي دجاج",
+    "priceLabel": "السعر (ريال سعودي)",
+    "pricePlaceholder": "12.00",
+    "categoryLabel": "التصنيف",
+    "selectCategoryPlaceholder": "اختر تصنيفًا",
+    "noCategoriesHint": "أضف تصنيفًا أولًا لإنشاء العناصر.",
+    "descriptionLabel": "الوصف",
+    "descriptionPlaceholder": "وصف مختصر…",
+    "imageUrlLabel": "رابط الصورة (اختياري)",
+    "imageUrlPlaceholder": "https://…",
+    "available": "متوفر",
+    "availableHint": "يظهر للعملاء",
+    "veg": "نباتي",
+    "vegItem": "عنصر نباتي",
+    "nonVegItem": "عنصر غير نباتي",
+    "soldOut": "نفدت الكمية",
+    "soldOutHint": "يعطّل زر الإضافة",
+    "submit": "إضافة عنصر",
+    "submitting": "جارٍ الإضافة…"
+  },
+  "addTableDialog": {
+    "trigger": "إضافة طاولة",
+    "title": "إضافة طاولة (طاولات)",
+    "description": "تبدأ الطاولات الجديدة بعد أعلى رقم طاولة حالي لديك — مثلًا إذا كان لديك طاولات من 1 إلى 8، فسيتم إضافة الطاولة 9 وما بعدها."
+  },
+  "addTableForm": {
+    "countLabel": "عدد الطاولات المراد إضافتها",
+    "countPlaceholder": "مثال: 5",
+    "hint": "تبدأ الطاولات الجديدة بعد أعلى رقم طاولة حالي لديك — مثلًا إذا كان لديك طاولات من 1 إلى 8، فسيتم إضافة الطاولة 9 وما بعدها.",
+    "invalidCount": "يرجى إدخال عدد صحيح للطاولات (من 1 إلى 200).",
+    "failedGeneric": "فشلت إضافة الطاولات.",
+    "serverError": "خطأ في الخادم أثناء إضافة الطاولات.",
+    "submit": "إضافة طاولة",
+    "submitting": "جارٍ الإضافة…"
+  },
+  "addStaffDialog": {
+    "trigger": "إضافة موظف",
+    "title": "إضافة موظف",
+    "description": "أنشئ حساب موظف مطبخ أو نادل لمطعمك."
+  },
+  "addStaffForm": {
+    "fullNameLabel": "الاسم الكامل",
+    "fullNamePlaceholder": "الاسم الكامل",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "passwordLabel": "كلمة مرور مؤقتة",
+    "passwordPlaceholder": "كلمة مرور مؤقتة",
+    "roleLabel": "الدور",
+    "submit": "إضافة موظف",
+    "submitting": "جارٍ الإنشاء…",
+    "hint": "شارك البريد الإلكتروني وكلمة المرور مع الموظف ليتمكن من تسجيل الدخول مباشرة — لن يتم إرسال دعوة عبر البريد.",
+    "emailPasswordRequired": "البريد الإلكتروني وكلمة المرور مطلوبان.",
+    "passwordTooShort": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل."
+  },
+  "menuItemsTab": {
+    "empty": "لا توجد عناصر بعد. أضف عنصرك الأول ✨"
+  },
+  "menuItemsTable": {
+    "columns": {
+      "item": "العنصر",
+      "category": "التصنيف",
+      "type": "النوع",
+      "price": "السعر",
+      "available": "متوفر",
+      "soldOut": "نفدت الكمية",
+      "actions": "الإجراءات"
+    },
+    "edit": "تعديل",
+    "delete": "حذف"
+  },
+  "menuItemsMobile": {
+    "itemCount": "{count, plural, zero {لا عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}}",
+    "liveToggleLabel": "نشط",
+    "soldToggleLabel": "نفدت",
+    "editItem": "تعديل العنصر",
+    "deleteItem": "حذف العنصر"
+  },
+  "ownerStats": {
+    "available": "متوفر",
+    "unavailable": "غير متوفر",
+    "soldOut": "نفدت الكمية"
+  },
+  "ownerOrdersTab": {
+    "loading": "جارٍ تحميل الطلبات…",
+    "empty": "لا توجد طلبات بعد.",
+    "orderLabel": "طلب",
+    "channel": {
+      "dineIn": "طاولة {number}",
+      "delivery": "توصيل",
+      "pickup": "استلام"
+    },
+    "totalLabel": "الإجمالي: {amount} ر.س",
+    "notesLabel": "ملاحظات:",
+    "changeStatus": "تغيير الحالة",
+    "updating": "جارٍ التحديث…",
+    "viewList": "عرض القائمة",
+    "viewCard": "عرض البطاقات"
+  },
+  "ownerTablesQrTab": {
+    "onlineLinkTitle": "رابط الطلب عبر الإنترنت",
+    "copyLink": "نسخ الرابط",
+    "copied": "تم النسخ ✅",
+    "copyFailed": "فشل النسخ (المتصفح حظر الوصول إلى الحافظة).",
+    "tableQrsTitle": "رموز QR للطاولات",
+    "tableCount": "{count, plural, zero {لا طاولات} one {طاولة واحدة} two {طاولتان} few {# طاولات} many {# طاولة} other {# طاولة}}",
+    "loadingTables": "جارٍ تحميل الطاولات…",
+    "noTablesYet": "لا توجد طاولات بعد. اضغط <b>إضافة طاولة</b> أعلاه.",
+    "tableLabel": "طاولة {number}",
+    "active": "نشطة",
+    "inactive": "غير نشطة",
+    "qrCode": "رمز QR",
+    "activate": "تفعيل",
+    "deactivate": "إلغاء التفعيل",
+    "delete": "حذف",
+    "nextStepNote": "الخطوة التالية: أضف زر «تنزيل حزمة رموز QR (PDF)» لطباعة جميع الطاولات بضغطة واحدة."
+  },
+  "restaurantInfoCard": {
+    "title": "معلومات المطعم",
+    "subtitle": "تفاصيل مرجعية سريعة للعملاء.",
+    "name": "الاسم",
+    "whatsapp": "واتساب",
+    "slug": "الرابط المختصر",
+    "address": "العنوان",
+    "notSet": "غير محدد"
+  },
+  "restaurantTab": {
+    "viewMenu": "عرض القائمة",
+    "qrCode": "رمز QR"
+  },
+  "staffTab": {
+    "role": {
+      "kitchen": "المطبخ",
+      "waiter": "النادل"
+    },
+    "loading": "جارٍ تحميل الموظفين…",
+    "empty": "لا توجد حسابات موظفين بعد.",
+    "noName": "بلا اسم",
+    "disabled": "معطّل",
+    "addedOn": "أُضيف في {date}",
+    "disable": "تعطيل",
+    "enable": "تفعيل"
+  },
+  "editMenuItemPage": {
+    "loading": "جارٍ تحميل العنصر...",
+    "title": "تعديل عنصر القائمة",
+    "backToDashboard": "→ العودة إلى لوحة التحكم",
+    "back": "→ رجوع",
+    "errors": {
+      "noRestaurant": "لم يتم العثور على مطعم لهذا المالك.",
+      "itemNotFound": "عنصر القائمة غير موجود.",
+      "notAllowed": "غير مسموح لك بتعديل هذا العنصر.",
+      "invalidPrice": "يرجى إدخال سعر صحيح."
+    },
+    "nameLabel": "اسم العنصر *",
+    "descriptionLabel": "الوصف *",
+    "priceLabel": "السعر (ريال سعودي) *",
+    "categoryLabel": "التصنيف",
+    "imageUrlLabel": "رابط الصورة",
+    "imagePreviewAlt": "معاينة",
+    "availableLabel": "متاح للطلب",
+    "vegLabel": "عنصر نباتي",
+    "vegBadge": "🥗 نباتي",
+    "nonVegBadge": "🍗 غير نباتي",
+    "save": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "cancel": "إلغاء"
+  },
+  "editRestaurantPage": {
+    "loading": "جارٍ التحميل...",
+    "title": "تعديل المطعم",
+    "subtitle": "حدّث تفاصيل مطعمك",
+    "back": "→ رجوع",
+    "errors": {
+      "noRestaurant": "لم يتم العثور على مطعم لهذا المالك. يرجى التواصل مع الإدارة.",
+      "needServiceOption": "يرجى تفعيل التوصيل أو الاستلام على الأقل.",
+      "updateFailed": "فشل التحديث: {message}",
+      "cuisinesUpdateFailed": "تم حفظ المطعم، لكن فشل تحديث المطابخ: {message}"
+    },
+    "success": {
+      "saved": "تم الحفظ ✅"
+    },
+    "nameLabel": "اسم المطعم *",
+    "cityLabel": "المدينة *",
+    "selectCity": "اختر المدينة",
+    "noCitiesHint": "لا توجد مدن نشطة. اطلب من الإدارة إضافة مدن.",
+    "serviceOptionsLabel": "خيارات الخدمة",
+    "deliveryTitle": "🚚 التوصيل",
+    "deliveryHint": "يمكنك التوصيل للعملاء",
+    "pickupTitle": "🏃 الاستلام",
+    "pickupHint": "يمكن للعملاء الاستلام منك",
+    "serviceOptionsTip": "نصيحة: فعّل خيارًا واحدًا على الأقل.",
+    "cuisinesLabel": "المطابخ",
+    "noCuisinesHint": "لا توجد مطابخ. اطلب من الإدارة إضافة مطابخ.",
+    "cuisinesTip": "نصيحة: اضغط باستمرار على Ctrl (Windows) / Cmd (Mac) لاختيار أكثر من خيار.",
+    "phoneLabel": "رقم واتساب",
+    "phonePlaceholder": "966501234567",
+    "addressLabel": "العنوان",
+    "imageUrlLabel": "رابط صورة المطعم",
+    "imageUrlPlaceholder": "https://images.unsplash.com/...",
+    "imagePreviewLabel": "معاينة",
+    "imagePreviewAlt": "معاينة المطعم",
+    "activeLabel": "المطعم نشط (مرئي للعملاء)",
+    "save": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "cancel": "إلغاء"
+  }
+}

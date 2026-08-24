@@ -1,104 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 const roleTint = {
   kitchen: "bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400",
   waiter: "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-400",
 };
 
-const roleLabel = { kitchen: "Kitchen", waiter: "Waiter" };
-
-export default function StaffTab({ staff, staffLoading, onAdd, onToggleActive }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState("kitchen");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!email.trim() || !password) {
-      setError("Email and password are required.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-
-    setSubmitting(true);
-    const result = await onAdd?.({ email: email.trim(), password, fullName: fullName.trim(), role });
-    setSubmitting(false);
-
-    if (result?.error) {
-      setError(result.error);
-      return;
-    }
-
-    setEmail("");
-    setPassword("");
-    setFullName("");
-  };
+export default function StaffTab({ staff, staffLoading, onToggleActive }) {
+  const t = useTranslations("dashboard.owner");
+  const roleLabel = { kitchen: t("staffTab.role.kitchen"), waiter: t("staffTab.role.waiter") };
 
   return (
-    <div className="space-y-6">
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 p-4 dark:border-gray-800 sm:grid-cols-2 lg:grid-cols-5"
-      >
-        <input
-          type="text"
-          placeholder="Full name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-        />
-        <input
-          type="text"
-          placeholder="Temporary password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-        />
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-        >
-          <option value="kitchen">Kitchen</option>
-          <option value="waiter">Waiter</option>
-        </select>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600 disabled:opacity-50"
-        >
-          {submitting ? "Creating…" : "Add Staff"}
-        </button>
-
-        {error && (
-          <p className="sm:col-span-2 lg:col-span-5 text-sm text-error-600 dark:text-error-400">{error}</p>
-        )}
-        <p className="sm:col-span-2 lg:col-span-5 text-xs text-gray-500 dark:text-gray-400">
-          Share the email and password with your staff member so they can log in directly — no invite email is sent.
-        </p>
-      </form>
-
+    <div>
       {staffLoading ? (
-        <div className="text-sm text-gray-500 dark:text-gray-400">Loading staff…</div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">{t("staffTab.loading")}</div>
       ) : staff.length === 0 ? (
-        <div className="py-8 text-center text-gray-500 dark:text-gray-400">No staff accounts yet.</div>
+        <div className="py-12 text-center text-gray-500 dark:text-gray-400">{t("staffTab.empty")}</div>
       ) : (
         <div className="space-y-2">
           {staff.map((s) => (
@@ -108,18 +26,18 @@ export default function StaffTab({ staff, staffLoading, onAdd, onToggleActive })
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold text-gray-800 dark:text-white/90">{s.full_name || "No name"}</p>
+                  <p className="font-semibold text-gray-800 dark:text-white/90">{s.full_name || t("staffTab.noName")}</p>
                   <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${roleTint[s.role]}`}>
                     {roleLabel[s.role] || s.role}
                   </span>
                   {!s.is_active && (
                     <span className="text-xs bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400 px-2.5 py-0.5 rounded-full font-semibold">
-                      DISABLED
+                      {t("staffTab.disabled")}
                     </span>
                   )}
                 </div>
                 <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                  Added {new Date(s.created_at).toLocaleDateString()}
+                  {t("staffTab.addedOn", { date: new Date(s.created_at).toLocaleDateString() })}
                 </p>
               </div>
 
@@ -131,7 +49,7 @@ export default function StaffTab({ staff, staffLoading, onAdd, onToggleActive })
                     : "bg-success-50 text-success-700 hover:bg-success-100 dark:bg-success-500/15 dark:text-success-400"
                 }`}
               >
-                {s.is_active ? "Disable" : "Enable"}
+                {s.is_active ? t("staffTab.disable") : t("staffTab.enable")}
               </button>
             </div>
           ))}

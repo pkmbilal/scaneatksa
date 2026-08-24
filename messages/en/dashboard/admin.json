@@ -1,0 +1,190 @@
+{
+  "page": {
+    "loading": "Loading admin dashboard...",
+    "homeLabel": "Admin Dashboard",
+    "notificationsTitle": "Pending Requests",
+    "notificationsEmpty": "No pending restaurant requests.",
+    "viewAllRequests": "View All Requests"
+  },
+  "nav": {
+    "pending": "Pending Requests",
+    "all": "All Requests",
+    "users": "Users",
+    "restaurants": "Restaurants",
+    "cities": "Cities",
+    "cuisines": "Cuisines"
+  },
+  "tabs": {
+    "pending": {
+      "title": "Pending Requests",
+      "description": "Restaurant owner requests waiting for your approval."
+    },
+    "all": {
+      "title": "All Requests",
+      "description": "Full history of restaurant requests and their outcomes."
+    },
+    "users": {
+      "title": "Users",
+      "description": "Manage roles and account status for every user."
+    },
+    "restaurants": {
+      "title": "Restaurants",
+      "description": "All approved restaurants on the platform."
+    },
+    "cities": {
+      "title": "Cities",
+      "description": "Manage the cities customers can select when browsing restaurants."
+    },
+    "cuisines": {
+      "title": "Cuisines",
+      "description": "Manage the cuisine tags restaurants can be filtered by."
+    }
+  },
+  "stats": {
+    "pending": "Pending",
+    "users": "Users",
+    "restaurants": "Restaurants",
+    "requests": "Requests",
+    "cities": "Cities",
+    "cuisines": "Cuisines"
+  },
+  "roles": {
+    "customer": "Customer",
+    "owner": "Owner",
+    "admin": "Admin"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "dialogs": {
+    "okay": "Okay",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "errorTitle": "Error",
+    "successTitle": "Success",
+    "changeRoleTitle": "Change User Role",
+    "changeRoleDescription": "Are you sure you want to change this user's role to {role}?",
+    "userRoleChanged": "User role changed to {role}",
+    "disableUserTitle": "Disable User",
+    "enableUserTitle": "Enable User",
+    "disableUserDescription": "Are you sure you want to disable this user?",
+    "enableUserDescription": "Are you sure you want to enable this user?",
+    "userDisabled": "User disabled successfully",
+    "userEnabled": "User enabled successfully",
+    "deleteUserTitle": "Delete User",
+    "deleteUserDescription": "This will permanently delete the user and all their data. Type \"{name}\" to confirm.",
+    "deleteUserConfirm": "Delete User",
+    "userDeleted": "User deleted successfully",
+    "deleteKeyword": "DELETE",
+    "approveRequestTitle": "Approve Request",
+    "approveRequestDescription": "Approve {name}? This will create the restaurant and promote the user to Owner.",
+    "requestApproved": "Request approved! Restaurant created.",
+    "errorCreatingRestaurant": "Error creating restaurant: {message}",
+    "errorCreatingRestaurantGeneric": "Failed to create restaurant",
+    "errorUpdatingRole": "Error updating user role: {message}",
+    "errorUpdatingRequest": "Error updating request: {message}",
+    "requestRejected": "Request rejected.",
+    "rejectRequestTitle": "Reject Request",
+    "rejectRequestDescription": "Please provide a reason for rejecting this request.",
+    "rejectReasonPlaceholder": "Reason for rejection...",
+    "rejectConfirm": "Reject"
+  },
+  "citiesTab": {
+    "addHeading": "Add City",
+    "namePlaceholder": "e.g., Riyadh",
+    "addingButton": "Adding...",
+    "addButton": "Add",
+    "emptyState": "No cities yet. Add your first one.",
+    "nameEmptyError": "City name cannot be empty",
+    "duplicateError": "City already exists.",
+    "disableTitle": "Disable City",
+    "enableTitle": "Enable City",
+    "disableDescription": "Are you sure you want to disable {name}?",
+    "enableDescription": "Are you sure you want to enable {name}?",
+    "deleteTitle": "Delete City",
+    "deleteDescription": "Type \"{name}\" to delete this city:",
+    "deleteConfirm": "Delete"
+  },
+  "cuisinesTab": {
+    "addHeading": "Add Cuisine",
+    "namePlaceholder": "e.g., Arabic, South Indian",
+    "addingButton": "Adding...",
+    "addButton": "Add",
+    "emptyState": "No cuisines yet. Add your first one.",
+    "nameEmptyError": "Cuisine name cannot be empty",
+    "duplicateError": "Cuisine already exists.",
+    "disableTitle": "Disable Cuisine",
+    "enableTitle": "Enable Cuisine",
+    "disableDescription": "Are you sure you want to disable {name}?",
+    "enableDescription": "Are you sure you want to enable {name}?",
+    "deleteTitle": "Delete Cuisine",
+    "deleteDescription": "Type \"{name}\" to delete this cuisine:",
+    "deleteConfirm": "Delete"
+  },
+  "pill": {
+    "renameTooltip": "Rename",
+    "disableTooltip": "Disable",
+    "enableTooltip": "Enable",
+    "deleteTooltip": "Delete",
+    "saveTooltip": "Save",
+    "cancelTooltip": "Cancel",
+    "renameFailedError": "Failed to rename",
+    "renameEmptyError": "Name cannot be empty"
+  },
+  "allRequestsTab": {
+    "emptyState": "No requests yet.",
+    "reasonLabel": "Reason: {reason}"
+  },
+  "pendingRequestsTab": {
+    "emptyState": "No pending requests",
+    "requestedByLabel": "Requested by:",
+    "unknownUser": "Unknown",
+    "phoneLabel": "Phone:",
+    "submittedLabel": "Submitted:",
+    "addressLabel": "Address:",
+    "descriptionLabel": "Description:",
+    "approveButton": "Approve",
+    "rejectButton": "Reject"
+  },
+  "restaurantsTab": {
+    "emptyState": "No restaurants yet",
+    "disabledBadge": "DISABLED",
+    "activeBadge": "ACTIVE",
+    "urlLabel": "URL:",
+    "viewLink": "View →",
+    "ownerLabel": "Owner:",
+    "phoneLabel": "Phone:",
+    "addressLabel": "Address:",
+    "menuItemsLabel": "Menu Items:",
+    "createdLabel": "Created:",
+    "approvedLabel": "Approved:",
+    "viewMenuButton": "View Menu",
+    "qrCodeButton": "QR Code",
+    "disableButton": "Disable Restaurant",
+    "enableButton": "Enable Restaurant",
+    "deleteButton": "Delete Restaurant",
+    "disableTitle": "Disable Restaurant",
+    "enableTitle": "Enable Restaurant",
+    "disableDescription": "Are you sure you want to disable {name}?",
+    "enableDescription": "Are you sure you want to enable {name}?",
+    "disabledSuccess": "Restaurant disabled successfully",
+    "enabledSuccess": "Restaurant enabled successfully",
+    "deleteTitle": "Delete Restaurant",
+    "deleteDescription": "This will permanently delete \"{name}\" and all its menu items! Type \"{name}\" to confirm:",
+    "deleteConfirm": "Delete",
+    "deletedSuccess": "Restaurant deleted successfully"
+  },
+  "usersTab": {
+    "noName": "No name",
+    "disabledBadge": "DISABLED",
+    "idLabel": "ID: {id}",
+    "phoneLabel": "Phone: {phone}",
+    "createdLabel": "Created: {date}",
+    "disableButton": "Disable User",
+    "enableButton": "Enable User",
+    "deleteButton": "Delete User",
+    "selfModifyWarning": "You cannot modify your own account"
+  }
+}

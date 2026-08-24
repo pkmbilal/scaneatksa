@@ -1,0 +1,152 @@
+{
+  "page": {
+    "nav": {
+      "overview": "نظرة عامة",
+      "orders": "الطلبات",
+      "favorites": "المفضلة",
+      "requests": "طلباتي"
+    },
+    "siteNav": {
+      "about": "من نحن",
+      "howItWorks": "كيف يعمل",
+      "restaurants": "المطاعم",
+      "contact": "تواصل معنا"
+    },
+    "homeLabel": "حسابي",
+    "loading": "جارٍ تحميل لوحتك...",
+    "stats": {
+      "orders": "الطلبات",
+      "favorites": "المفضلة",
+      "requests": "الطلبات المقدمة"
+    },
+    "tabTitles": {
+      "overview": "نظرة عامة",
+      "orders": "الطلبات",
+      "favorites": "المفضلة",
+      "requests": "طلباتي"
+    },
+    "tabDescriptions": {
+      "overview": "بيانات حسابك والإجراءات السريعة.",
+      "orders": "تتبّع طلباتك السابقة والحالية.",
+      "favorites": "المطاعم التي حفظتها للوصول السريع.",
+      "requests": "تتبّع حالة طلبات ملكية المطعم الخاصة بك."
+    }
+  },
+  "profileCard": {
+    "title": "ملفك الشخصي",
+    "nameLabel": "الاسم",
+    "emailLabel": "البريد الإلكتروني",
+    "phoneLabel": "الهاتف",
+    "notSet": "غير محدد",
+    "emailFallback": "—",
+    "editProfile": "تعديل الملف الشخصي",
+    "roles": {
+      "admin": "مسؤول",
+      "owner": "مالك",
+      "customer": "عميل"
+    }
+  },
+  "requestOwnerCard": {
+    "quickAction": "إجراء سريع",
+    "title": "تملك مطعمًا؟",
+    "description": "أنشئ قائمة طعامك الرقمية وأدر الطلبات بسهولة.",
+    "cta": "طلب الملكية"
+  },
+  "favoritesCard": {
+    "emptyTitle": "لا توجد مفضلات بعد",
+    "emptyDescription": "تصفّح المطاعم واحفظ اختياراتك المفضلة.",
+    "browseRestaurants": "تصفّح المطاعم",
+    "viewMenu": "عرض القائمة",
+    "detailsNotLoaded": "تفاصيل المطعم غير محمّلة",
+    "removeFavorite": "إزالة من المفضلة",
+    "restaurantFallback": "مطعم ({id})"
+  },
+  "requestsCard": {
+    "submitted": "تاريخ التقديم",
+    "reason": "السبب"
+  },
+  "requestStatus": {
+    "pending": "قيد المراجعة",
+    "approved": "مقبول",
+    "rejected": "مرفوض"
+  },
+  "ordersTab": {
+    "empty": "لا توجد طلبات بعد.",
+    "table": "طاولة {number}",
+    "delivery": "توصيل",
+    "pickup": "استلام",
+    "orderFallback": "طلب",
+    "notes": "ملاحظات:",
+    "totalLabel": "الإجمالي: {amount} ر.س"
+  },
+  "status": {
+    "new": "جديد",
+    "accepted": "مقبول",
+    "preparing": "قيد التحضير",
+    "ready": "جاهز",
+    "delivered": "تم التوصيل",
+    "cancelled": "ملغى",
+    "completed": "مكتمل"
+  },
+  "requestRestaurantPage": {
+    "backToDashboard": "العودة إلى لوحة التحكم",
+    "heading": "طلب أن تصبح مالكًا",
+    "subheading": "أرسل تفاصيل مطعمك ليراجعها فريق الإدارة. بعد الموافقة، ستتمكن من إدارة قائمتك وطلباتك.",
+    "loadingData": "جارٍ تحميل بياناتك…",
+    "successTitle": "تم إرسال الطلب بنجاح",
+    "successDescription": "طلبك قيد موافقة الإدارة. جارٍ إعادة توجيهك إلى لوحتك…",
+    "pendingTitle": "طلب قيد المراجعة",
+    "pendingDescription": "لديك بالفعل طلب قيد المراجعة. يرجى انتظار مراجعة الإدارة قبل إرسال طلب آخر.",
+    "formTitle": "معلومات المطعم",
+    "formDescription": "قدّم بيانات دقيقة ليتمكن فريق الإدارة من التحقق من عملك بسرعة.",
+    "fields": {
+      "restaurantName": "اسم المطعم",
+      "restaurantNamePlaceholder": "مثال: بيتزا بالاس",
+      "restaurantNameHelp": "استخدم الاسم التجاري الرسمي.",
+      "city": "المدينة",
+      "cityPlaceholder": "اختر مدينة",
+      "cityHelp": "اختر المدينة التي يقع فيها مطعمك.",
+      "whatsapp": "رقم الواتساب",
+      "whatsappPlaceholder": "966501234567",
+      "whatsappHelp": "أدرج رمز الدولة (مثال: 966 للسعودية). بدون \"+\" أو مسافات.",
+      "address": "العنوان",
+      "addressPlaceholder": "الشارع، الحي، المدينة",
+      "addressHelp": "الموقع الفعلي الكامل لمطعمك.",
+      "description": "الوصف",
+      "descriptionPlaceholder": "نوع المطبخ، الفروع، سبب رغبتك في الانضمام…",
+      "descriptionHelp": "اختياري — يساعدنا على فهم عملك بشكل أفضل."
+    },
+    "errors": {
+      "invalidPhone": "يرجى إدخال رقم هاتف صحيح (مع رمز الدولة، بدون مسافات).",
+      "genericTitle": "حدث خطأ ما",
+      "unexpected": "حدث خطأ ما: {message}"
+    },
+    "submit": {
+      "submitting": "جارٍ الإرسال…",
+      "alreadyPending": "الطلب قيد المراجعة بالفعل",
+      "submit": "إرسال الطلب"
+    },
+    "sidebar": {
+      "nextSteps": {
+        "title": "ماذا يحدث بعد ذلك",
+        "subtitle": "مسار المراجعة المعتاد",
+        "step1": "يُرسل طلبك إلى فريق الإدارة",
+        "step2": "تراجع الإدارة تفاصيل المطعم",
+        "step3": "سيتم إشعارك بالموافقة أو الرفض",
+        "step4": "بعد الموافقة، يمكنك إدارة قائمتك"
+      },
+      "requirements": {
+        "title": "المتطلبات",
+        "subtitle": "الحد الأدنى للموافقة",
+        "item1": "اسم مطعم صحيح",
+        "item2": "رقم واتساب فعّال",
+        "item3": "موقع فعلي للمطعم",
+        "item4": "تحديث القائمة باستمرار"
+      },
+      "previousRequests": {
+        "title": "طلباتك السابقة",
+        "subtitle": "السجل والحالة"
+      }
+    }
+  }
+}

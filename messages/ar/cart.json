@@ -1,0 +1,93 @@
+{
+  "loading": "جارٍ استعادة سلتك…",
+  "price": "{amount} ريال",
+  "empty": {
+    "title": "سلتك فارغة",
+    "subtitle": "أضف بعض الأصناف وعُد إلينا — سنحتفظ بها هنا 🍔",
+    "browseRestaurants": "تصفح المطاعم"
+  },
+  "confirmation": {
+    "title": "تم تقديم الطلب!",
+    "orderRef": "الطلب رقم #{ref} — استلمه المطعم.",
+    "summaryLine": "{where} • {count, plural, one {# صنف} other {# أصناف}} • {total}",
+    "whereTable": "طاولة {number}",
+    "whereDelivery": "توصيل",
+    "wherePickup": "استلام",
+    "whatsappNotice": "ستصلك تحديثات عبر واتساب من المطعم عند تغيّر حالة طلبك، على الرقم {phone}.",
+    "kitchenNotice": "استلم المطبخ طلبك — يرجى الانتظار!",
+    "trackOrder": "تتبع هذا الطلب",
+    "placeAnother": "تقديم طلب آخر",
+    "browseRestaurants": "تصفح المطاعم"
+  },
+  "header": {
+    "title": "سلتك",
+    "itemsBadge": "{count, plural, one {# صنف} other {# أصناف}}",
+    "dineIn": "تناول داخل المطعم",
+    "delivery": "توصيل",
+    "pickup": "استلام",
+    "linkedToTable": "مرتبط بطاولة عبر رمز الاستجابة السريعة {table}.",
+    "tableKnown": "(طاولة {number})",
+    "tableUnknown": "(طاولة ؟)",
+    "switchToOnline": "التبديل إلى الطلب عبر الإنترنت",
+    "switchToOnlineTitle": "استخدم هذا إذا كنت تطلب عبر الإنترنت من المنزل"
+  },
+  "items": {
+    "title": "الأصناف",
+    "priceEach": "{price} للقطعة",
+    "removeAria": "إزالة {name}",
+    "decreaseAria": "إنقاص الكمية",
+    "increaseAria": "زيادة الكمية",
+    "itemTotal": "إجمالي الصنف"
+  },
+  "footer": {
+    "continueShopping": "متابعة التسوق",
+    "clear": "مسح",
+    "reviewNotice": "راجع أصنافك قبل تقديم الطلب"
+  },
+  "summary": {
+    "title": "الملخص",
+    "orderType": "نوع الطلب",
+    "pickup": "استلام",
+    "delivery": "توصيل",
+    "noFulfillmentNotice": "لم يفعّل هذا المطعم خدمة الاستلام أو التوصيل.",
+    "phoneLabel": "رقم الهاتف *",
+    "phonePlaceholder": "مثال: 9665xxxxxxx",
+    "nameLabel": "الاسم (اختياري)",
+    "namePlaceholder": "اسمك",
+    "addressLabel": "العنوان *",
+    "addressPlaceholder": "الحي، الشارع، المبنى، الشقة...",
+    "notesLabel": "ملاحظات (اختياري)",
+    "notesPlaceholder": "أي تعليمات...",
+    "items": "الأصناف",
+    "subtotal": "المجموع الفرعي",
+    "total": "الإجمالي",
+    "placeOrder": "تقديم الطلب",
+    "placingOrder": "جارٍ تقديم الطلب…",
+    "whatsappFooterNotice": "سنرسل لك تحديثات عبر واتساب إلى رقم هاتفك عند تغيّر حالة طلبك."
+  },
+  "errors": {
+    "restaurantMissing": "المطعم غير محدد. يرجى الرجوع وفتح القائمة مرة أخرى.",
+    "cartEmpty": "سلتك فارغة.",
+    "onlineOrderingDisabled": "لم يفعّل هذا المطعم الطلب عبر الإنترنت.",
+    "invalidPhoneDelivery": "يرجى إدخال رقم هاتف صحيح للتوصيل.",
+    "missingAddress": "يرجى إدخال عنوان التوصيل.",
+    "invalidPhonePickup": "يرجى إدخال رقم هاتف صحيح للاستلام.",
+    "invalidPhoneDineIn": "يرجى إدخال رقم واتساب صحيح.",
+    "missingTableCode": "رمز الطاولة مفقود. يرجى مسح رمز الاستجابة السريعة للطاولة مرة أخرى.",
+    "menuChanged": "تغيّرت القائمة أثناء تقديمك للطلب. يرجى الرجوع إلى القائمة ومراجعة سلتك.",
+    "unableValidateCart": "تعذّر التحقق من سلتك.",
+    "placeOrderFailed": "تعذّر تقديم طلبك. يرجى المحاولة مرة أخرى.",
+    "serverUnreachable": "تعذّر الوصول إلى الخادم. تحقق من اتصالك وحاول مرة أخرى."
+  },
+  "conflict": {
+    "title": "مطعم واحد لكل طلب",
+    "differentRestaurant": "تحتوي سلتك بالفعل على أصناف من مطعم آخر.",
+    "differentRestaurantHint": "يرجى إتمام الطلب أو مسح سلتك قبل الإضافة من مطعم مختلف.",
+    "missingRestaurant": "تعذّر علينا تحديد المطعم لهذا الصنف. يرجى تحديث الصفحة والمحاولة مرة أخرى.",
+    "currentCart": "السلة الحالية",
+    "triedToAdd": "تمت محاولة الإضافة",
+    "restaurantFallback": "مطعم",
+    "close": "إغلاق",
+    "goToCart": "الذهاب إلى السلة"
+  }
+}

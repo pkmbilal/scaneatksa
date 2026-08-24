@@ -1,20 +1,28 @@
-export default function HowItWorksSection({ data }) {
+import { getTranslations } from "next-intl/server";
+import { QrCode, NotebookPen, ArrowLeftRight } from "lucide-react";
+
+const icons = [QrCode, NotebookPen, ArrowLeftRight];
+
+export default async function HowItWorksSection() {
+  const t = await getTranslations("home.howItWorks");
+  const steps = t.raw("steps");
+
   return (
     <section id="how-it-works" className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-4">
         <div className="mx-auto mb-14 max-w-3xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
-            {data.eyebrow}
+            {t("eyebrow")}
           </p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
-            {data.title}
+            {t("title")}
           </h2>
-          <p className="mt-4 text-lg text-slate-600">{data.description}</p>
+          <p className="mt-4 text-lg text-slate-600">{t("description")}</p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-3">
-          {data.steps.map((step) => {
-            const Icon = step.icon;
+          {steps.map((step, index) => {
+            const Icon = icons[index];
 
             return (
               <div

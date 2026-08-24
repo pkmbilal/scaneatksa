@@ -1,0 +1,46 @@
+{
+  "queue": {
+    "orderLabel": "طلب",
+    "loading": "جارٍ تحميل الطلبات…",
+    "empty": "لا توجد طلبات في قائمتك.",
+    "notesLabel": "ملاحظات:",
+    "total": "الإجمالي: {amount} ر.س",
+    "updating": "جارٍ التحديث…",
+    "noRestaurantAssigned": "حسابك غير مرتبط بمطعم بعد. يرجى التواصل مع صاحب المطعم للتحقق من حساب الموظف الخاص بك.",
+    "channel": {
+      "dineIn": "طاولة {table}",
+      "delivery": "توصيل",
+      "pickup": "استلام"
+    },
+    "status": {
+      "new": "جديد",
+      "accepted": "مقبول",
+      "preparing": "قيد التحضير",
+      "ready": "جاهز",
+      "delivered": "تم التوصيل",
+      "cancelled": "ملغى",
+      "completed": "مكتمل"
+    }
+  },
+  "kitchen": {
+    "title": "قائمة المطبخ",
+    "homeLabel": "المطبخ",
+    "loadingMessage": "جارٍ تحميل قائمة المطبخ...",
+    "descriptionWithRestaurant": "طلبات لمطعم {restaurantName} جديدة أو قيد التحضير.",
+    "descriptionGeneric": "طلبات جديدة أو قيد التحضير.",
+    "actions": {
+      "startPreparing": "بدء التحضير",
+      "markReady": "جاهز للتقديم"
+    }
+  },
+  "waiter": {
+    "title": "قائمة الصالة",
+    "homeLabel": "النادل",
+    "loadingMessage": "جارٍ تحميل قائمة الصالة...",
+    "descriptionWithRestaurant": "طلبات لمطعم {restaurantName} جاهزة للتقديم.",
+    "descriptionGeneric": "طلبات جاهزة للتقديم.",
+    "actions": {
+      "markDelivered": "تم التسليم"
+    }
+  }
+}

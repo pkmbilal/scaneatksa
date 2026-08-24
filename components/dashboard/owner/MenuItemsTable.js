@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Utensils } from "lucide-react";
 
 import { Switch } from "@/components/ui/switch";
@@ -15,19 +16,21 @@ export default function MenuItemsTable({
   onToggleSoldOut,
   onDeleteItem,
 }) {
+  const t = useTranslations("dashboard.owner");
+
   return (
     <div className="hidden md:block">
       <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-start text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-800">
-              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Item</th>
-              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Category</th>
-              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Type</th>
-              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Price</th>
-              <th className="px-4 py-3 text-center font-semibold text-gray-500 dark:text-gray-400">Available</th>
-              <th className="px-4 py-3 text-center font-semibold text-gray-500 dark:text-gray-400">Sold Out</th>
-              <th className="px-4 py-3 text-right font-semibold text-gray-500 dark:text-gray-400">Actions</th>
+              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">{t("menuItemsTable.columns.item")}</th>
+              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">{t("menuItemsTable.columns.category")}</th>
+              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">{t("menuItemsTable.columns.type")}</th>
+              <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">{t("menuItemsTable.columns.price")}</th>
+              <th className="px-4 py-3 text-center font-semibold text-gray-500 dark:text-gray-400">{t("menuItemsTable.columns.available")}</th>
+              <th className="px-4 py-3 text-center font-semibold text-gray-500 dark:text-gray-400">{t("menuItemsTable.columns.soldOut")}</th>
+              <th className="px-4 py-3 text-end font-semibold text-gray-500 dark:text-gray-400">{t("menuItemsTable.columns.actions")}</th>
             </tr>
           </thead>
 
@@ -61,9 +64,9 @@ export default function MenuItemsTable({
                           <p className="max-w-[220px] truncate font-medium text-gray-800 dark:text-white/90">
                             {item.name}
                           </p>
-                          {soldOut && <span className={`${pillClass} ${itemStatusTint.soldOut}`}>Sold Out</span>}
+                          {soldOut && <span className={`${pillClass} ${itemStatusTint.soldOut}`}>{t("itemStatus.soldOut")}</span>}
                           {!available && (
-                            <span className={`${pillClass} ${itemStatusTint.unavailable}`}>Unavailable</span>
+                            <span className={`${pillClass} ${itemStatusTint.unavailable}`}>{t("itemStatus.unavailable")}</span>
                           )}
                         </div>
 
@@ -78,17 +81,17 @@ export default function MenuItemsTable({
 
                   <td className="px-4 py-3">
                     <span className={`${pillClass} ${itemStatusTint.category}`}>
-                      {categoryMap[item.category_id] || "Uncategorized"}
+                      {categoryMap[item.category_id] || t("common.uncategorized")}
                     </span>
                   </td>
 
                   <td className="px-4 py-3">
                     <span className={`${pillClass} ${item.is_veg ? vegTint.veg : vegTint.nonVeg}`}>
-                      {item.is_veg ? "Veg" : "Non-veg"}
+                      {item.is_veg ? t("itemStatus.veg") : t("itemStatus.nonVeg")}
                     </span>
                   </td>
 
-                  <td className="px-4 py-3 font-semibold text-gray-800 dark:text-white/90">SAR {item.price}</td>
+                  <td className="px-4 py-3 font-semibold text-gray-800 dark:text-white/90">{t("common.price", { amount: item.price })}</td>
 
                   <td className="px-4 py-3 text-center">
                     <Switch
@@ -113,7 +116,7 @@ export default function MenuItemsTable({
                         className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                       >
                         <Pencil className="h-3.5 w-3.5" />
-                        Edit
+                        {t("menuItemsTable.edit")}
                       </Link>
 
                       <button
@@ -122,7 +125,7 @@ export default function MenuItemsTable({
                         className="inline-flex items-center gap-1.5 rounded-lg bg-error-50 px-3 py-1.5 text-sm font-semibold text-error-700 transition-colors hover:bg-error-100 dark:bg-error-500/15 dark:text-error-400 dark:hover:bg-error-500/25 cursor-pointer"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        Delete
+                        {t("menuItemsTable.delete")}
                       </button>
                     </div>
                   </td>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/app/CartContext";
 import { useRouter } from "next/navigation";
 
@@ -41,6 +42,7 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 const supabase = supabaseBrowser();
 
 export default function CartPage() {
+  const t = useTranslations("cart");
   const {
     cartItems,
     restaurant,
@@ -69,14 +71,14 @@ export default function CartPage() {
     [cartItems],
   );
 
-  const money = (v) => `SAR ${Number(v || 0).toFixed(2)}`;
+  const money = (v) => t("price", { amount: Number(v || 0).toFixed(2) });
 
   // ✅ Step 1: Read `t` from Cart URL immediately
   useEffect(() => {
     if (typeof window === "undefined") return;
     const sp = new URLSearchParams(window.location.search);
-    const t = sp.get("t");
-    if (t) setTableCode(t);
+    const tParam = sp.get("t");
+    if (tParam) setTableCode(tParam);
   }, []);
 
   // ✅ Step 2: Prefer `t` from URL, else localStorage fallback, persist back
@@ -181,7 +183,7 @@ export default function CartPage() {
 
       const validateData = await validateRes.json();
       if (!validateRes.ok) {
-        setPlaceError(validateData?.error || "Unable to validate your cart.");
+        setPlaceError(validateData?.error || t("errors.unableValidateCart"));
         return;
       }
 
@@ -198,9 +200,7 @@ export default function CartPage() {
       });
 
       if (menuChanged) {
-        setPlaceError(
-          "The menu changed while you were ordering. Return to the menu and review your cart.",
-        );
+        setPlaceError(t("errors.menuChanged"));
         return;
       }
 
@@ -233,7 +233,7 @@ export default function CartPage() {
 
       const orderData = await orderRes.json();
       if (!orderRes.ok || !orderData?.orderId) {
-        setPlaceError(orderData?.error || "We couldn't place your order. Please try again.");
+        setPlaceError(orderData?.error || t("errors.placeOrderFailed"));
         return;
       }
 
@@ -250,9 +250,7 @@ export default function CartPage() {
 
       clearCart();
     } catch {
-      setPlaceError(
-        "We couldn’t reach the server. Check your connection and try again.",
-      );
+      setPlaceError(t("errors.serverUnreachable"));
     } finally {
       setPlacing(false);
     }
@@ -276,27 +274,29 @@ export default function CartPage() {
   const validateBeforePlace = () => {
     setPlaceError("");
     if (!restaurant?.slug)
-      return "Restaurant is missing. Please go back and open menu again.";
-    if (!cartItems?.length) return "Your cart is empty.";
+      return t("errors.restaurantMissing");
+    if (!cartItems?.length) return t("errors.cartEmpty");
 
     if (!isDineIn && !restaurant?.pickup_available && !restaurant?.delivery_available) {
-      return "This restaurant has not enabled online ordering.";
+      return t("errors.onlineOrderingDisabled");
     }
 
     const customerPhoneDigits = normalizeSaudiWhatsAppNumber(customerPhone);
 
     if (!isDineIn && channel === "delivery") {
       if (customerPhoneDigits.length < 9 || customerPhoneDigits.length > 15)
-        return "Please enter a valid phone number for delivery.";
-      if (!deliveryAddress.trim()) return "Please enter delivery address.";
+        return t("errors.invalidPhoneDelivery");
+      if (!deliveryAddress.trim()) return t("errors.missingAddress");
     }
     if (!isDineIn && channel === "pickup") {
       if (customerPhoneDigits.length < 9 || customerPhoneDigits.length > 15)
-        return "Please enter a valid phone number for pickup.";
+        return t("errors.invalidPhonePickup");
     }
 
-    if (isDineIn && !tableCode) {
-      return "Missing table code. Please scan the table QR again.";
+    if (isDineIn) {
+      if (customerPhoneDigits.length < 9 || customerPhoneDigits.length > 15)
+        return t("errors.invalidPhoneDineIn");
+      if (!tableCode) return t("errors.missingTableCode");
     }
 
     return "";
@@ -307,7 +307,7 @@ export default function CartPage() {
       <div className="min-h-[calc(100vh-64px)] bg-muted/30 flex items-center justify-center">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
-          Restoring your cart…
+          {t("loading")}
         </div>
       </div>
     );
@@ -317,10 +317,10 @@ export default function CartPage() {
     const orderRef = placedOrder.orderId.slice(-8).toUpperCase();
     const whereLabel =
       placedOrder.channel === "dine_in"
-        ? `Table ${placedOrder.tableNumber ?? "?"}`
+        ? t("confirmation.whereTable", { number: placedOrder.tableNumber ?? "?" })
         : placedOrder.channel === "delivery"
-          ? "Delivery"
-          : "Pickup";
+          ? t("confirmation.whereDelivery")
+          : t("confirmation.wherePickup");
 
     return (
       <div className="min-h-[calc(100vh-64px)] bg-muted/30">
@@ -329,18 +329,21 @@ export default function CartPage() {
             <CardHeader className="space-y-1">
               <CardTitle className="flex items-center gap-2 text-emerald-700">
                 <CheckCircle2 className="h-6 w-6" />
-                Order placed!
+                {t("confirmation.title")}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Order #{orderRef} — the restaurant has received it.
+                {t("confirmation.orderRef", { ref: orderRef })}
               </p>
             </CardHeader>
 
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between rounded-lg border bg-background p-3">
                 <div className="text-sm text-muted-foreground">
-                  {whereLabel} • {placedOrder.itemCount} item
-                  {placedOrder.itemCount === 1 ? "" : "s"} • {money(placedOrder.total)}
+                  {t("confirmation.summaryLine", {
+                    where: whereLabel,
+                    count: placedOrder.itemCount,
+                    total: money(placedOrder.total),
+                  })}
                 </div>
                 <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${STATUS_TINTS.new}`}>
                   {STATUS_LABELS.new}
@@ -349,16 +352,15 @@ export default function CartPage() {
 
               {placedOrder.loggedIn ? (
                 <Button asChild className="w-full">
-                  <Link href="/dashboard/customer">Track this order</Link>
+                  <Link href="/dashboard/customer">{t("confirmation.trackOrder")}</Link>
                 </Button>
-              ) : placedOrder.channel !== "dine_in" && customerPhone.trim() ? (
+              ) : customerPhone.trim() ? (
                 <p className="text-sm text-muted-foreground rounded-lg border bg-background p-3">
-                  You’ll receive WhatsApp updates from the restaurant as your
-                  order status changes, at {customerPhone.trim()}.
+                  {t("confirmation.whatsappNotice", { phone: customerPhone.trim() })}
                 </p>
               ) : (
                 <p className="text-sm text-muted-foreground rounded-lg border bg-background p-3">
-                  The kitchen has received your order — sit tight!
+                  {t("confirmation.kitchenNotice")}
                 </p>
               )}
 
@@ -371,7 +373,7 @@ export default function CartPage() {
                     router.push(menuHref);
                   }}
                 >
-                  Place another order
+                  {t("confirmation.placeAnother")}
                 </Button>
                 <Button
                   variant="outline"
@@ -381,7 +383,7 @@ export default function CartPage() {
                     router.push("/restaurants");
                   }}
                 >
-                  Browse restaurants
+                  {t("confirmation.browseRestaurants")}
                 </Button>
               </div>
             </CardContent>
@@ -399,16 +401,16 @@ export default function CartPage() {
             <CardHeader className="space-y-1">
               <CardTitle className="flex items-center gap-2">
                 <ShoppingCart className="h-5 w-5" />
-                Your cart is empty
+                {t("empty.title")}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Add some items and come back — we’ll keep them here 🍔
+                {t("empty.subtitle")}
               </p>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button asChild className="w-full sm:w-auto">
-                  <Link href="/restaurants">Browse restaurants</Link>
+                  <Link href="/restaurants">{t("empty.browseRestaurants")}</Link>
                 </Button>
               </div>
             </CardContent>
@@ -426,19 +428,19 @@ export default function CartPage() {
             <div className="flex items-center gap-3">
               <Button asChild variant="ghost" size="icon" className="shrink-0">
                 <Link href={menuHref}>
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeft className="h-5 w-5 rtl:-scale-x-100" />
                 </Link>
               </Button>
 
               <div className="min-w-0">
                 <h1 className="text-xl md:text-2xl font-bold leading-tight truncate">
-                  Your Cart
+                  {t("header.title")}
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-2 mt-1">
                   <Badge variant="secondary" className="gap-1">
                     <ShoppingCart className="h-3.5 w-3.5" />
-                    {totalItems} item{totalItems === 1 ? "" : "s"}
+                    {t("header.itemsBadge", { count: totalItems })}
                   </Badge>
 
                   {restaurant?.name && (
@@ -460,18 +462,21 @@ export default function CartPage() {
                       <Bike className="h-3.5 w-3.5" />
                     )}
                     {isDineIn
-                      ? "Dine-in"
+                      ? t("header.dineIn")
                       : channel === "delivery"
-                        ? "Delivery"
-                        : "Pickup"}
+                        ? t("header.delivery")
+                        : t("header.pickup")}
                   </Badge>
                 </div>
 
                 {isDineIn && (
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <span className="text-xs text-muted-foreground">
-                      Linked to a table via QR{" "}
-                      {tableNumber ? `(Table ${tableNumber})` : "(Table ?)"}.
+                      {t("header.linkedToTable", {
+                        table: tableNumber
+                          ? t("header.tableKnown", { number: tableNumber })
+                          : t("header.tableUnknown"),
+                      })}
                     </span>
                     <Button
                       type="button"
@@ -479,10 +484,10 @@ export default function CartPage() {
                       size="sm"
                       onClick={clearTableLink}
                       className="h-7 px-2"
-                      title="Use this if you’re ordering online from home"
+                      title={t("header.switchToOnlineTitle")}
                     >
-                      <Clipboard className="h-3.5 w-3.5 mr-1" />
-                      Switch to online
+                      <Clipboard className="h-3.5 w-3.5 me-1" />
+                      {t("header.switchToOnline")}
                     </Button>
                   </div>
                 )}
@@ -499,7 +504,7 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <Card className="lg:col-span-8 overflow-hidden gap-0">
             <CardHeader className="pb-0">
-              <CardTitle className="text-base md:text-lg">Items</CardTitle>
+              <CardTitle className="text-base md:text-lg">{t("items.title")}</CardTitle>
             </CardHeader>
 
             <CardContent className="p-0">
@@ -528,7 +533,7 @@ export default function CartPage() {
                             {item.name}
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
-                            {money(item.price)} each
+                            {t("items.priceEach", { price: money(item.price) })}
                           </p>
                         </div>
 
@@ -537,7 +542,7 @@ export default function CartPage() {
                           size="icon"
                           className="text-destructive hover:text-destructive"
                           onClick={() => removeFromCart(item.id)}
-                          aria-label={`Remove ${item.name}`}
+                          aria-label={t("items.removeAria", { name: item.name })}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -550,7 +555,7 @@ export default function CartPage() {
                             size="icon"
                             className="h-8 w-8 rounded-full"
                             onClick={() => handleDec(item)}
-                            aria-label="Decrease quantity"
+                            aria-label={t("items.decreaseAria")}
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
@@ -564,15 +569,15 @@ export default function CartPage() {
                             size="icon"
                             className="h-8 w-8 rounded-full"
                             onClick={() => handleInc(item)}
-                            aria-label="Increase quantity"
+                            aria-label={t("items.increaseAria")}
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
 
-                        <div className="text-right">
+                        <div className="text-end">
                           <p className="text-sm text-muted-foreground">
-                            Item total
+                            {t("items.itemTotal")}
                           </p>
                           <p className="font-bold">
                             {money(item.price * item.quantity)}
@@ -588,7 +593,7 @@ export default function CartPage() {
             <CardFooter className="flex flex-col sm:flex-row gap-3 justify-between">
               <div className="flex items-center justify-between gap-3">
                 <Button asChild variant="outline">
-                  <Link href={menuHref}>Continue shopping</Link>
+                  <Link href={menuHref}>{t("footer.continueShopping")}</Link>
                 </Button>
 
                 <Button
@@ -596,14 +601,14 @@ export default function CartPage() {
                   className="w-fit cursor-pointer hover:bg-red-500"
                   onClick={clearCart}
                 >
-                  <Trash2 className="h-4 mr-2" />
-                  Clear
+                  <Trash2 className="h-4 me-2" />
+                  {t("footer.clear")}
                 </Button>
               </div>
 
               <div className="text-sm text-muted-foreground flex items-center gap-2">
                 <BadgeCheck className="h-4 w-4" />
-                Review your items before ordering
+                {t("footer.reviewNotice")}
               </div>
             </CardFooter>
           </Card>
@@ -611,13 +616,13 @@ export default function CartPage() {
           <div className="lg:col-span-4">
             <Card className="lg:sticky lg:top-6">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base md:text-lg">Summary</CardTitle>
+                <CardTitle className="text-base md:text-lg">{t("summary.title")}</CardTitle>
               </CardHeader>
 
               <CardContent className="space-y-4">
                 {!isDineIn && (
                   <div className="space-y-2">
-                    <p className="text-sm font-semibold">Order type</p>
+                    <p className="text-sm font-semibold">{t("summary.orderType")}</p>
                     <div className="flex gap-2">
                       <Button
                         type="button"
@@ -626,7 +631,7 @@ export default function CartPage() {
                         onClick={() => setChannel("pickup")}
                         disabled={!restaurant?.pickup_available}
                       >
-                        Pickup
+                        {t("summary.pickup")}
                       </Button>
                       <Button
                         type="button"
@@ -635,60 +640,58 @@ export default function CartPage() {
                         onClick={() => setChannel("delivery")}
                         disabled={!restaurant?.delivery_available}
                       >
-                        Delivery
+                        {t("summary.delivery")}
                       </Button>
                     </div>
                     {!restaurant?.pickup_available &&
                       !restaurant?.delivery_available && (
                         <p className="text-xs text-muted-foreground">
-                          This restaurant has not enabled pickup or delivery.
+                          {t("summary.noFulfillmentNotice")}
                         </p>
                       )}
                   </div>
                 )}
 
-                {!isDineIn && (
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold">Phone *</p>
-                      <Input
-                        value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
-                        placeholder="e.g. 9665xxxxxxx"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold">Name (optional)</p>
-                      <Input
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        placeholder="Your name"
-                      />
-                    </div>
-
-                    {channel === "delivery" && (
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold flex items-center gap-2">
-                          <MapPin className="h-4 w-4" /> Address *
-                        </p>
-                        <Textarea
-                          value={deliveryAddress}
-                          onChange={(e) => setDeliveryAddress(e.target.value)}
-                          placeholder="District, street, building, apartment..."
-                          className="min-h-[80px]"
-                        />
-                      </div>
-                    )}
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold">{t("summary.phoneLabel")}</p>
+                    <Input
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder={t("summary.phonePlaceholder")}
+                    />
                   </div>
-                )}
+
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold">{t("summary.nameLabel")}</p>
+                    <Input
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder={t("summary.namePlaceholder")}
+                    />
+                  </div>
+
+                  {channel === "delivery" && (
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold flex items-center gap-2">
+                        <MapPin className="h-4 w-4" /> {t("summary.addressLabel")}
+                      </p>
+                      <Textarea
+                        value={deliveryAddress}
+                        onChange={(e) => setDeliveryAddress(e.target.value)}
+                        placeholder={t("summary.addressPlaceholder")}
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  )}
+                </div>
 
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold">Notes (optional)</p>
+                  <p className="text-sm font-semibold">{t("summary.notesLabel")}</p>
                   <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Any instructions..."
+                    placeholder={t("summary.notesPlaceholder")}
                     className="min-h-[70px]"
                   />
                 </div>
@@ -696,19 +699,19 @@ export default function CartPage() {
                 <Separator />
 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Items</span>
+                  <span className="text-muted-foreground">{t("summary.items")}</span>
                   <span className="font-medium">{totalItems}</span>
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-muted-foreground">{t("summary.subtotal")}</span>
                   <span className="font-medium">{money(totalPrice)}</span>
                 </div>
 
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-semibold">Total</span>
+                  <span className="text-base font-semibold">{t("summary.total")}</span>
                   <span className="text-xl font-bold text-primary">
                     {money(totalPrice)}
                   </span>
@@ -730,16 +733,13 @@ export default function CartPage() {
                     ) : (
                       <ShoppingBag className="h-4 w-4" />
                     )}
-                    {placing ? "Placing order…" : "Place Order"}
+                    {placing ? t("summary.placingOrder") : t("summary.placeOrder")}
                   </Button>
                 </div>
 
-                {!isDineIn && (
-                  <p className="text-xs text-muted-foreground">
-                    We’ll send WhatsApp updates to your phone number as your
-                    order status changes.
-                  </p>
-                )}
+                <p className="text-xs text-muted-foreground">
+                  {t("summary.whatsappFooterNotice")}
+                </p>
               </CardContent>
             </Card>
           </div>

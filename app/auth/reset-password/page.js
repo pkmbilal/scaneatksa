@@ -5,14 +5,18 @@ const supabase = supabaseBrowser();
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { Lock, Eye, EyeOff } from 'lucide-react'
+import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function ResetPasswordPage() {
+  const t = useTranslations('auth')
+
   // Hide navbar on this page
   useEffect(() => {
     document.body.classList.add('hide-navbar')
@@ -34,12 +38,12 @@ export default function ResetPasswordPage() {
     setError('')
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError(t('resetPassword.passwordTooShort'))
       return
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('resetPassword.passwordMismatch'))
       return
     }
 
@@ -63,6 +67,8 @@ export default function ResetPasswordPage() {
 
   return (
     <>
+      <LanguageSwitcher className="fixed top-4 end-4 z-50" />
+
       {/* MOBILE wrapper */}
       <div className="md:hidden flex min-h-screen items-center justify-center bg-white px-0">
         <div className="w-full min-h-screen flex items-center justify-center">
@@ -76,10 +82,10 @@ export default function ResetPasswordPage() {
               {/* Title */}
               <div className="space-y-1">
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Reset your password
+                  {t('resetPassword.title')}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Enter a new password for your account
+                  {t('resetPassword.subtitle')}
                 </p>
               </div>
 
@@ -90,17 +96,17 @@ export default function ResetPasswordPage() {
                   <div className="relative">
                     <Input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="New password"
+                      placeholder={t('resetPassword.newPasswordPlaceholder')}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="h-11 rounded-xl pr-10"
+                      className="h-11 rounded-xl pe-10"
                     />
 
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-orange-600"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-orange-600"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -110,17 +116,17 @@ export default function ResetPasswordPage() {
                   <div className="relative">
                     <Input
                       type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirm password"
+                      placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="h-11 rounded-xl pr-10"
+                      className="h-11 rounded-xl pe-10"
                     />
 
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-orange-600"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-orange-600"
                     >
                       {showConfirmPassword ? (
                         <EyeOff size={18} />
@@ -131,7 +137,7 @@ export default function ResetPasswordPage() {
                   </div>
 
                   {error && (
-                    <p className="text-sm text-destructive text-left">{error}</p>
+                    <p className="text-sm text-destructive text-start">{error}</p>
                   )}
 
                   <Button
@@ -139,16 +145,16 @@ export default function ResetPasswordPage() {
                     disabled={loading}
                     className="w-full h-11 rounded-xl bg-primary hover:bg-green-600 text-white"
                   >
-                    {loading ? 'Updating...' : 'Reset Password'}
+                    {loading ? t('resetPassword.updating') : t('resetPassword.resetButton')}
                   </Button>
                 </form>
               ) : (
                 <div className="space-y-3">
                   <p className="text-green-600 font-medium">
-                    Password updated successfully 🎉
+                    {t('resetPassword.successMessage')}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Redirecting to login…
+                    {t('resetPassword.redirecting')}
                   </p>
                 </div>
               )}
@@ -157,9 +163,10 @@ export default function ResetPasswordPage() {
               <div className="pt-2">
                 <Link
                   href="/auth/login"
-                  className="text-sm text-muted-foreground hover:text-orange-600 transition"
+                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-orange-600 transition"
                 >
-                  ← Back to Login
+                  <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+                  {t('resetPassword.backToLogin')}
                 </Link>
               </div>
             </CardContent>
@@ -179,10 +186,10 @@ export default function ResetPasswordPage() {
             {/* Title */}
             <div className="space-y-1">
               <h1 className="text-2xl font-bold text-gray-900">
-                Reset your password
+                {t('resetPassword.title')}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Enter a new password for your account
+                {t('resetPassword.subtitle')}
               </p>
             </div>
 
@@ -193,17 +200,17 @@ export default function ResetPasswordPage() {
                 <div className="relative">
                   <Input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="New password"
+                    placeholder={t('resetPassword.newPasswordPlaceholder')}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-xl pr-10"
+                    className="h-11 rounded-xl pe-10"
                   />
 
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-orange-600"
+                    className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-orange-600"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -213,24 +220,24 @@ export default function ResetPasswordPage() {
                 <div className="relative">
                   <Input
                     type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Confirm password"
+                    placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="h-11 rounded-xl pr-10"
+                    className="h-11 rounded-xl pe-10"
                   />
 
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-orange-600"
+                    className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-orange-600"
                   >
                     {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
 
                 {error && (
-                  <p className="text-sm text-destructive text-left">{error}</p>
+                  <p className="text-sm text-destructive text-start">{error}</p>
                 )}
 
                 <Button
@@ -238,15 +245,15 @@ export default function ResetPasswordPage() {
                   disabled={loading}
                   className="w-full h-11 rounded-xl bg-primary hover:bg-green-600 text-white"
                 >
-                  {loading ? 'Updating...' : 'Reset Password'}
+                  {loading ? t('resetPassword.updating') : t('resetPassword.resetButton')}
                 </Button>
               </form>
             ) : (
               <div className="space-y-3">
                 <p className="text-green-600 font-medium">
-                  Password updated successfully 🎉
+                  {t('resetPassword.successMessage')}
                 </p>
-                <p className="text-sm text-muted-foreground">Redirecting to login…</p>
+                <p className="text-sm text-muted-foreground">{t('resetPassword.redirecting')}</p>
               </div>
             )}
 
@@ -254,9 +261,10 @@ export default function ResetPasswordPage() {
             <div className="pt-2">
               <Link
                 href="/auth/login"
-                className="text-sm text-muted-foreground hover:text-orange-600 transition"
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-orange-600 transition"
               >
-                ← Back to Login
+                <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+                {t('resetPassword.backToLogin')}
               </Link>
             </div>
           </CardContent>

@@ -1,12 +1,12 @@
 import { BadgeCheck, Headphones, Store } from "lucide-react"
 
-function getIcon(icon) {
-  switch (icon) {
-    case "store":
+function getIcon(key) {
+  switch (key) {
+    case "restaurants":
       return Store
-    case "headphones":
+    case "support":
       return Headphones
-    case "badge":
+    case "launch":
       return BadgeCheck
     default:
       return BadgeCheck
@@ -18,11 +18,11 @@ export default function ContactHighlights({ items }) {
     <section className="container mx-auto px-4 py-8">
       <div className="grid gap-3 md:grid-cols-3">
         {items.map((item) => {
-          const Icon = getIcon(item.icon)
+          const Icon = getIcon(item.key)
 
           return (
             <div
-              key={item.title}
+              key={item.key}
               className="rounded-2xl border border-border bg-card p-4 shadow-sm"
             >
               <div className="flex items-start gap-3">

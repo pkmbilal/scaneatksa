@@ -1,0 +1,93 @@
+{
+  "loading": "Restoring your cart…",
+  "price": "SAR {amount}",
+  "empty": {
+    "title": "Your cart is empty",
+    "subtitle": "Add some items and come back — we’ll keep them here 🍔",
+    "browseRestaurants": "Browse restaurants"
+  },
+  "confirmation": {
+    "title": "Order placed!",
+    "orderRef": "Order #{ref} — the restaurant has received it.",
+    "summaryLine": "{where} • {count, plural, one {# item} other {# items}} • {total}",
+    "whereTable": "Table {number}",
+    "whereDelivery": "Delivery",
+    "wherePickup": "Pickup",
+    "whatsappNotice": "You’ll receive WhatsApp updates from the restaurant as your order status changes, at {phone}.",
+    "kitchenNotice": "The kitchen has received your order — sit tight!",
+    "trackOrder": "Track this order",
+    "placeAnother": "Place another order",
+    "browseRestaurants": "Browse restaurants"
+  },
+  "header": {
+    "title": "Your Cart",
+    "itemsBadge": "{count, plural, one {# item} other {# items}}",
+    "dineIn": "Dine-in",
+    "delivery": "Delivery",
+    "pickup": "Pickup",
+    "linkedToTable": "Linked to a table via QR {table}.",
+    "tableKnown": "(Table {number})",
+    "tableUnknown": "(Table ?)",
+    "switchToOnline": "Switch to online",
+    "switchToOnlineTitle": "Use this if you’re ordering online from home"
+  },
+  "items": {
+    "title": "Items",
+    "priceEach": "{price} each",
+    "removeAria": "Remove {name}",
+    "decreaseAria": "Decrease quantity",
+    "increaseAria": "Increase quantity",
+    "itemTotal": "Item total"
+  },
+  "footer": {
+    "continueShopping": "Continue shopping",
+    "clear": "Clear",
+    "reviewNotice": "Review your items before ordering"
+  },
+  "summary": {
+    "title": "Summary",
+    "orderType": "Order type",
+    "pickup": "Pickup",
+    "delivery": "Delivery",
+    "noFulfillmentNotice": "This restaurant has not enabled pickup or delivery.",
+    "phoneLabel": "Phone *",
+    "phonePlaceholder": "e.g. 9665xxxxxxx",
+    "nameLabel": "Name (optional)",
+    "namePlaceholder": "Your name",
+    "addressLabel": "Address *",
+    "addressPlaceholder": "District, street, building, apartment...",
+    "notesLabel": "Notes (optional)",
+    "notesPlaceholder": "Any instructions...",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "placeOrder": "Place Order",
+    "placingOrder": "Placing order…",
+    "whatsappFooterNotice": "We’ll send WhatsApp updates to your phone number as your order status changes."
+  },
+  "errors": {
+    "restaurantMissing": "Restaurant is missing. Please go back and open menu again.",
+    "cartEmpty": "Your cart is empty.",
+    "onlineOrderingDisabled": "This restaurant has not enabled online ordering.",
+    "invalidPhoneDelivery": "Please enter a valid phone number for delivery.",
+    "missingAddress": "Please enter delivery address.",
+    "invalidPhonePickup": "Please enter a valid phone number for pickup.",
+    "invalidPhoneDineIn": "Please enter a valid WhatsApp number.",
+    "missingTableCode": "Missing table code. Please scan the table QR again.",
+    "menuChanged": "The menu changed while you were ordering. Return to the menu and review your cart.",
+    "unableValidateCart": "Unable to validate your cart.",
+    "placeOrderFailed": "We couldn’t place your order. Please try again.",
+    "serverUnreachable": "We couldn’t reach the server. Check your connection and try again."
+  },
+  "conflict": {
+    "title": "One restaurant per order",
+    "differentRestaurant": "Your cart already has items from another restaurant.",
+    "differentRestaurantHint": "Please checkout or clear your cart before adding from a different one.",
+    "missingRestaurant": "We couldn’t identify the restaurant for this item. Please refresh and try again.",
+    "currentCart": "Current cart",
+    "triedToAdd": "Tried to add",
+    "restaurantFallback": "Restaurant",
+    "close": "Close",
+    "goToCart": "Go to cart"
+  }
+}

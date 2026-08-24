@@ -1,0 +1,103 @@
+{
+  "loading": "Loading your dashboard...",
+  "dashboardLabel": "Dashboard",
+  "header": {
+    "toggleSidebar": "Toggle sidebar",
+    "toggleMenu": "Toggle header menu",
+    "searchPlaceholder": "Search or type command...",
+    "toggleDarkMode": "Toggle dark mode"
+  },
+  "sidebar": {
+    "menu": "Menu",
+    "navigation": "Navigation"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "Nothing new right now.",
+    "viewAll": "View All",
+    "request": "Request",
+    "unknownUser": "Unknown",
+    "justNow": "just now",
+    "minutesAgo": "{minutes} min ago",
+    "hoursAgo": "{hours} hr ago",
+    "daysAgo": "{days}d ago"
+  },
+  "userMenu": {
+    "requestOwnerAccess": "Request Owner Access",
+    "editProfile": "Edit Profile",
+    "changePassword": "Change Password",
+    "signOut": "Sign out"
+  },
+  "editProfile": {
+    "loading": "Loading your profile…",
+    "backToDashboard": "Back to Dashboard",
+    "title": "Edit Profile",
+    "subtitle": "Update your personal information and keep your account details current.",
+    "updatedTitle": "Profile updated",
+    "updatedDescription": "Changes saved successfully. Redirecting…",
+    "failedTitle": "Update failed",
+    "genericError": "Something went wrong: {message}",
+    "detailsTitle": "Profile Details",
+    "detailsDescription": "These details help restaurants contact you if needed.",
+    "emailLabel": "Email Address",
+    "emailHint": "Email cannot be changed.",
+    "fullNameLabel": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "phoneLabel": "Phone Number",
+    "phonePlaceholder": "e.g., 966501234567",
+    "phoneHint": "Include country code (e.g., 966 for Saudi Arabia).",
+    "saving": "Saving…",
+    "saved": "Saved!",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "accountType": "Account Type",
+    "accountTypeSubtitle": "Your permission level",
+    "role": "Role",
+    "roleLabels": {
+      "admin": "Admin",
+      "owner": "Owner",
+      "customer": "Customer"
+    },
+    "roleHints": {
+      "admin": "Full system access",
+      "owner": "You can manage restaurants",
+      "customer": "Want to manage a restaurant? Request owner access!"
+    },
+    "accountInfo": "Account Information",
+    "accountInfoSubtitle": "Basic account metadata",
+    "created": "Created",
+    "updated": "Updated",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "changePassword": {
+    "backToDashboard": "Back to Dashboard",
+    "title": "Change Password",
+    "subtitle": "Choose a new password for your account.",
+    "updatedTitle": "Password updated",
+    "updatedDescription": "Your password has been changed. Redirecting…",
+    "failedTitle": "Update failed",
+    "tooShort": "Password must be at least 6 characters",
+    "mismatch": "Passwords do not match",
+    "formTitle": "New Password",
+    "formSubtitle": "Use at least 6 characters.",
+    "newPasswordLabel": "New Password",
+    "newPasswordPlaceholder": "Enter a new password",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter the new password",
+    "updating": "Updating…",
+    "updated": "Updated!",
+    "updatePassword": "Update Password",
+    "cancel": "Cancel"
+  },
+  "status": {
+    "new": "New",
+    "accepted": "Accepted",
+    "preparing": "Preparing",
+    "ready": "Ready",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  }
+}

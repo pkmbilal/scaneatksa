@@ -1,7 +1,7 @@
-export function groupItemsByCategory(menuItems, categoryMap) {
+export function groupItemsByCategory(menuItems, categoryMap, uncategorizedLabel = "Uncategorized") {
   const grouped = {};
   for (const item of menuItems || []) {
-    const name = categoryMap?.[item.category_id] || "Uncategorized";
+    const name = categoryMap?.[item.category_id] || uncategorizedLabel;
     if (!grouped[name]) grouped[name] = [];
     grouped[name].push(item);
   }

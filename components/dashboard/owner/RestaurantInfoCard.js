@@ -1,42 +1,50 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Store, Phone, Link2, MapPin } from "lucide-react";
 
 export default function RestaurantInfoCard({ restaurant }) {
+  const t = useTranslations("dashboard.owner");
+  const notSet = t("restaurantInfoCard.notSet");
+
   return (
     <div>
-      <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">Restaurant Info</h3>
+      <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">{t("restaurantInfoCard.title")}</h3>
       <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        Quick reference details for customers.
+        {t("restaurantInfoCard.subtitle")}
       </p>
 
       <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
         {/* Full width */}
         <InfoRow
           icon={Store}
-          label="Name"
-          value={restaurant?.name || "Not set"}
+          label={t("restaurantInfoCard.name")}
+          value={restaurant?.name || notSet}
+          notSetValue={notSet}
           className="md:col-span-2"
         />
 
         {/* Two columns */}
         <InfoRow
           icon={Phone}
-          label="WhatsApp"
-          value={restaurant?.phone || "Not set"}
+          label={t("restaurantInfoCard.whatsapp")}
+          value={restaurant?.phone || notSet}
+          notSetValue={notSet}
         />
         <InfoRow
           icon={Link2}
-          label="Slug"
-          value={restaurant?.slug ? `/menu/${restaurant.slug}` : "Not set"}
+          label={t("restaurantInfoCard.slug")}
+          value={restaurant?.slug ? `/menu/${restaurant.slug}` : notSet}
+          notSetValue={notSet}
           mono
         />
 
         {/* Full width */}
         <InfoRow
           icon={MapPin}
-          label="Address"
-          value={restaurant?.address || "Not set"}
+          label={t("restaurantInfoCard.address")}
+          value={restaurant?.address || notSet}
+          notSetValue={notSet}
           className="md:col-span-2"
         />
       </div>
@@ -44,8 +52,8 @@ export default function RestaurantInfoCard({ restaurant }) {
   );
 }
 
-function InfoRow({ icon: Icon, label, value, mono = false, className = "" }) {
-  const isEmpty = !value || value === "Not set";
+function InfoRow({ icon: Icon, label, value, mono = false, className = "", notSetValue }) {
+  const isEmpty = !value || value === notSetValue;
 
   return (
     <div

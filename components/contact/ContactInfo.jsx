@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { getTranslations } from "next-intl/server"
 
 function getIcon(icon) {
   switch (icon) {
@@ -26,19 +27,20 @@ function getIcon(icon) {
   }
 }
 
-export default function ContactInfo({ contactMethods, whatsappLink }) {
+export default async function ContactInfo({ contactMethods, whatsappLink }) {
+  const t = await getTranslations("contact.info")
+
   return (
     <div className="space-y-6">
       <Card className="rounded-3xl border-border bg-card shadow-sm">
         <CardContent className="p-5 md:p-6">
           <div className="mb-5">
-            <p className="text-sm font-medium text-primary">Get in touch</p>
+            <p className="text-sm font-medium text-primary">{t("eyebrow")}</p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight">
-              We’re here to help
+              {t("title")}
             </h2>
             <p className="mt-2 text-sm leading-7 text-muted-foreground">
-              Reach out for pricing, demos, onboarding, or setup guidance for
-              your restaurant.
+              {t("description")}
             </p>
           </div>
 
@@ -84,12 +86,11 @@ export default function ContactInfo({ contactMethods, whatsappLink }) {
 
       <div className="rounded-3xl border border-primary/15 bg-primary px-5 py-6 text-primary-foreground shadow-sm">
         <p className="text-xs font-medium uppercase tracking-wide text-primary-foreground/75">
-          Faster response
+          {t("fasterResponse")}
         </p>
-        <h3 className="mt-2 text-xl font-semibold">Prefer WhatsApp?</h3>
+        <h3 className="mt-2 text-xl font-semibold">{t("preferWhatsapp")}</h3>
         <p className="mt-2 text-sm leading-7 text-primary-foreground/85">
-          For quick questions, demos, and onboarding help, message us directly
-          on WhatsApp.
+          {t("whatsappText")}
         </p>
         <Button
           asChild
@@ -97,8 +98,8 @@ export default function ContactInfo({ contactMethods, whatsappLink }) {
           className="mt-5 h-10 rounded-full bg-background px-5 text-primary hover:bg-background/90"
         >
           <Link href={whatsappLink} target="_blank">
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Start WhatsApp Chat
+            <MessageCircle className="me-2 h-4 w-4" />
+            {t("startWhatsappChat")}
           </Link>
         </Button>
       </div>

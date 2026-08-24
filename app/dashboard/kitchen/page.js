@@ -4,6 +4,7 @@ const supabase = supabaseBrowser();
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ChefHat } from "lucide-react";
 
 import { getCurrentUser, getUserProfile } from "@/lib/auth/client";
@@ -18,10 +19,12 @@ import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
 import OrderQueue from "@/components/dashboard/staff/OrderQueue";
 import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
 
-// Kitchen's queue is orders in `new` status only -- their single action
-// (Start Preparing) moves an order to `preparing` and then it's the
-// waiter's queue's concern. See lib/orderStatus.js for the transition rules.
+// Kitchen's queue is orders in `new` or `preparing` status -- kitchen starts
+// an order (`new` -> `preparing`) and then marks it ready (`preparing` ->
+// `ready`), at which point it's the waiter's queue's concern. See
+// lib/orderStatus.js for the transition rules.
 export default function KitchenDashboardPage() {
+  const t = useTranslations("dashboard.staff");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
@@ -77,7 +80,7 @@ export default function KitchenDashboardPage() {
       .from("orders")
       .select("id, created_at, channel, status, total, customer_name, customer_phone, notes")
       .eq("restaurant_id", restaurantId)
-      .eq("status", "new")
+      .in("status", ["new", "preparing"])
       .order("created_at", { ascending: true });
 
     if (!error) setOrders(data || []);
@@ -103,25 +106,33 @@ export default function KitchenDashboardPage() {
   }
 
   if (loading) {
-    return <LoadingScreen message="Loading your kitchen queue..." />;
+    return <LoadingScreen message={t("kitchen.loadingMessage")} />;
   }
 
   if (!profile?.restaurant_id) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 text-center text-gray-500 dark:text-gray-400">
-        Your account isn&apos;t assigned to a restaurant yet. Ask your restaurant owner to check your staff account.
+        {t("queue.noRestaurantAssigned")}
       </div>
     );
   }
 
   const navItems = [
-    { key: "queue", label: "Kitchen Queue", icon: ChefHat, count: orders.length, alert: orders.length > 0 },
+    { key: "queue", label: t("kitchen.title"), icon: ChefHat, count: orders.length, alert: orders.length > 0 },
   ];
 
   return (
     <DashboardSidebarProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 lg:flex">
-        <DashboardSidebar navItems={navItems} activeTab="queue" onSelectTab={() => {}} />
+        <DashboardSidebar
+          navItems={navItems}
+          activeTab="queue"
+          onSelectTab={() => {}}
+          user={user}
+          profile={profile}
+          homeLabel={t("kitchen.homeLabel")}
+          editProfileHref="/dashboard/kitchen"
+        />
         <DashboardBackdrop />
 
         <DashboardMain
@@ -130,27 +141,27 @@ export default function KitchenDashboardPage() {
               user={user}
               profile={profile}
               homeHref="/dashboard/kitchen"
-              homeLabel="Kitchen"
+              homeLabel={t("kitchen.homeLabel")}
               editProfileHref="/dashboard/kitchen"
             />
           }
         >
           <TabSectionHeader
-            title="Kitchen Queue"
-            description={`New orders${restaurant?.name ? ` for ${restaurant.name}` : ""} waiting to be started.`}
+            title={t("kitchen.title")}
+            description={
+              restaurant?.name
+                ? t("kitchen.descriptionWithRestaurant", { restaurantName: restaurant.name })
+                : t("kitchen.descriptionGeneric")
+            }
           />
 
-          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div className="p-6">
-              <OrderQueue
-                role="kitchen"
-                restaurantName={restaurant?.name}
-                orders={orders}
-                loading={ordersLoading}
-                onAction={handleAction}
-              />
-            </div>
-          </div>
+          <OrderQueue
+            role="kitchen"
+            restaurantName={restaurant?.name}
+            orders={orders}
+            loading={ordersLoading}
+            onAction={handleAction}
+          />
         </DashboardMain>
       </div>
     </DashboardSidebarProvider>

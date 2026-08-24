@@ -1,0 +1,42 @@
+{
+  "clientPage": {
+    "loading": "Preparing QR Template...",
+    "notFound": {
+      "title": "Restaurant Not Found",
+      "description": "We couldn't load the restaurant \"{slug}\".",
+      "backToDashboard": "Back to Dashboard"
+    },
+    "title": "QR Code Template Generator",
+    "subtitle": "Download or print a professional QR template (logo + instructions + QR). Choose a table to generate a table-specific QR.",
+    "universalMenuQr": "Universal menu QR",
+    "tableSpecificQr": "Table-specific QR for Table {tableNumber}",
+    "qrTypeLabel": "QR Type",
+    "generalMenuQrOption": "General Menu QR",
+    "tableOption": "Table {tableNumber}",
+    "noTables": "No tables found. Create tables first to generate table QR codes.",
+    "downloadTemplate": "Download Template PNG",
+    "printTemplate": "Print Template",
+    "previewMenu": "Preview Menu",
+    "errors": {
+      "missingSlug": "Missing restaurant slug.",
+      "loginRequired": "Please login first.",
+      "accessDenied": "Access denied. Your role: {role}",
+      "restaurantNotFound": "Restaurant not found: {slug}",
+      "notOwner": "You don't own this restaurant.",
+      "generic": "Something went wrong.",
+      "qrGenerationFailed": "Failed to generate QR code.",
+      "qrNotReady": "QR not ready yet.",
+      "downloadFailed": "Failed to download template."
+    },
+    "toast": {
+      "templateDownloaded": "Template downloaded ✅"
+    }
+  },
+  "template": {
+    "logoAlt": "ScanEat Logo",
+    "scanToOrder": "Scan to Order",
+    "qrCodeAlt": "QR Code",
+    "generating": "Generating...",
+    "table": "Table {tableNumber}"
+  }
+}

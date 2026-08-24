@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Mail, Phone, Settings, User2 } from 'lucide-react'
 
 const roleTint = {
@@ -10,20 +11,22 @@ const roleTint = {
 }
 
 export default function ProfileCard({ user, profile }) {
+  const t = useTranslations('dashboard.customer')
   const role = profile?.role || 'customer'
+  const roleLabel = t.has(`profileCard.roles.${role}`) ? t(`profileCard.roles.${role}`) : role
 
   return (
     <div>
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-white/90">
           <User2 className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-          Your Profile
+          {t('profileCard.title')}
         </h3>
 
         <span
           className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${roleTint[role] || roleTint.customer}`}
         >
-          {role}
+          {roleLabel}
         </span>
       </div>
 
@@ -33,9 +36,9 @@ export default function ProfileCard({ user, profile }) {
             <User2 className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Name</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t('profileCard.nameLabel')}</p>
             <p className="truncate font-semibold text-gray-800 dark:text-white/90">
-              {profile?.full_name || 'Not set'}
+              {profile?.full_name || t('profileCard.notSet')}
             </p>
           </div>
         </div>
@@ -45,8 +48,8 @@ export default function ProfileCard({ user, profile }) {
             <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
-            <p className="truncate font-semibold text-gray-800 dark:text-white/90">{user?.email || '—'}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t('profileCard.emailLabel')}</p>
+            <p className="truncate font-semibold text-gray-800 dark:text-white/90">{user?.email || t('profileCard.emailFallback')}</p>
           </div>
         </div>
 
@@ -55,9 +58,9 @@ export default function ProfileCard({ user, profile }) {
             <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t('profileCard.phoneLabel')}</p>
             <p className="truncate font-semibold text-gray-800 dark:text-white/90">
-              {profile?.phone || 'Not set'}
+              {profile?.phone || t('profileCard.notSet')}
             </p>
           </div>
         </div>
@@ -70,7 +73,7 @@ export default function ProfileCard({ user, profile }) {
         className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
       >
         <Settings className="h-4 w-4" />
-        Edit Profile
+        {t('profileCard.editProfile')}
       </Link>
     </div>
   )

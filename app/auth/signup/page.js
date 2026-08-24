@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { signUp } from '@/lib/auth/client'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 import { Pizza, MailCheck } from 'lucide-react'
 
@@ -19,6 +21,8 @@ import {
 import { Button } from '@/components/ui/button'
 
 export default function SignupPage() {
+  const t = useTranslations('auth')
+
   // Hide navbar on this page
   useEffect(() => {
     document.body.classList.add('hide-navbar')
@@ -52,7 +56,7 @@ export default function SignupPage() {
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('signup.passwordMismatch'))
       setLoading(false)
       return
     }
@@ -62,9 +66,7 @@ export default function SignupPage() {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/
 
     if (!passwordRegex.test(formData.password)) {
-      setError(
-        'Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.'
-      )
+      setError(t('signup.passwordRequirements'))
       setLoading(false)
       return
     }
@@ -87,13 +89,15 @@ export default function SignupPage() {
       setOtpDialogOpen(true)
       setLoading(false)
     } catch (err) {
-      setError('Something went wrong: ' + err.message)
+      setError(t('signup.unexpectedError', { message: err.message }))
       setLoading(false)
     }
   }
 
   return (
     <>
+      <LanguageSwitcher className="fixed top-4 end-4 z-50" />
+
       {/* ✅ OTP Success Dialog */}
       <Dialog
         open={otpDialogOpen}
@@ -109,13 +113,15 @@ export default function SignupPage() {
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-green-50">
                 <MailCheck className="h-5 w-5 text-green-600" />
               </span>
-              Verification code sent ✅
+              {t('signup.otpDialog.title')}
             </DialogTitle>
             <DialogDescription className="mt-2">
-              We sent a verification code to{' '}
-              <span className="font-semibold text-gray-900">{pendingEmail}</span>.
-              <br />
-              Enter the code to activate your account.
+              {t.rich('signup.otpDialog.description', {
+                email: pendingEmail,
+                bold: (chunks) => (
+                  <span className="font-semibold text-gray-900">{chunks}</span>
+                ),
+              })}
             </DialogDescription>
           </DialogHeader>
 
@@ -124,13 +130,13 @@ export default function SignupPage() {
               variant="outline"
               onClick={() => setOtpDialogOpen(false)}
             >
-              Close
+              {t('signup.otpDialog.close')}
             </Button>
             <Button
               className="bg-primary hover:bg-green-600"
               onClick={() => goVerify(pendingEmail)}
             >
-              Continue
+              {t('signup.otpDialog.continue')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -144,16 +150,16 @@ export default function SignupPage() {
               <Pizza size={48} color="#00c951" />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Create Account
+              {t('signup.title')}
             </h1>
-            <p className="text-gray-600">Join ScanEat</p>
+            <p className="text-gray-600">{t('signup.subtitle', { brand: 'ScanEat' })}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Full Name
+                {t('signup.fullNameLabel')}
               </label>
               <input
                 type="text"
@@ -161,7 +167,7 @@ export default function SignupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, fullName: e.target.value })
                 }
-                placeholder="John Doe"
+                placeholder={t('signup.fullNamePlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
@@ -169,7 +175,7 @@ export default function SignupPage() {
             {/* Email */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email *
+                {t('signup.emailLabel')}
               </label>
               <input
                 type="email"
@@ -177,7 +183,7 @@ export default function SignupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                placeholder="your@email.com"
+                placeholder={t('signup.emailPlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 required
               />
@@ -186,7 +192,7 @@ export default function SignupPage() {
             {/* Password */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Password *
+                {t('signup.passwordLabel')}
               </label>
               <input
                 type="password"
@@ -194,7 +200,7 @@ export default function SignupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                placeholder="At least 6 characters"
+                placeholder={t('signup.passwordPlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 required
               />
@@ -203,7 +209,7 @@ export default function SignupPage() {
             {/* Confirm Password */}
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Confirm Password *
+                {t('signup.confirmPasswordLabel')}
               </label>
               <input
                 type="password"
@@ -211,7 +217,7 @@ export default function SignupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
-                placeholder="Re-enter password"
+                placeholder={t('signup.confirmPasswordPlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 required
               />
@@ -230,19 +236,19 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full bg-primary hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-400 cursor-pointer"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? t('signup.creatingAccount') : t('signup.createAccount')}
             </button>
           </form>
 
           {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600 text-sm">
-              Already have an account?{' '}
+              {t('signup.alreadyHaveAccount')}{' '}
               <Link
                 href="/auth/login"
                 className="text-primary hover:text-green-600 font-semibold"
               >
-                Sign In
+                {t('signup.signIn')}
               </Link>
             </p>
           </div>
@@ -257,16 +263,16 @@ export default function SignupPage() {
               <Pizza size={48} color="#00c951" />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Create Account
+              {t('signup.title')}
             </h1>
-            <p className="text-gray-600">Join ScanEat</p>
+            <p className="text-gray-600">{t('signup.subtitle', { brand: 'ScanEat' })}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Full Name
+                {t('signup.fullNameLabel')}
               </label>
               <input
                 type="text"
@@ -274,7 +280,7 @@ export default function SignupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, fullName: e.target.value })
                 }
-                placeholder="John Doe"
+                placeholder={t('signup.fullNamePlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
@@ -282,7 +288,7 @@ export default function SignupPage() {
             {/* Email */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email *
+                {t('signup.emailLabel')}
               </label>
               <input
                 type="email"
@@ -290,7 +296,7 @@ export default function SignupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                placeholder="your@email.com"
+                placeholder={t('signup.emailPlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 required
               />
@@ -299,7 +305,7 @@ export default function SignupPage() {
             {/* Password */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Password *
+                {t('signup.passwordLabel')}
               </label>
               <input
                 type="password"
@@ -307,7 +313,7 @@ export default function SignupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                placeholder="At least 6 characters"
+                placeholder={t('signup.passwordPlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 required
               />
@@ -316,7 +322,7 @@ export default function SignupPage() {
             {/* Confirm Password */}
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Confirm Password *
+                {t('signup.confirmPasswordLabel')}
               </label>
               <input
                 type="password"
@@ -324,7 +330,7 @@ export default function SignupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
-                placeholder="Re-enter password"
+                placeholder={t('signup.confirmPasswordPlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 required
               />
@@ -343,19 +349,19 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full bg-primary hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-400 cursor-pointer"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? t('signup.creatingAccount') : t('signup.createAccount')}
             </button>
           </form>
 
           {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600 text-sm">
-              Already have an account?{' '}
+              {t('signup.alreadyHaveAccount')}{' '}
               <Link
                 href="/auth/login"
                 className="text-primary hover:text-green-600 font-semibold"
               >
-                Sign In
+                {t('signup.signIn')}
               </Link>
             </p>
           </div>

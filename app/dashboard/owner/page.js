@@ -5,6 +5,7 @@ const supabase = supabaseBrowser();
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import {
   getCurrentUser,
@@ -52,6 +53,7 @@ import StaffTab from "@/components/dashboard/owner/tabs/StaffTab";
 import AddItemDialog from "@/components/dashboard/owner/dialogs/AddItemDialog";
 import AddCategoryDialog from "@/components/dashboard/owner/dialogs/AddCategoryDialog";
 import AddTableDialog from "@/components/dashboard/owner/dialogs/AddTableDialog";
+import AddStaffDialog from "@/components/dashboard/owner/dialogs/AddStaffDialog";
 
 // ✅ Shadcn Dialogs
 import {
@@ -66,6 +68,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function OwnerDashboardPage() {
+  const t = useTranslations("dashboard.owner");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
@@ -220,8 +223,8 @@ export default function OwnerDashboardPage() {
     const data = await res.json();
     if (!res.ok) {
       setInfoDialogConfig({
-        title: "Couldn't update order",
-        description: data?.error || "Please try again.",
+        title: t("page.errors.updateOrderFailedTitle"),
+        description: data?.error || t("page.errors.tryAgain"),
         isError: true,
       });
       setInfoDialogOpen(true);
@@ -320,7 +323,7 @@ export default function OwnerDashboardPage() {
 
   const renameCategory = async (categoryId, newName) => {
     const clean = newName.trim();
-    if (!clean) return { ok: false, message: "Name cannot be empty" };
+    if (!clean) return { ok: false, message: t("page.errors.categoryNameEmpty") };
 
     const { error } = await supabase
       .from("categories")
@@ -329,7 +332,7 @@ export default function OwnerDashboardPage() {
 
     if (error) {
       const msg = error.message?.toLowerCase().includes("duplicate")
-        ? "This category already exists."
+        ? t("page.errors.categoryDuplicate")
         : error.message;
       return { ok: false, message: msg };
     }
@@ -351,8 +354,8 @@ export default function OwnerDashboardPage() {
     const { error } = await supabase.from("categories").delete().eq("id", categoryToDelete);
     if (error) {
       setInfoDialogConfig({
-        title: "Error",
-        description: "Failed to delete category: " + error.message,
+        title: t("common.error"),
+        description: t("page.errors.deleteCategoryFailed", { message: error.message }),
         isError: true,
       });
       setInfoDialogOpen(true);
@@ -374,8 +377,8 @@ export default function OwnerDashboardPage() {
       await loadTables(restaurant.id);
     } else if (error) {
       setInfoDialogConfig({
-        title: "Error",
-        description: error.message || "Failed to update table.",
+        title: t("common.error"),
+        description: error.message || t("page.errors.updateTableFailed"),
         isError: true,
       });
       setInfoDialogOpen(true);
@@ -406,8 +409,8 @@ export default function OwnerDashboardPage() {
       const json = await res.json();
       if (!res.ok) {
         setInfoDialogConfig({
-          title: "Error",
-          description: json?.error || "Failed to delete table.",
+          title: t("common.error"),
+          description: json?.error || t("page.errors.deleteTableFailed"),
           isError: true,
         });
         setInfoDialogOpen(true);
@@ -416,8 +419,8 @@ export default function OwnerDashboardPage() {
       }
     } catch (e) {
       setInfoDialogConfig({
-        title: "Error",
-        description: e?.message || "Server error deleting table.",
+        title: t("common.error"),
+        description: e?.message || t("page.errors.deleteTableServerError"),
         isError: true,
       });
       setInfoDialogOpen(true);
@@ -428,7 +431,7 @@ export default function OwnerDashboardPage() {
   };
 
   if (loading) {
-    return <LoadingScreen message="Loading owner dashboard..." />;
+    return <LoadingScreen message={t("page.loading")} />;
   }
 
   if (!restaurant) {
@@ -436,8 +439,8 @@ export default function OwnerDashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <Card className="max-w-md w-full">
           <CardHeader>
-            <CardTitle>No Restaurant Found</CardTitle>
-            <CardDescription>Please contact admin for assistance.</CardDescription>
+            <CardTitle>{t("page.noRestaurant.title")}</CardTitle>
+            <CardDescription>{t("page.noRestaurant.description")}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -447,40 +450,40 @@ export default function OwnerDashboardPage() {
   const newOrdersCount = orders.filter((o) => o.status === "new").length;
 
   const navItems = [
-    { key: "overview", label: "Overview", icon: LayoutDashboard },
-    { key: "items", label: "Menu Items", icon: UtensilsCrossed },
-    { key: "categories", label: "Categories", icon: Tags },
-    { key: "tables", label: "Tables & QR", icon: QrCode },
-    { key: "orders", label: "Orders", icon: Receipt, count: newOrdersCount, alert: newOrdersCount > 0 },
-    { key: "staff", label: "Staff", icon: Users, count: staff.length },
-    { key: "restaurant", label: "Restaurant", icon: Store },
+    { key: "overview", label: t("page.nav.overview"), icon: LayoutDashboard },
+    { key: "items", label: t("page.nav.items"), icon: UtensilsCrossed },
+    { key: "categories", label: t("page.nav.categories"), icon: Tags },
+    { key: "tables", label: t("page.nav.tables"), icon: QrCode },
+    { key: "orders", label: t("page.nav.orders"), icon: Receipt, count: newOrdersCount, alert: newOrdersCount > 0 },
+    { key: "staff", label: t("page.nav.staff"), icon: Users, count: staff.length },
+    { key: "restaurant", label: t("page.nav.restaurant"), icon: Store },
   ];
 
   const siteNavItems = [
-    { label: "About", href: "/about", icon: House },
-    { label: "How It Works", href: "/#how-it-works", icon: Gauge },
-    { label: "Restaurants", href: "/restaurants", icon: Pizza },
-    { label: "Contact", href: "/contact", icon: Headset },
+    { label: t("page.siteNav.about"), href: "/about", icon: House },
+    { label: t("page.siteNav.howItWorks"), href: "/#how-it-works", icon: Gauge },
+    { label: t("page.siteNav.restaurants"), href: "/restaurants", icon: Pizza },
+    { label: t("page.siteNav.contact"), href: "/contact", icon: Headset },
   ];
 
   const tabTitles = {
-    overview: "Overview",
-    items: "Menu Items",
-    categories: "Categories",
-    tables: "Tables & QR",
-    orders: "Orders",
-    staff: "Staff",
-    restaurant: "Restaurant",
+    overview: t("page.nav.overview"),
+    items: t("page.nav.items"),
+    categories: t("page.nav.categories"),
+    tables: t("page.nav.tables"),
+    orders: t("page.nav.orders"),
+    staff: t("page.nav.staff"),
+    restaurant: t("page.nav.restaurant"),
   };
 
   const tabDescriptions = {
-    overview: "A quick snapshot of your restaurant's menu, tables, and orders.",
-    items: "Manage the dishes on your menu, prices, and availability.",
-    categories: "Organize your menu items into categories.",
-    tables: "Generate QR codes so orders automatically tag the right table.",
-    orders: "Dine-in orders show a table number. Online orders show pickup or delivery.",
-    staff: "Create kitchen and waiter accounts for your restaurant.",
-    restaurant: "Manage your restaurant's public details and settings.",
+    overview: t("page.tabDescriptions.overview"),
+    items: t("page.tabDescriptions.items"),
+    categories: t("page.tabDescriptions.categories"),
+    tables: t("page.tabDescriptions.tables"),
+    orders: t("page.tabDescriptions.orders"),
+    staff: t("page.tabDescriptions.staff"),
+    restaurant: t("page.tabDescriptions.restaurant"),
   };
 
   const menuActions = {
@@ -511,16 +514,17 @@ export default function OwnerDashboardPage() {
         className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
       >
         <RefreshCw className="h-4 w-4" />
-        {ordersLoading ? "Refreshing..." : "Refresh Orders"}
+        {ordersLoading ? t("page.actions.refreshingOrders") : t("page.actions.refreshOrders")}
       </button>
     ),
+    staff: <AddStaffDialog onAdd={addStaffMember} />,
     restaurant: (
       <Link
         href="/dashboard/owner/restaurant/edit"
         className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
       >
         <Pencil className="h-4 w-4" />
-        Edit Restaurant
+        {t("page.actions.editRestaurant")}
       </Link>
     ),
   };
@@ -533,6 +537,10 @@ export default function OwnerDashboardPage() {
           activeTab={activeTab}
           onSelectTab={setActiveTab}
           siteNavItems={siteNavItems}
+          user={user}
+          profile={profile}
+          homeLabel={t("page.homeLabel")}
+          editProfileHref="/dashboard/owner/edit-profile"
         />
         <DashboardBackdrop />
 
@@ -542,17 +550,17 @@ export default function OwnerDashboardPage() {
               user={user}
               profile={profile}
               homeHref="/dashboard/owner"
-              homeLabel="Owner Dashboard"
+              homeLabel={t("page.homeLabel")}
               editProfileHref="/dashboard/owner/edit-profile"
             />
           }
         >
           {activeTab === "overview" && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:gap-6 mb-6">
-              <StatCard icon={UtensilsCrossed} label="Menu Items" value={menuItems.length} tint="brand" />
-              <StatCard icon={Tags} label="Categories" value={categories.length} tint="gray" />
-              <StatCard icon={QrCode} label="Tables" value={tables.length} tint="success" />
-              <StatCard icon={Receipt} label="Orders" value={orders.length} tint="warning" />
+              <StatCard icon={UtensilsCrossed} label={t("page.stats.menuItems")} value={menuItems.length} tint="brand" />
+              <StatCard icon={Tags} label={t("page.stats.categories")} value={categories.length} tint="gray" />
+              <StatCard icon={QrCode} label={t("page.stats.tables")} value={tables.length} tint="success" />
+              <StatCard icon={Receipt} label={t("page.stats.orders")} value={orders.length} tint="warning" />
             </div>
           )}
 
@@ -562,47 +570,40 @@ export default function OwnerDashboardPage() {
             action={headerActions[activeTab]}
           />
 
-          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div className="p-6">
-              {activeTab === "overview" && <OverviewTab restaurant={restaurant} />}
+          {activeTab === "orders" ? (
+            <OwnerOrdersTab
+              restaurant={restaurant}
+              orders={orders}
+              ordersLoading={ordersLoading}
+              onStatusChange={updateOrderStatus}
+            />
+          ) : activeTab === "staff" ? (
+            <StaffTab staff={staff} staffLoading={staffLoading} onToggleActive={toggleStaffActive} />
+          ) : (
+            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+              <div className="p-6">
+                {activeTab === "overview" && <OverviewTab restaurant={restaurant} />}
 
-              {activeTab === "items" && (
-                <MenuItemsTab menuItems={menuItems} categoryMap={categoryMap} actions={menuActions} />
-              )}
+                {activeTab === "items" && (
+                  <MenuItemsTab menuItems={menuItems} categoryMap={categoryMap} actions={menuActions} />
+                )}
 
-              {activeTab === "categories" && <CategoriesTab categories={categories} actions={menuActions} />}
+                {activeTab === "categories" && <CategoriesTab categories={categories} actions={menuActions} />}
 
-              {activeTab === "tables" && (
-                <OwnerTablesQrTab
-                  restaurant={restaurant}
-                  tables={tables}
-                  tablesLoading={tablesLoading}
-                  onToggleActive={toggleTableActive}
-                  onDeleteTable={deleteTable}
-                />
-              )}
+                {activeTab === "tables" && (
+                  <OwnerTablesQrTab
+                    restaurant={restaurant}
+                    tables={tables}
+                    tablesLoading={tablesLoading}
+                    onToggleActive={toggleTableActive}
+                    onDeleteTable={deleteTable}
+                  />
+                )}
 
-              {activeTab === "orders" && (
-                <OwnerOrdersTab
-                  restaurant={restaurant}
-                  orders={orders}
-                  ordersLoading={ordersLoading}
-                  onStatusChange={updateOrderStatus}
-                />
-              )}
-
-              {activeTab === "staff" && (
-                <StaffTab
-                  staff={staff}
-                  staffLoading={staffLoading}
-                  onAdd={addStaffMember}
-                  onToggleActive={toggleStaffActive}
-                />
-              )}
-
-              {activeTab === "restaurant" && <RestaurantTab restaurant={restaurant} />}
+                {activeTab === "restaurant" && <RestaurantTab restaurant={restaurant} />}
+              </div>
             </div>
-          </div>
+          )}
         </DashboardMain>
       </div>
 
@@ -612,16 +613,16 @@ export default function OwnerDashboardPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
               <TriangleAlert className="h-5 w-5" />
-              Delete Item
+              {t("page.deleteItemDialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this item? This action cannot be undone.
+              {t("page.deleteItemDialog.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDeleteItem} className="bg-destructive hover:bg-destructive/90">
-              Delete
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -633,16 +634,16 @@ export default function OwnerDashboardPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
               <TriangleAlert className="h-5 w-5" />
-              Delete Category
+              {t("page.deleteCategoryDialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Delete this category? Items under it will become Uncategorized.
+              {t("page.deleteCategoryDialog.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDeleteCategory} className="bg-destructive hover:bg-destructive/90">
-              Delete
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -654,17 +655,18 @@ export default function OwnerDashboardPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
               <TriangleAlert className="h-5 w-5" />
-              Delete Table{tableToDelete ? ` ${tableToDelete.table_number}` : ""}
+              {tableToDelete
+                ? t("page.deleteTableDialog.titleWithNumber", { number: tableToDelete.table_number })
+                : t("page.deleteTableDialog.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This can&rsquo;t be undone. If this table has past orders, deletion will be blocked — deactivate
-              it instead.
+              {t("page.deleteTableDialog.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDeleteTable} className="bg-destructive hover:bg-destructive/90">
-              Delete
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -684,7 +686,7 @@ export default function OwnerDashboardPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setInfoDialogOpen(false)}>
-              Okay
+              {t("common.okay")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

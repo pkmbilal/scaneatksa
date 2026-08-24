@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Utensils } from "lucide-react";
 
 import { Switch } from "@/components/ui/switch";
@@ -17,9 +18,10 @@ export default function MenuItemsMobile({
   onToggleSoldOut,
   onDeleteItem,
 }) {
+  const t = useTranslations("dashboard.owner");
   const grouped = useMemo(
-    () => groupItemsByCategory(menuItems, categoryMap),
-    [menuItems, categoryMap],
+    () => groupItemsByCategory(menuItems, categoryMap, t("common.uncategorized")),
+    [menuItems, categoryMap, t],
   );
 
   return (
@@ -30,7 +32,7 @@ export default function MenuItemsMobile({
             <p className="text-sm font-semibold text-gray-800 dark:text-white/90">
               {catName}{" "}
               <span className="font-medium text-gray-500 dark:text-gray-400">
-                ({items.length} items)
+                ({t("menuItemsMobile.itemCount", { count: items.length })})
               </span>
             </p>
           </div>
@@ -66,9 +68,9 @@ export default function MenuItemsMobile({
 
                       {soldOut && (
                         <span
-                          className={`absolute -top-2 -left-2 rounded-full border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 ${pillClass} ${itemStatusTint.soldOut}`}
+                          className={`absolute -top-2 -start-2 rounded-full border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 ${pillClass} ${itemStatusTint.soldOut}`}
                         >
-                          Sold Out
+                          {t("itemStatus.soldOut")}
                         </span>
                       )}
                     </div>
@@ -83,22 +85,22 @@ export default function MenuItemsMobile({
 
                           <div className="mt-1 flex flex-wrap gap-1.5">
                             <span className={`${pillClass} ${item.is_veg ? vegTint.veg : vegTint.nonVeg}`}>
-                              {item.is_veg ? "Veg" : "Non-veg"}
+                              {item.is_veg ? t("itemStatus.veg") : t("itemStatus.nonVeg")}
                             </span>
 
                             {!available && (
-                              <span className={`${pillClass} ${itemStatusTint.unavailable}`}>Unavailable</span>
+                              <span className={`${pillClass} ${itemStatusTint.unavailable}`}>{t("itemStatus.unavailable")}</span>
                             )}
 
                             {available && !soldOut && (
-                              <span className={`${pillClass} ${itemStatusTint.live}`}>Live</span>
+                              <span className={`${pillClass} ${itemStatusTint.live}`}>{t("itemStatus.live")}</span>
                             )}
                           </div>
                         </div>
 
-                        <div className="text-right">
+                        <div className="text-end">
                           <p className="whitespace-nowrap text-sm font-bold leading-none text-brand-600 dark:text-brand-400">
-                            SAR {item.price}
+                            {t("common.price", { amount: item.price })}
                           </p>
                         </div>
                       </div>
@@ -114,7 +116,7 @@ export default function MenuItemsMobile({
                     <div className="col-span-3">
                       <div className="flex items-center justify-end gap-2">
                         <div className="flex h-8 items-center gap-2 rounded-full border border-gray-200 px-2 dark:border-gray-800 sm:h-9 sm:px-3">
-                          <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">Live</span>
+                          <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">{t("menuItemsMobile.liveToggleLabel")}</span>
                           <Switch
                             className="scale-90 sm:scale-100"
                             checked={available}
@@ -123,7 +125,7 @@ export default function MenuItemsMobile({
                         </div>
 
                         <div className="flex h-8 items-center gap-2 rounded-full border border-gray-200 px-2 dark:border-gray-800 sm:h-9 sm:px-3">
-                          <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">Sold</span>
+                          <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">{t("menuItemsMobile.soldToggleLabel")}</span>
                           <Switch
                             className="scale-90 sm:scale-100"
                             checked={soldOut}
@@ -133,7 +135,7 @@ export default function MenuItemsMobile({
 
                         <Link
                           href={`/dashboard/owner/menu/${item.id}/edit`}
-                          aria-label="Edit item"
+                          aria-label={t("menuItemsMobile.editItem")}
                           className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:h-9 sm:w-9"
                         >
                           <Pencil className="h-4 w-4" />
@@ -141,7 +143,7 @@ export default function MenuItemsMobile({
 
                         <button
                           type="button"
-                          aria-label="Delete item"
+                          aria-label={t("menuItemsMobile.deleteItem")}
                           onClick={() => onDeleteItem(item.id)}
                           className="flex h-8 w-8 items-center justify-center rounded-full bg-error-50 text-error-700 transition-colors hover:bg-error-100 dark:bg-error-500/15 dark:text-error-400 dark:hover:bg-error-500/25 sm:h-9 sm:w-9 cursor-pointer"
                         >

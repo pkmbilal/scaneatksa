@@ -3,12 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { getCurrentUser, getUserProfile, signOut } from "@/lib/auth/client";
+import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
+import { getSessionUser, getUserProfile, signOut } from "@/lib/auth/client";
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 
 import {
@@ -27,7 +30,6 @@ import {
 } from "@/components/ui/sheet";
 
 import {
-  Menu,
   LayoutDashboard,
   UserRoundPen,
   LogOut,
@@ -36,11 +38,16 @@ import {
   Gauge,
   Headset,
   House,
+  Sun,
+  Moon,
+  PanelLeftOpen,
+  PanelRightOpen,
 } from "lucide-react";
 
 import Image from "next/image";
 
 export default function Navbar() {
+  const t = useTranslations("common");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -48,6 +55,9 @@ export default function Navbar() {
 
   const router = useRouter();
   const pathname = usePathname();
+  const { isRTL } = useLanguage();
+  const { setTheme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   // ✅ compute this early, but DON'T return yet (hooks must run first)
   const hideNavbar =
@@ -55,7 +65,9 @@ export default function Navbar() {
     pathname === "/dashboard" ||
     pathname?.startsWith("/dashboard/admin") ||
     pathname?.startsWith("/dashboard/owner") ||
-    pathname?.startsWith("/dashboard/customer");
+    pathname?.startsWith("/dashboard/customer") ||
+    pathname?.startsWith("/dashboard/kitchen") ||
+    pathname?.startsWith("/dashboard/waiter");
 
   useEffect(() => {
     // ✅ if navbar is hidden, don't do auth/profile loading
@@ -65,7 +77,7 @@ export default function Navbar() {
   }, [hideNavbar, pathname]);
 
   async function loadUser() {
-    const { user: currentUser } = await getCurrentUser();
+    const { user: currentUser } = await getSessionUser();
 
     if (currentUser) {
       setUser(currentUser);
@@ -111,6 +123,15 @@ export default function Navbar() {
     return "/dashboard/customer";
   };
 
+  const roleLabels = {
+    admin: t("roleLabels.admin"),
+    owner: t("roleLabels.owner"),
+    customer: t("roleLabels.customer"),
+    kitchen: t("roleLabels.kitchen"),
+    waiter: t("roleLabels.waiter"),
+  };
+  const getRoleLabel = () => roleLabels[profile?.role] || profile?.role;
+
   // ✅ safe to return AFTER hooks
   if (hideNavbar) return null;
 
@@ -120,11 +141,6 @@ export default function Navbar() {
     if (href === "/") return pathname === "/";
     return pathname === href || pathname.startsWith(href + "/");
   };
-
-  const mobileLinkClass = (active = false) =>
-    `flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors ${
-      active ? "bg-primary/10 text-primary" : "hover:bg-accent"
-    }`;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -144,7 +160,7 @@ export default function Navbar() {
                 href="/about"
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
-                About
+                {t("nav.about")}
               </Link>
             </p>
             <p>
@@ -152,7 +168,7 @@ export default function Navbar() {
                 href="/#how-it-works"
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
-                How It Works
+                {t("nav.howItWorks")}
               </Link>
             </p>
             <p>
@@ -160,7 +176,7 @@ export default function Navbar() {
                 href="/restaurants"
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
-                Restaurants
+                {t("nav.restaurants")}
               </Link>
             </p>
             <p>
@@ -168,7 +184,7 @@ export default function Navbar() {
                 href="/contact"
                 className="text-md font-semibold hover:text-primary transition-colors"
               >
-                Contact
+                {t("nav.contact")}
               </Link>
             </p>
           </div>
@@ -176,6 +192,8 @@ export default function Navbar() {
 
         {/* Desktop Right */}
         <div className="hidden md:flex items-center gap-3">
+          <LanguageSwitcher />
+
           {user && profile ? (
             <DropdownMenu >
               <DropdownMenuTrigger asChild className="cursor-pointer">
@@ -188,13 +206,13 @@ export default function Navbar() {
 
                   <div className="flex flex-col items-start leading-tight">
                     <span className="text-sm font-medium">
-                      {profile.full_name || "User"}
+                      {profile.full_name || t("defaultUserName")}
                     </span>
                     <Badge
                       variant="secondary"
                       className="text-white text-xs h-4 px-1 bg-primary pb-1"
                     >
-                      {profile.role}
+                      {getRoleLabel()}
                     </Badge>
                   </div>
                 </Button>
@@ -203,10 +221,10 @@ export default function Navbar() {
               <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuItem asChild>
                   <Link href={getDashboardLink()} className="cursor-pointer">
-                    <span className="mr-1">
+                    <span className="me-1">
                       <LayoutDashboard color="#00c951" size={20} />
                     </span>
-                    Dashboard
+                    {t("userMenu.dashboard")}
                   </Link>
                 </DropdownMenuItem>
 
@@ -216,10 +234,10 @@ export default function Navbar() {
                       href="/dashboard/customer/request-restaurant"
                       className="cursor-pointer"
                     >
-                      <span className="mr-1">
+                      <span className="me-1">
                         <ShieldUser color="#00c951" size={20} />
                       </span>
-                      Request Owner Access
+                      {t("userMenu.requestOwnerAccess")}
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -229,10 +247,10 @@ export default function Navbar() {
                     href="/dashboard/customer/edit-profile"
                     className="cursor-pointer"
                   >
-                    <span className="mr-1">
+                    <span className="me-1">
                       <UserRoundPen color="#00c951" size={20} />
                     </span>
-                    Edit Profile
+                    {t("userMenu.editProfile")}
                   </Link>
                 </DropdownMenuItem>
 
@@ -240,16 +258,16 @@ export default function Navbar() {
                   onClick={handleLogout}
                   className="cursor-pointer"
                 >
-                  <span className="mr-2">
-                    <LogOut color="#00c951" size={20} />
+                  <span className="me-2">
+                    <LogOut color="#00c951" size={20} className="rtl:-scale-x-100" />
                   </span>
-                  Logout
+                  {t("userMenu.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button asChild>
-              <Link href="/auth/login">Login / Sign Up</Link>
+              <Link href="/auth/login">{t("guest.loginSignup")}</Link>
             </Button>
           )}
         </div>
@@ -258,64 +276,178 @@ export default function Navbar() {
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open menu">
-                <Menu className="!h-6 !w-6" color="#00c951" />
-              </Button>
+              <button
+                type="button"
+                aria-label={t("openMenu")}
+                className="relative flex items-center justify-center w-10 h-10 text-white transition-colors rounded-full shadow-theme-xs bg-gradient-to-br from-primary to-green-600 hover:opacity-90"
+              >
+                {isRTL ? (
+                  <PanelRightOpen className="size-5" />
+                ) : (
+                  <PanelLeftOpen className="size-5" />
+                )}
+              </button>
             </SheetTrigger>
 
             {/* ✅ IMPORTANT: SheetContent must stay INSIDE Sheet */}
+            {/* Same slide-in side, width and color scheme as the dashboard
+                sidebar's mobile panel (components/dashboard/shared/DashboardSidebar.js):
+                it opens from the start edge (left in LTR, right in RTL), not
+                the trailing edge a Sheet defaults to. */}
             <SheetContent
-              side="right"
-              className="w-[320px] sm:w-[380px] p-0 flex flex-col"
+              side={isRTL ? "right" : "left"}
+              className="w-[290px] p-0 flex flex-col bg-white border-gray-200 text-gray-900 dark:bg-gray-900 dark:border-gray-800 dark:text-white"
             >
-              {/* Top Header (delivery app style) */}
-              <div className="px-4 pt-4">
-                <SheetHeader className="space-y-0">
-                  <SheetTitle className="flex items-center gap-2">
-                    <span className="text-2xl">
-                      <Pizza size={32} color="#00c951" />
-                    </span>
-                    <div className="leading-tight">
-                      <p className="font-bold text-base ">ScanEat</p>
-                      <p className="text-xs text-muted-foreground">QR Menu</p>
-                    </div>
-                  </SheetTitle>
-                </SheetHeader>
+              <SheetHeader className="sr-only">
+                <SheetTitle>ScanEat — {t("brand.tagline")}</SheetTitle>
+              </SheetHeader>
+
+              {/* Logo header */}
+              <div className="px-5 py-8">
+                <Link href="/" onClick={() => setMobileOpen(false)}>
+                  <Image src="/logo.svg" alt="ScanEat Logo" width={140} height={38} priority />
+                </Link>
               </div>
 
-              {/* Scroll area */}
-              <div className="flex-1 overflow-auto px-4 pb-4">
-                {/* User card */}
+              {/* Scrollable nav links */}
+              <div className="flex-1 overflow-y-auto px-5 no-scrollbar">
+                <ul className="flex flex-col gap-1">
+                  <li>
+                    <Link
+                      href="/about"
+                      onClick={() => setMobileOpen(false)}
+                      className={`menu-item ${isActive("/about") ? "menu-item-active" : "menu-item-inactive"}`}
+                    >
+                      <House className="size-5" />
+                      {t("nav.about")}
+                    </Link>
+                  </li>
+
+                  <li>
+                    <Link
+                      href="/restaurants"
+                      onClick={() => setMobileOpen(false)}
+                      className={`menu-item ${isActive("/restaurants") ? "menu-item-active" : "menu-item-inactive"}`}
+                    >
+                      <Pizza className="size-5" />
+                      {t("nav.restaurants")}
+                    </Link>
+                  </li>
+
+                  <li>
+                    <Link
+                      href="/#how-it-works"
+                      onClick={() => setMobileOpen(false)}
+                      className="menu-item menu-item-inactive"
+                    >
+                      <Gauge className="size-5" />
+                      {t("nav.howItWorks")}
+                    </Link>
+                  </li>
+
+                  <li>
+                    <Link
+                      href="/contact"
+                      onClick={() => setMobileOpen(false)}
+                      className={`menu-item ${isActive("/contact") ? "menu-item-active" : "menu-item-inactive"}`}
+                    >
+                      <Headset className="size-5" />
+                      {t("nav.contact")}
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Language switcher, theme toggle & user menu — pinned to the
+                  bottom, identical markup/colors to the dashboard sidebar's
+                  mobile panel. */}
+              <div className="shrink-0 border-t border-gray-200 px-5 py-4 dark:border-gray-800">
+                <div className="flex items-center gap-3 pb-4">
+                  <LanguageSwitcher variant="icon" />
+                  <button
+                    type="button"
+                    onClick={() => setTheme(isDark ? "light" : "dark")}
+                    className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-gray-700 h-11 w-11 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                    aria-label={t("toggleDarkMode")}
+                  >
+                    {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
+                  </button>
+                </div>
+
                 {user && profile ? (
-                  <div className="rounded-xl border p-4 mb-4 bg-muted/30">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12">
-                        <AvatarFallback className="bg-gradient-to-br from-primary to-green-500 text-white text-sm">
+                  <>
+                    <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-3 dark:border-gray-800">
+                      <Avatar className="h-10 w-10 shrink-0">
+                        <AvatarFallback className="bg-brand-50 text-brand-600 font-semibold dark:bg-brand-500/15 dark:text-brand-400">
                           {getInitials()}
                         </AvatarFallback>
                       </Avatar>
 
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold truncate text-sm">
-                          {profile.full_name || "User"}
+                        <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+                          {profile.full_name || t("defaultUserName")}
                         </p>
-                        <p className="text-xs text-muted-foreground truncate">
+                        <p className="truncate text-xs text-gray-500 dark:text-gray-400">
                           {user.email}
                         </p>
-
-                        <div className="mt-2">
-                          <Badge className="bg-primary text-white text-xs rounded-full px-2 py-0.5">
-                            {profile.role}
-                          </Badge>
-                        </div>
                       </div>
                     </div>
-                  </div>
+
+                    <ul className="flex flex-col gap-1 mt-3">
+                      <li>
+                        <Link
+                          href={getDashboardLink()}
+                          onClick={() => setMobileOpen(false)}
+                          className={`menu-item ${isActive("/dashboard") ? "menu-item-active" : "menu-item-inactive"}`}
+                        >
+                          <LayoutDashboard className="size-5" />
+                          {t("userMenu.dashboard")}
+                        </Link>
+                      </li>
+
+                      <li>
+                        <Link
+                          href="/dashboard/customer/edit-profile"
+                          onClick={() => setMobileOpen(false)}
+                          className={`menu-item ${isActive("/dashboard/customer/edit-profile") ? "menu-item-active" : "menu-item-inactive"}`}
+                        >
+                          <UserRoundPen className="size-5" />
+                          {t("userMenu.editProfile")}
+                        </Link>
+                      </li>
+
+                      {profile.role === "customer" && (
+                        <li>
+                          <Link
+                            href="/dashboard/request-restaurant"
+                            onClick={() => setMobileOpen(false)}
+                            className={`menu-item ${isActive("/dashboard/request-restaurant") ? "menu-item-active" : "menu-item-inactive"}`}
+                          >
+                            <ShieldUser className="size-5" />
+                            {t("userMenu.requestOwnerAccess")}
+                          </Link>
+                        </li>
+                      )}
+
+                      <li>
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="menu-item menu-item-inactive w-full cursor-pointer"
+                        >
+                          <LogOut className="size-5 rtl:-scale-x-100" />
+                          {t("userMenu.logout")}
+                        </button>
+                      </li>
+                    </ul>
+                  </>
                 ) : (
-                  <div className="rounded-2xl border p-4 mb-4 bg-muted/30">
-                    <p className="text-sm font-semibold">Welcome 👋</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Login to save favorites and access your dashboard.
+                  <div className="rounded-2xl border border-gray-200 p-4 dark:border-gray-800">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {t("guest.welcomeTitle")}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {t("guest.welcomeSubtitle")}
                     </p>
 
                     <Button
@@ -326,105 +458,12 @@ export default function Navbar() {
                         href="/auth/login"
                         onClick={() => setMobileOpen(false)}
                       >
-                        Login / Sign Up
+                        {t("guest.loginSignup")}
                       </Link>
                     </Button>
                   </div>
                 )}
-
-                {/* Links */}
-                <div className="space-y-1">
-                  {user && profile && (
-                    <>
-                      {/* <Separator className="my-3" /> */}
-
-                      <Link
-                        href={getDashboardLink()}
-                        onClick={() => setMobileOpen(false)}
-                        className={mobileLinkClass(isActive("/dashboard"))}
-                      >
-                        <LayoutDashboard className="h-5 w-5 text-primary" />
-                        Dashboard
-                      </Link>
-
-                      <Link
-                        href="/dashboard/customer/edit-profile"
-                        onClick={() => setMobileOpen(false)}
-                        className={mobileLinkClass(
-                          isActive("/dashboard/customer/edit-profile"),
-                        )}
-                      >
-                        <UserRoundPen className="h-5 w-5 text-primary" />
-                        Edit Profile
-                      </Link>
-
-                      {profile.role === "customer" && (
-                        <Link
-                          href="/dashboard/request-restaurant"
-                          onClick={() => setMobileOpen(false)}
-                          className={mobileLinkClass(
-                            isActive("/dashboard/request-restaurant"),
-                          )}
-                        >
-                          <ShieldUser className="h-5 w-5 text-primary" />
-                          Request Owner Access
-                        </Link>
-                      )}
-                    </>
-                  )}
-                  <Link
-                    href="/about"
-                    onClick={() => setMobileOpen(false)}
-                    className={mobileLinkClass(isActive("/about"))}
-                  >
-                    <House className="h-5 w-5 text-primary" />
-                    About
-                  </Link>
-
-                  <Link
-                    href="/restaurants"
-                    onClick={() => setMobileOpen(false)}
-                    className={mobileLinkClass(isActive("/restaurants"))}
-                  >
-                    <Pizza className="h-5 w-5 text-primary" />
-                    Restaurants
-                  </Link>
-
-                  <Link
-                    href="/#how-it-works"
-                    onClick={() => setMobileOpen(false)}
-                    className={mobileLinkClass(false)}
-                  >
-                    <span className="text-lg">
-                      <Gauge color="#00c951" size={20} />
-                    </span>
-                    How It Works
-                  </Link>
-
-                  <Link
-                    href="/contact"
-                    onClick={() => setMobileOpen(false)}
-                    className={mobileLinkClass(isActive("/restaurants"))}
-                  >
-                    <Headset className="h-5 w-5 text-primary" />
-                    Contact
-                  </Link>
-                </div>
               </div>
-
-              {/* Bottom action */}
-              {user && profile && (
-                <div className="p-3 border-t mb-4">
-                  <Button
-                    variant="destructive"
-                    className="w-full rounded-xl bg-primary"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </Button>
-                </div>
-              )}
             </SheetContent>
           </Sheet>
         </div>

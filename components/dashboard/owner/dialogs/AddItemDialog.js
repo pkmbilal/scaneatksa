@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 
 import {
@@ -15,6 +16,7 @@ import {
 import AddItemForm from "@/components/dashboard/owner/forms/AddItemForm";
 
 export default function AddItemDialog({ restaurantId, categories, onAdded }) {
+  const t = useTranslations("dashboard.owner");
   const [open, setOpen] = useState(false);
 
   return (
@@ -25,14 +27,14 @@ export default function AddItemDialog({ restaurantId, categories, onAdded }) {
           className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
-          Add Item
+          {t("addItemDialog.trigger")}
         </button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add Menu Item</DialogTitle>
-          <DialogDesc>Create a new item. You can mark it sold out anytime.</DialogDesc>
+          <DialogTitle>{t("addItemDialog.title")}</DialogTitle>
+          <DialogDesc>{t("addItemDialog.description")}</DialogDesc>
         </DialogHeader>
 
         <AddItemForm

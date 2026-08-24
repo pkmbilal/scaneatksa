@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "about": "من نحن",
+    "howItWorks": "كيف يعمل",
+    "restaurants": "المطاعم",
+    "contact": "تواصل معنا"
+  },
+  "brand": {
+    "tagline": "قائمة عبر QR"
+  },
+  "userMenu": {
+    "dashboard": "لوحة التحكم",
+    "requestOwnerAccess": "طلب صلاحية مالك",
+    "editProfile": "تعديل الملف الشخصي",
+    "logout": "تسجيل الخروج"
+  },
+  "guest": {
+    "welcomeTitle": "مرحبًا 👋",
+    "welcomeSubtitle": "سجّل الدخول لحفظ المفضلة والوصول إلى لوحة التحكم.",
+    "loginSignup": "تسجيل الدخول / إنشاء حساب"
+  },
+  "defaultUserName": "مستخدم",
+  "roleLabels": {
+    "admin": "مسؤول",
+    "owner": "مالك",
+    "customer": "عميل",
+    "kitchen": "المطبخ",
+    "waiter": "النادل"
+  },
+  "openMenu": "فتح القائمة",
+  "toggleDarkMode": "تبديل الوضع الداكن"
+}
