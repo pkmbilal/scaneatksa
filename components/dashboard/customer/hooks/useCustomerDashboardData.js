@@ -8,6 +8,7 @@ import {
   getUserFavorites,
   getUserRequests,
   getUserOrders,
+  getUserReviews,
 } from '@/lib/auth/client'
 import { supabaseBrowser } from '@/lib/supabase/client'
 
@@ -19,6 +20,7 @@ export function useCustomerDashboardData() {
   const [favorites, setFavorites] = useState([])
   const [requests, setRequests] = useState([])
   const [orders, setOrders] = useState([])
+  const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
 
   const refreshFavorites = useCallback(
@@ -66,6 +68,21 @@ export function useCustomerDashboardData() {
     [user?.id]
   )
 
+  const refreshReviews = useCallback(
+    async (uid) => {
+      const userId = uid || user?.id
+      if (!userId) return
+
+      const { data, error } = await getUserReviews(userId)
+      if (error) {
+        console.error('getUserReviews error:', error)
+        return
+      }
+      setReviews(Array.isArray(data) ? data : [])
+    },
+    [user?.id]
+  )
+
   useEffect(() => {
     let mounted = true
 
@@ -92,16 +109,19 @@ export function useCustomerDashboardData() {
         return
       }
 
-      const [{ data: userFavorites }, { data: userRequests }, { data: userOrders }] = await Promise.all([
-        getUserFavorites(currentUser.id),
-        getUserRequests(currentUser.id),
-        getUserOrders(currentUser.id),
-      ])
+      const [{ data: userFavorites }, { data: userRequests }, { data: userOrders }, { data: userReviews }] =
+        await Promise.all([
+          getUserFavorites(currentUser.id),
+          getUserRequests(currentUser.id),
+          getUserOrders(currentUser.id),
+          getUserReviews(currentUser.id),
+        ])
 
       if (!mounted) return
       setFavorites(Array.isArray(userFavorites) ? userFavorites : [])
       setRequests(Array.isArray(userRequests) ? userRequests : [])
       setOrders(Array.isArray(userOrders) ? userOrders : [])
+      setReviews(Array.isArray(userReviews) ? userReviews : [])
       setLoading(false)
     }
 
@@ -117,10 +137,11 @@ export function useCustomerDashboardData() {
       refreshFavorites()
       refreshRequests()
       refreshOrders()
+      refreshReviews()
     }
     window.addEventListener('focus', onFocus)
     return () => window.removeEventListener('focus', onFocus)
-  }, [refreshFavorites, refreshRequests, refreshOrders])
+  }, [refreshFavorites, refreshRequests, refreshOrders, refreshReviews])
 
   // ✅ live order status updates (kitchen/waiter/owner changing `orders.status`)
   // via Supabase Realtime, so the progress line updates without a refocus/refresh.
@@ -164,6 +185,19 @@ export function useCustomerDashboardData() {
     return () => window.removeEventListener('favorites:changed', onChanged)
   }, [refreshFavorites, user?.id])
 
+  // ✅ refresh when a review is submitted/edited (OrdersTab dispatches it,
+  // mirroring how FavoriteButton dispatches favorites:changed)
+  useEffect(() => {
+    const onChanged = (e) => {
+      const eventUserId = e?.detail?.userId
+      if (eventUserId && user?.id && eventUserId !== user.id) return
+      refreshReviews()
+    }
+
+    window.addEventListener('reviews:changed', onChanged)
+    return () => window.removeEventListener('reviews:changed', onChanged)
+  }, [refreshReviews, user?.id])
+
   return {
     user,
     profile,
@@ -176,6 +210,9 @@ export function useCustomerDashboardData() {
     orders,
     setOrders,
     refreshOrders, // ✅ exported if you want manual refresh
+    reviews,
+    setReviews,
+    refreshReviews, // ✅ exported if you want manual refresh
     loading,
   }
 }

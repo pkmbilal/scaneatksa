@@ -29,6 +29,7 @@
   },
   "card": {
     "noAddress": "لا يوجد عنوان",
-    "cityNotSet": "المدينة غير محددة"
+    "cityNotSet": "المدينة غير محددة",
+    "noRating": "جديد"
   }
 }

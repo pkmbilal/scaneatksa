@@ -29,6 +29,7 @@ export default function CustomerDashboardPage() {
     setFavorites,
     requests,
     orders,
+    reviews,
     loading,
   } = useCustomerDashboardData()
 
@@ -141,7 +142,7 @@ export default function CustomerDashboardPage() {
           <TabSectionHeader title={tabTitles[activeTab]} description={tabDescriptions[activeTab]} />
 
           {activeTab === 'orders' ? (
-            <OrdersTab orders={orders} />
+            <OrdersTab orders={orders} reviews={reviews} userId={user?.id} />
           ) : (
             <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
               <div className="p-6">

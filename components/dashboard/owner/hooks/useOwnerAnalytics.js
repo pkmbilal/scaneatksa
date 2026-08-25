@@ -15,9 +15,8 @@
 // non-cancelled status instead, so the owner still sees live activity.
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import { CHANNEL_META } from "@/lib/orderStatus";
+import { CHANNEL_META, REVENUE_STATUSES } from "@/lib/orderStatus";
 
-const REVENUE_STATUSES = ["delivered", "completed"];
 const CHANNEL_ORDER = Object.keys(CHANNEL_META); // fixed categorical order: dine_in, delivery, pickup
 
 export const RANGE_OPTIONS = ["today", "last7", "last30", "thisMonth"];
