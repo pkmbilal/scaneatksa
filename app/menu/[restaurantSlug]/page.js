@@ -8,18 +8,51 @@ import FavoriteButton from "@/components/FavoriteButton";
 import TableCodePersist from "@/components/TableCodePersist";
 import StarRating from "@/components/reviews/StarRating";
 import RestaurantReviewsSection from "@/components/reviews/RestaurantReviewsSection";
-import { Phone } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Phone, MapPin, Truck, ShoppingBag, UtensilsCrossed, Navigation } from "lucide-react";
 
-function Pill({ children, className = "" }) {
+// Meta-row chip. `variant="accent"` is reserved for facts that are actually
+// true right now (delivery/pickup availability) so the brand-green accent
+// stays a signal, not decoration, next to the neutral glass chips.
+function Chip({ icon: Icon, children, variant = "default" }) {
+  const variants = {
+    default: "border-white/15 bg-white/10 text-white/90",
+    accent: "border-emerald-300/40 bg-emerald-500/20 text-emerald-50",
+  };
   return (
     <span
       className={[
-        "inline-flex items-center rounded-full border px-3 py-1 text-xs md:text-sm font-semibold",
-        "border-white/20 bg-black/30 text-white backdrop-blur",
-        className,
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur-md md:text-sm",
+        variants[variant] || variants.default,
       ].join(" ")}
     >
+      {Icon && <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
       {children}
+    </span>
+  );
+}
+
+// There's no restaurant logo field, only the single cover `image_url`, so we
+// build a brand-toned initial badge instead -- same initials pattern
+// ReviewCard already uses for reviewer avatars, just with a brand fill.
+function initialFor(name) {
+  return (name || "").trim().charAt(0).toUpperCase() || "R";
+}
+
+// 1-4 tier price indicator built from `price_level`. Bars instead of "$"
+// signs on purpose -- this is a SAR-priced app, repeated dollar signs read
+// oddly next to SAR prices.
+function PriceBars({ level, label }) {
+  if (!level) return null;
+  return (
+    <span className="inline-flex items-end gap-0.5" role="img" aria-label={label}>
+      {[1, 2, 3, 4].map((bar) => (
+        <span
+          key={bar}
+          className={`block w-1 rounded-full ${bar <= level ? "bg-emerald-400" : "bg-white/25"}`}
+          style={{ height: `${5 + bar * 3}px` }}
+        />
+      ))}
     </span>
   );
 }
@@ -124,6 +157,8 @@ export default async function MenuPage({ params, searchParams }) {
   const cuisinePills =
     restaurant?.restaurant_cuisines?.map((rc) => rc?.cuisine?.name).filter(Boolean) || [];
 
+  const priceTier = Math.max(0, Math.min(4, Number(restaurant.price_level) || 0));
+
   return (
     <div className="min-h-screen">
       <TableCodePersist restaurantSlug={restaurantSlug} />
@@ -136,83 +171,132 @@ export default async function MenuPage({ params, searchParams }) {
             style={{ backgroundImage: `url(${restaurant.image_url})` }}
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-700" />
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-green-600 to-emerald-900">
+            <div className="absolute -top-16 start-1/4 h-64 w-64 rounded-full bg-white/10 blur-3xl animate-blob" />
+            <div className="absolute bottom-0 end-0 h-72 w-72 rounded-full bg-emerald-300/10 blur-3xl animate-blob animation-delay-2000" />
+          </div>
         )}
 
-        <div className="absolute inset-0 bg-black/55" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/60" />
+        {/* Scrim tuned for legibility against arbitrary uploaded photos */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent" />
+
+        {/* Favorite -- overlaid top-end on the cover, same corner convention RestaurantCard uses on the listing page */}
+        <div className="absolute top-4 end-4 z-20 md:top-6 md:end-6">
+          <FavoriteButton restaurantId={restaurant.id} />
+        </div>
 
         <div className="relative">
-          <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
+          <div className="max-w-7xl mx-auto px-4 py-10 md:py-16 lg:py-20">
             <div className="max-w-3xl">
-              <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md px-5 py-5 md:px-7 md:py-7 shadow-xl">
-                <h1 className="text-3xl md:text-5xl font-bold leading-tight">
-                  {restaurant.name}
-                </h1>
+              <div className="rounded-3xl border border-white/15 bg-white/10 backdrop-blur-xl px-5 py-6 shadow-2xl shadow-black/40 md:px-8 md:py-8">
+                {/* Identity */}
+                <div className="flex items-center gap-4">
+                  <Avatar className="size-14 border-2 border-white/25 shadow-lg md:size-16">
+                    <AvatarFallback className="bg-gradient-to-br from-emerald-400 to-green-600 text-lg font-bold text-white md:text-2xl">
+                      {initialFor(restaurant.name)}
+                    </AvatarFallback>
+                  </Avatar>
 
-                <div className="mt-2">
-                  {ratingSummary?.avg_rating != null ? (
-                    <StarRating
-                      value={ratingSummary.avg_rating}
-                      reviewCount={ratingSummary.review_count}
-                      showValue
-                      size="sm"
-                      className="text-white"
-                    />
-                  ) : (
-                    <span className="text-sm text-white/70">{t("header.noReviews")}</span>
-                  )}
+                  <div className="min-w-0">
+                    <h1 className="text-2xl font-bold leading-tight tracking-tight md:text-4xl lg:text-5xl">
+                      {restaurant.name}
+                    </h1>
+
+                    <div className="mt-1.5">
+                      {ratingSummary?.avg_rating != null ? (
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <StarRating
+                            value={ratingSummary.avg_rating}
+                            reviewCount={ratingSummary.review_count}
+                            showValue
+                            size="sm"
+                            className="text-white"
+                          />
+                          <a
+                            href="#reviews"
+                            className="text-xs font-medium text-white/70 underline decoration-white/30 underline-offset-2 transition hover:text-white md:text-sm"
+                          >
+                            {t("header.seeReviews")}
+                          </a>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-white/70">{t("header.noReviews")}</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Pill className="bg-emerald-500/25 border-emerald-300/30">🟢 {t("header.openNow")}</Pill>
+                {/* Meta chips */}
+                <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-5">
+                  {cityName && <Chip icon={MapPin}>{cityName}</Chip>}
 
-                  {cityName && <Pill className="bg-white/10">📍 {cityName}</Pill>}
+                  {priceTier > 0 && (
+                    <Chip>
+                      <PriceBars level={priceTier} label={t("header.priceLevel", { level: priceTier })} />
+                    </Chip>
+                  )}
 
-                  {restaurant.delivery_available && <Pill className="bg-white/10">🚚 {t("header.delivery")}</Pill>}
-                  {restaurant.pickup_available && <Pill className="bg-white/10">🧍 {t("header.pickup")}</Pill>}
+                  {restaurant.delivery_available && (
+                    <Chip icon={Truck} variant="accent">{t("header.delivery")}</Chip>
+                  )}
+                  {restaurant.pickup_available && (
+                    <Chip icon={ShoppingBag} variant="accent">{t("header.pickup")}</Chip>
+                  )}
 
                   {cuisinePills.slice(0, 8).map((c) => (
-                    <Pill key={c} className="bg-white/10">
-                      🍽️ {c}
-                    </Pill>
+                    <Chip key={c} icon={UtensilsCrossed}>{c}</Chip>
                   ))}
-
-                  {cuisinePills.length === 0 && <Pill className="bg-white/10">🍽️ {t("header.multiCuisine")}</Pill>}
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  {restaurant.address && (
-                    <p className="text-white/90 text-base md:text-lg flex items-start gap-2">
-                      <span className="mt-0.5">📍</span>
-                      <span className="leading-snug">{restaurant.address}</span>
-                    </p>
-                  )}
-
-                  {restaurant.phone && (
-                    <p className="text-white/95 text-base md:text-lg flex items-center gap-2">
-                      <Phone size={18} className="shrink-0" />
-                      <span>{restaurant.phone}</span>
-                    </p>
+                  {cuisinePills.length === 0 && (
+                    <Chip icon={UtensilsCrossed}>{t("header.multiCuisine")}</Chip>
                   )}
                 </div>
 
-                <div className="mt-5 flex flex-wrap items-center gap-3">
-                  <FavoriteButton restaurantId={restaurant.id} />
+                {/* Contact */}
+                {(restaurant.address || restaurant.phone) && (
+                  <div className="mt-5 space-y-2 border-t border-white/10 pt-5">
+                    {restaurant.address && (
+                      <p className="flex items-start gap-2 text-sm leading-snug text-white/85 md:text-base">
+                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-white/60" aria-hidden="true" />
+                        <span>{restaurant.address}</span>
+                      </p>
+                    )}
 
+                    {restaurant.phone && (
+                      <p className="flex items-center gap-2 text-sm text-white/90 md:text-base">
+                        <Phone className="h-4 w-4 shrink-0 text-white/60" aria-hidden="true" />
+                        {/* dir="ltr" keeps digits/+ from bidi-scrambling under the Arabic locale */}
+                        <span dir="ltr">{restaurant.phone}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="mt-6 flex flex-wrap items-center gap-3">
                   {restaurant.phone && (
                     <a
                       href={`tel:${restaurant.phone}`}
-                      className="w-fit rounded-xl bg-white/10 border border-white/20 px-4 py-2 font-semibold hover:bg-white/15 transition flex items-center gap-2"
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#00c951] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/40 transition hover:bg-green-600 md:text-base"
                     >
                       <Phone size={16} />
                       {t("header.call")}
                     </a>
                   )}
+
+                  {restaurant.address && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15 md:text-base"
+                    >
+                      <Navigation size={16} />
+                      {t("header.directions")}
+                    </a>
+                  )}
                 </div>
               </div>
-
-              <div className="h-6" />
             </div>
           </div>
         </div>

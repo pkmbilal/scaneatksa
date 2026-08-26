@@ -10,7 +10,7 @@ export default async function RestaurantReviewsSection({ reviews }) {
   const t = await getTranslations("menu");
 
   return (
-    <div className="mt-10">
+    <section id="reviews" className="mt-10">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white/90">{t("header.reviewsSection.title")}</h2>
 
       {!reviews?.length ? (
@@ -22,6 +22,6 @@ export default async function RestaurantReviewsSection({ reviews }) {
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }

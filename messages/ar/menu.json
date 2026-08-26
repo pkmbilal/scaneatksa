@@ -8,9 +8,12 @@
     "openNow": "مفتوح الآن",
     "delivery": "توصيل",
     "pickup": "استلام",
+    "priceLevel": "مستوى السعر {level} من 4",
     "multiCuisine": "مطابخ متعددة",
     "call": "اتصال",
+    "directions": "الاتجاهات",
     "noReviews": "لا توجد تقييمات بعد",
+    "seeReviews": "عرض جميع التقييمات",
     "reviewsSection": {
       "title": "التقييمات",
       "empty": "لا توجد تقييمات بعد. كن أول من يطلب ويترك تقييمًا!"

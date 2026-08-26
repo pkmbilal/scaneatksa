@@ -8,9 +8,12 @@
     "openNow": "Open now",
     "delivery": "Delivery",
     "pickup": "Pickup",
+    "priceLevel": "Price level {level} of 4",
     "multiCuisine": "Multi-cuisine",
     "call": "Call",
+    "directions": "Directions",
     "noReviews": "No reviews yet",
+    "seeReviews": "See all reviews",
     "reviewsSection": {
       "title": "Reviews",
       "empty": "No reviews yet. Be the first to order and leave one!"
