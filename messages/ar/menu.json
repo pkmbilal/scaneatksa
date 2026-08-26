@@ -9,7 +9,17 @@
     "delivery": "توصيل",
     "pickup": "استلام",
     "multiCuisine": "مطابخ متعددة",
-    "call": "اتصال"
+    "call": "اتصال",
+    "noReviews": "لا توجد تقييمات بعد",
+    "reviewsSection": {
+      "title": "التقييمات",
+      "empty": "لا توجد تقييمات بعد. كن أول من يطلب ويترك تقييمًا!"
+    }
+  },
+  "reviews": {
+    "anonymous": "أحد العملاء",
+    "ownerReply": "رد المطعم",
+    "forItem": "عن: {name}"
   },
   "uncategorized": "غير مصنف",
   "search": {

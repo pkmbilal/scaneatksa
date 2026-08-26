@@ -9,7 +9,17 @@
     "delivery": "Delivery",
     "pickup": "Pickup",
     "multiCuisine": "Multi-cuisine",
-    "call": "Call"
+    "call": "Call",
+    "noReviews": "No reviews yet",
+    "reviewsSection": {
+      "title": "Reviews",
+      "empty": "No reviews yet. Be the first to order and leave one!"
+    }
+  },
+  "reviews": {
+    "anonymous": "A customer",
+    "ownerReply": "Owner's reply",
+    "forItem": "For: {name}"
   },
   "uncategorized": "Uncategorized",
   "search": {

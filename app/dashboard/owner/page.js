@@ -33,6 +33,7 @@ import {
   Pencil,
   RefreshCw,
   BarChart3,
+  Star,
 } from "lucide-react";
 
 import { DashboardSidebarProvider } from "@/context/DashboardSidebarContext";
@@ -54,6 +55,8 @@ import StaffTab from "@/components/dashboard/owner/tabs/StaffTab";
 import AnalyticsTab from "@/components/dashboard/owner/tabs/AnalyticsTab";
 import AnalyticsDateRangeSelect from "@/components/dashboard/owner/AnalyticsDateRangeSelect";
 import { useOwnerAnalytics } from "@/components/dashboard/owner/hooks/useOwnerAnalytics";
+import ReviewsTab from "@/components/dashboard/owner/tabs/ReviewsTab";
+import { useOwnerReviews } from "@/components/dashboard/owner/hooks/useOwnerReviews";
 import AddItemDialog from "@/components/dashboard/owner/dialogs/AddItemDialog";
 import AddCategoryDialog from "@/components/dashboard/owner/dialogs/AddCategoryDialog";
 import AddTableDialog from "@/components/dashboard/owner/dialogs/AddTableDialog";
@@ -117,6 +120,10 @@ export default function OwnerDashboardPage() {
   // Analytics data/aggregation -- fetched only while the Analytics tab is
   // active, and re-fetched when the selected date range changes.
   const analytics = useOwnerAnalytics(restaurant?.id, { enabled: activeTab === "analytics" });
+
+  // Reviews data -- fetched only while the Reviews tab is active, same lazy
+  // pattern as analytics.
+  const reviews = useOwnerReviews(restaurant?.id, { enabled: activeTab === "reviews" });
 
   async function loadOwnerData() {
     setLoading(true);
@@ -464,6 +471,13 @@ export default function OwnerDashboardPage() {
     { key: "tables", label: t("page.nav.tables"), icon: QrCode },
     { key: "orders", label: t("page.nav.orders"), icon: Receipt, count: newOrdersCount, alert: newOrdersCount > 0 },
     { key: "analytics", label: t("page.nav.analytics"), icon: BarChart3 },
+    {
+      key: "reviews",
+      label: t("page.nav.reviews"),
+      icon: Star,
+      count: reviews.kpis.unrepliedCount,
+      alert: reviews.kpis.unrepliedCount > 0,
+    },
     { key: "staff", label: t("page.nav.staff"), icon: Users, count: staff.length },
     { key: "restaurant", label: t("page.nav.restaurant"), icon: Store },
   ];
@@ -482,6 +496,7 @@ export default function OwnerDashboardPage() {
     tables: t("page.nav.tables"),
     orders: t("page.nav.orders"),
     analytics: t("page.nav.analytics"),
+    reviews: t("page.nav.reviews"),
     staff: t("page.nav.staff"),
     restaurant: t("page.nav.restaurant"),
   };
@@ -493,6 +508,7 @@ export default function OwnerDashboardPage() {
     tables: t("page.tabDescriptions.tables"),
     orders: t("page.tabDescriptions.orders"),
     analytics: t("page.tabDescriptions.analytics"),
+    reviews: t("page.tabDescriptions.reviews"),
     staff: t("page.tabDescriptions.staff"),
     restaurant: t("page.tabDescriptions.restaurant"),
   };
@@ -542,6 +558,18 @@ export default function OwnerDashboardPage() {
           <RefreshCw className="h-4 w-4" />
         </button>
       </div>
+    ),
+    reviews: (
+      <button
+        type="button"
+        onClick={reviews.refresh}
+        disabled={reviews.loading}
+        aria-label={t("page.actions.refreshReviews")}
+        title={t("page.actions.refreshReviews")}
+        className="inline-flex items-center justify-center rounded-lg bg-gray-100 p-2 text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+      >
+        <RefreshCw className="h-4 w-4" />
+      </button>
     ),
     staff: <AddStaffDialog onAdd={addStaffMember} />,
     restaurant: (
@@ -605,6 +633,14 @@ export default function OwnerDashboardPage() {
             />
           ) : activeTab === "analytics" ? (
             <AnalyticsTab analytics={analytics} />
+          ) : activeTab === "reviews" ? (
+            <ReviewsTab
+              reviews={reviews.reviews}
+              itemRatings={reviews.itemRatings}
+              kpis={reviews.kpis}
+              loading={reviews.loading}
+              onReplied={reviews.refresh}
+            />
           ) : activeTab === "staff" ? (
             <StaffTab staff={staff} staffLoading={staffLoading} onToggleActive={toggleStaffActive} />
           ) : (

@@ -77,7 +77,18 @@
     "pickup": "استلام",
     "orderFallback": "طلب",
     "notes": "ملاحظات:",
-    "totalLabel": "الإجمالي: {amount} ر.س"
+    "totalLabel": "الإجمالي: {amount} ر.س",
+    "review": {
+      "rate": "قيّم هذا الطلب",
+      "edit": "تعديل التقييم",
+      "commentPlaceholder": "أخبرنا عن تجربتك (اختياري)…",
+      "rateItemsLabel": "قيّم الأصناف كل على حدة (اختياري)",
+      "submit": "إرسال التقييم",
+      "submitting": "جارٍ الإرسال…",
+      "cancel": "إلغاء",
+      "success": "شكرًا لتقييمك!",
+      "error": "تعذّر إرسال تقييمك. يرجى المحاولة مرة أخرى."
+    }
   },
   "status": {
     "new": "جديد",

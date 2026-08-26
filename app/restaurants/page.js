@@ -98,6 +98,27 @@ export default async function RestaurantsPage({ searchParams }) {
   const { data: restaurants, error } = await restaurantsQuery
   if (error) console.log('Restaurants fetch error:', error)
 
+  // Batched average-rating/review-count lookup (restaurant_rating_summary is
+  // a view over reviews, mirrors the restaurant_menu_flags batching above)
+  // -- one .in(restaurant_id, ids) query instead of one per card.
+  let restaurantsWithRatings = restaurants || []
+  if (restaurantsWithRatings.length > 0) {
+    const { data: ratingSummaries } = await supabase
+      .from('restaurant_rating_summary')
+      .select('restaurant_id, avg_rating, review_count')
+      .in(
+        'restaurant_id',
+        restaurantsWithRatings.map((r) => r.id)
+      )
+
+    const ratingsById = new Map((ratingSummaries || []).map((r) => [r.restaurant_id, r]))
+    restaurantsWithRatings = restaurantsWithRatings.map((r) => ({
+      ...r,
+      avg_rating: ratingsById.get(r.id)?.avg_rating ?? null,
+      review_count: ratingsById.get(r.id)?.review_count ?? 0,
+    }))
+  }
+
   return (
     <section className="pt-4 pb-4 md:py-10 bg-gray-50 h-screen">
       <div className="max-w-7xl mx-auto px-4">
@@ -110,9 +131,9 @@ export default async function RestaurantsPage({ searchParams }) {
           <RestaurantsFilters cities={cities || []} cuisines={cuisines || []} />
         </div>
 
-        {restaurants && restaurants.length > 0 ? (
+        {restaurantsWithRatings.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-            {restaurants.map((restaurant) => (
+            {restaurantsWithRatings.map((restaurant) => (
               <RestaurantCard key={restaurant.id} restaurant={restaurant} />
             ))}
           </div>

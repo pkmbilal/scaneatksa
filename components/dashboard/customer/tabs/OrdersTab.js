@@ -1,10 +1,22 @@
 'use client'
 
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { STATUS_TINTS, CHANNEL_META, channelTint, pillClass } from '@/lib/orderStatus'
+import { toast } from 'sonner'
+import { STATUS_TINTS, CHANNEL_META, channelTint, pillClass, REVENUE_STATUSES } from '@/lib/orderStatus'
+import { submitReview } from '@/lib/auth/client'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import StarRating from '@/components/reviews/StarRating'
 
-export default function OrdersTab({ orders }) {
+export default function OrdersTab({ orders, reviews = [], userId }) {
   const t = useTranslations('dashboard.customer')
+
+  const [reviewingOrderId, setReviewingOrderId] = useState(null)
+  const [formRating, setFormRating] = useState(0)
+  const [formComment, setFormComment] = useState('')
+  const [itemRatings, setItemRatings] = useState({})
+  const [submitting, setSubmitting] = useState(false)
 
   const formatDate = (iso) => {
     try {
@@ -12,6 +24,65 @@ export default function OrdersTab({ orders }) {
     } catch {
       return iso
     }
+  }
+
+  const openReviewForm = (order, restaurantReview, itemReviewsByMenuItemId) => {
+    setReviewingOrderId(order.id)
+    setFormRating(restaurantReview?.rating || 0)
+    setFormComment(restaurantReview?.comment || '')
+    const initialItemRatings = {}
+    for (const [menuItemId, review] of itemReviewsByMenuItemId) {
+      initialItemRatings[menuItemId] = review.rating
+    }
+    setItemRatings(initialItemRatings)
+  }
+
+  const closeReviewForm = () => {
+    setReviewingOrderId(null)
+    setItemRatings({})
+  }
+
+  const setItemRating = (menuItemId, rating) => {
+    setItemRatings((prev) => ({ ...prev, [menuItemId]: rating }))
+  }
+
+  const handleSubmitReview = async (order) => {
+    if (!formRating) return
+    setSubmitting(true)
+
+    const { error } = await submitReview({
+      restaurantId: order.restaurant_id,
+      orderId: order.id,
+      rating: formRating,
+      comment: formComment,
+    })
+
+    let itemError = null
+    if (!error) {
+      const ratedItems = (order.order_items || []).filter((item) => itemRatings[item.menu_item_id] > 0)
+      for (const item of ratedItems) {
+        const { error: err } = await submitReview({
+          restaurantId: order.restaurant_id,
+          orderId: order.id,
+          menuItemId: item.menu_item_id,
+          rating: itemRatings[item.menu_item_id],
+        })
+        if (err) itemError = err
+      }
+    }
+
+    setSubmitting(false)
+
+    if (error || itemError) {
+      toast.error(t('ordersTab.review.error'))
+      if (error) return
+    }
+
+    toast.success(t('ordersTab.review.success'))
+    window.dispatchEvent(
+      new CustomEvent('reviews:changed', { detail: { userId, restaurantId: order.restaurant_id } })
+    )
+    closeReviewForm()
   }
 
   if (!orders?.length) {
@@ -30,6 +101,13 @@ export default function OrdersTab({ orders }) {
             : t('ordersTab.pickup')
         const meta = CHANNEL_META[o.channel] || CHANNEL_META.dine_in
         const ChannelIcon = meta.icon
+
+        const canReview = REVENUE_STATUSES.includes(o.status)
+        const existingReview = reviews.find((r) => r.order_id === o.id && !r.menu_item_id)
+        const itemReviewsByMenuItemId = new Map(
+          reviews.filter((r) => r.order_id === o.id && r.menu_item_id).map((r) => [r.menu_item_id, r])
+        )
+        const isReviewing = reviewingOrderId === o.id
 
         return (
           <div
@@ -60,22 +138,99 @@ export default function OrdersTab({ orders }) {
                 </p>
 
                 {o.order_items?.length > 0 && (
-                  <ul className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-300">
-                    {o.order_items.map((item) => (
-                      <li key={item.id} className="flex justify-between">
-                        <span>
-                          {item.name} × {item.quantity}
-                        </span>
-                        <span>SAR {(Number(item.price) * Number(item.quantity)).toFixed(2)}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <>
+                    {isReviewing && (
+                      <p className="mt-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+                        {t('ordersTab.review.rateItemsLabel')}
+                      </p>
+                    )}
+                    <ul className="mt-1 space-y-1 text-sm text-gray-600 dark:text-gray-300">
+                      {o.order_items.map((item) => {
+                        const itemReview = itemReviewsByMenuItemId.get(item.menu_item_id)
+                        return (
+                          <li key={item.id} className="flex items-center justify-between gap-2">
+                            <span>
+                              {item.name} × {item.quantity}
+                            </span>
+                            <span className="flex items-center gap-2">
+                              <span>SAR {(Number(item.price) * Number(item.quantity)).toFixed(2)}</span>
+                              {isReviewing ? (
+                                <StarRating
+                                  value={itemRatings[item.menu_item_id] || 0}
+                                  mode="input"
+                                  onChange={(v) => setItemRating(item.menu_item_id, v)}
+                                  size="sm"
+                                />
+                              ) : (
+                                itemReview && <StarRating value={itemReview.rating} size="sm" />
+                              )}
+                            </span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </>
                 )}
 
                 {o.notes && (
                   <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
                     <span className="font-semibold text-gray-800 dark:text-white/90">{t('ordersTab.notes')}</span> {o.notes}
                   </p>
+                )}
+
+                {canReview && (
+                  <div className="mt-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+                    {isReviewing ? (
+                      <div className="space-y-2">
+                        <StarRating value={formRating} mode="input" onChange={setFormRating} size="lg" />
+                        <Textarea
+                          value={formComment}
+                          onChange={(e) => setFormComment(e.target.value)}
+                          placeholder={t('ordersTab.review.commentPlaceholder')}
+                          rows={3}
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={submitting || !formRating}
+                            onClick={() => handleSubmitReview(o)}
+                          >
+                            {submitting ? t('ordersTab.review.submitting') : t('ordersTab.review.submit')}
+                          </Button>
+                          <Button type="button" size="sm" variant="ghost" onClick={closeReviewForm}>
+                            {t('ordersTab.review.cancel')}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : existingReview ? (
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <StarRating value={existingReview.rating} size="sm" />
+                          {existingReview.comment && (
+                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{existingReview.comment}</p>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openReviewForm(o, existingReview, itemReviewsByMenuItemId)}
+                        >
+                          {t('ordersTab.review.edit')}
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openReviewForm(o, null, itemReviewsByMenuItemId)}
+                      >
+                        {t('ordersTab.review.rate')}
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

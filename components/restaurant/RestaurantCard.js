@@ -10,8 +10,11 @@ export default async function RestaurantCard({ restaurant }) {
   const { id, slug, name, address, image_url } = restaurant
   const cityName = restaurant?.cities?.name || restaurant?.city || null
 
-  // Optional placeholders
-  const rating = restaurant?.rating ?? "4.6"
+  // avg_rating/review_count come from the batched restaurant_rating_summary
+  // view (merged onto the restaurant row in app/restaurants/page.js) --
+  // there is no rating column on restaurants itself, it's always aggregated
+  // from reviews. null/undefined means no reviews yet.
+  const avgRating = restaurant?.avg_rating ?? null
   const eta = restaurant?.delivery_time ?? "20–35 min"
 
   return (
@@ -47,7 +50,7 @@ export default async function RestaurantCard({ restaurant }) {
                 {/* <div className="hidden sm:flex absolute bottom-3 left-3 right-3 items-center justify-between">
                   <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-gray-900 shadow">
                     <Star className="h-4 w-4" />
-                    {rating}
+                    {avgRating != null ? avgRating.toFixed(1) : t('card.noRating')}
                   </div>
                   <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-gray-900 shadow">
                     <Clock className="h-4 w-4" />
@@ -69,7 +72,7 @@ export default async function RestaurantCard({ restaurant }) {
                   <div className="sm:hidden mt-0.5 flex items-center gap-2 text-xs text-gray-600">
                     <span className="inline-flex items-center gap-1">
                       <Star className="h-3.5 w-3.5 text-gray-700" />
-                      {rating}
+                      {avgRating != null ? avgRating.toFixed(1) : t('card.noRating')}
                     </span>
                     <span className="text-gray-300">•</span>
                     <span className="inline-flex items-center gap-1">

@@ -6,6 +6,8 @@ import MenuClient from "@/components/MenuClient";
 import CartButton from "@/components/CartButton";
 import FavoriteButton from "@/components/FavoriteButton";
 import TableCodePersist from "@/components/TableCodePersist";
+import StarRating from "@/components/reviews/StarRating";
+import RestaurantReviewsSection from "@/components/reviews/RestaurantReviewsSection";
 import { Phone } from "lucide-react";
 
 function Pill({ children, className = "" }) {
@@ -76,10 +78,48 @@ export default async function MenuPage({ params, searchParams }) {
 
   if (itemsError) console.error("menu_items error:", itemsError);
 
+  const cityName = restaurant?.city?.name || "";
+
+  // Rating summary (batched view -- see restaurant_rating_summary migration)
+  // + the review list itself + per-item rating averages, all public-read via
+  // RLS. Queried directly here (server component) rather than through
+  // lib/auth/client.js, which is browser-only.
+  const [
+    { data: ratingSummary },
+    { data: reviews, error: reviewsError },
+    { data: itemRatings },
+  ] = await Promise.all([
+    supabase
+      .from("restaurant_rating_summary")
+      .select("avg_rating, review_count")
+      .eq("restaurant_id", restaurant.id)
+      .maybeSingle(),
+    supabase
+      .from("reviews")
+      .select(
+        `
+        id, rating, comment, created_at, updated_at, user_id, order_id, reviewer_name,
+        review_replies ( id, reply, created_at, updated_at )
+      `
+      )
+      .eq("restaurant_id", restaurant.id)
+      .is("menu_item_id", null)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("menu_item_rating_summary")
+      .select("menu_item_id, avg_rating, review_count")
+      .eq("restaurant_id", restaurant.id),
+  ]);
+
+  if (reviewsError) console.error("reviews error:", reviewsError);
+
+  const itemRatingById = new Map((itemRatings || []).map((r) => [r.menu_item_id, r]));
+
   const menuItems = itemsError
     ? []
-    : (items || []).filter((item) => item.is_available !== false);
-  const cityName = restaurant?.city?.name || "";
+    : (items || [])
+        .filter((item) => item.is_available !== false)
+        .map((item) => ({ ...item, rating: itemRatingById.get(item.id) || null }));
 
   const cuisinePills =
     restaurant?.restaurant_cuisines?.map((rc) => rc?.cuisine?.name).filter(Boolean) || [];
@@ -109,6 +149,20 @@ export default async function MenuPage({ params, searchParams }) {
                 <h1 className="text-3xl md:text-5xl font-bold leading-tight">
                   {restaurant.name}
                 </h1>
+
+                <div className="mt-2">
+                  {ratingSummary?.avg_rating != null ? (
+                    <StarRating
+                      value={ratingSummary.avg_rating}
+                      reviewCount={ratingSummary.review_count}
+                      showValue
+                      size="sm"
+                      className="text-white"
+                    />
+                  ) : (
+                    <span className="text-sm text-white/70">{t("header.noReviews")}</span>
+                  )}
+                </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Pill className="bg-emerald-500/25 border-emerald-300/30">🟢 {t("header.openNow")}</Pill>
@@ -171,6 +225,8 @@ export default async function MenuPage({ params, searchParams }) {
           categories={[...new Set(menuItems.map((item) => item?.categories?.name || t("uncategorized")))].sort()}
           restaurant={restaurant}
         />
+
+        <RestaurantReviewsSection reviews={reviewsError ? [] : reviews} />
       </div>
 
       <CartButton restaurant={restaurant} tableCode={tableCode} />

@@ -29,6 +29,7 @@
   },
   "card": {
     "noAddress": "No address provided",
-    "cityNotSet": "City not set"
+    "cityNotSet": "City not set",
+    "noRating": "New"
   }
 }
