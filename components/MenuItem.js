@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import StarRating from "@/components/reviews/StarRating";
 
 export default function MenuItem({ item, restaurant, categoryMap = {} }) {
   const t = useTranslations("menu");
@@ -88,6 +89,10 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
                   {t("item.price", { amount: Number(item.price).toFixed(2) })}
                 </span>
               </div>
+
+              {item.rating?.review_count > 0 && (
+                <StarRating value={item.rating.avg_rating} reviewCount={item.rating.review_count} showValue size="sm" />
+              )}
 
               {/* Description */}
               {/* {item.description && (
@@ -202,6 +207,12 @@ export default function MenuItem({ item, restaurant, categoryMap = {} }) {
               </Badge>
 
               <h3 className="text-lg font-bold leading-tight">{item.name}</h3>
+
+              {item.rating?.review_count > 0 && (
+                <div className="mt-1">
+                  <StarRating value={item.rating.avg_rating} reviewCount={item.rating.review_count} showValue size="sm" />
+                </div>
+              )}
 
               {item.description && (
                 <p className="text-sm text-muted-foreground mt-2 line-clamp-2">

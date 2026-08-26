@@ -248,6 +248,8 @@
     "avgRating": "متوسط التقييم",
     "totalReviews": "إجمالي التقييمات",
     "unreplied": "بلا رد",
+    "perDishTitle": "تقييمات الأصناف",
+    "reviewCount": "{count} تقييم",
     "ownerReply": "رد المطعم",
     "replyButton": "رد",
     "editReplyButton": "تعديل الرد",

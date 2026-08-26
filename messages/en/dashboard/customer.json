@@ -82,6 +82,7 @@
       "rate": "Rate this order",
       "edit": "Edit review",
       "commentPlaceholder": "Tell us about your experience (optional)…",
+      "rateItemsLabel": "Rate individual items (optional)",
       "submit": "Submit Review",
       "submitting": "Submitting…",
       "cancel": "Cancel",

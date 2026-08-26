@@ -18,7 +18,8 @@
   },
   "reviews": {
     "anonymous": "أحد العملاء",
-    "ownerReply": "رد المطعم"
+    "ownerReply": "رد المطعم",
+    "forItem": "عن: {name}"
   },
   "uncategorized": "غير مصنف",
   "search": {

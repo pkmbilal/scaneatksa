@@ -248,6 +248,8 @@
     "avgRating": "Average Rating",
     "totalReviews": "Total Reviews",
     "unreplied": "Unreplied",
+    "perDishTitle": "Per-Dish Ratings",
+    "reviewCount": "{count} reviews",
     "ownerReply": "Owner's reply",
     "replyButton": "Reply",
     "editReplyButton": "Edit reply",

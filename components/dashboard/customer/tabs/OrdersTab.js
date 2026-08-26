@@ -15,6 +15,7 @@ export default function OrdersTab({ orders, reviews = [], userId }) {
   const [reviewingOrderId, setReviewingOrderId] = useState(null)
   const [formRating, setFormRating] = useState(0)
   const [formComment, setFormComment] = useState('')
+  const [itemRatings, setItemRatings] = useState({})
   const [submitting, setSubmitting] = useState(false)
 
   const formatDate = (iso) => {
@@ -25,28 +26,56 @@ export default function OrdersTab({ orders, reviews = [], userId }) {
     }
   }
 
-  const openReviewForm = (order, existingReview) => {
+  const openReviewForm = (order, restaurantReview, itemReviewsByMenuItemId) => {
     setReviewingOrderId(order.id)
-    setFormRating(existingReview?.rating || 0)
-    setFormComment(existingReview?.comment || '')
+    setFormRating(restaurantReview?.rating || 0)
+    setFormComment(restaurantReview?.comment || '')
+    const initialItemRatings = {}
+    for (const [menuItemId, review] of itemReviewsByMenuItemId) {
+      initialItemRatings[menuItemId] = review.rating
+    }
+    setItemRatings(initialItemRatings)
   }
 
-  const closeReviewForm = () => setReviewingOrderId(null)
+  const closeReviewForm = () => {
+    setReviewingOrderId(null)
+    setItemRatings({})
+  }
+
+  const setItemRating = (menuItemId, rating) => {
+    setItemRatings((prev) => ({ ...prev, [menuItemId]: rating }))
+  }
 
   const handleSubmitReview = async (order) => {
     if (!formRating) return
     setSubmitting(true)
+
     const { error } = await submitReview({
       restaurantId: order.restaurant_id,
       orderId: order.id,
       rating: formRating,
       comment: formComment,
     })
+
+    let itemError = null
+    if (!error) {
+      const ratedItems = (order.order_items || []).filter((item) => itemRatings[item.menu_item_id] > 0)
+      for (const item of ratedItems) {
+        const { error: err } = await submitReview({
+          restaurantId: order.restaurant_id,
+          orderId: order.id,
+          menuItemId: item.menu_item_id,
+          rating: itemRatings[item.menu_item_id],
+        })
+        if (err) itemError = err
+      }
+    }
+
     setSubmitting(false)
 
-    if (error) {
+    if (error || itemError) {
       toast.error(t('ordersTab.review.error'))
-      return
+      if (error) return
     }
 
     toast.success(t('ordersTab.review.success'))
@@ -74,7 +103,10 @@ export default function OrdersTab({ orders, reviews = [], userId }) {
         const ChannelIcon = meta.icon
 
         const canReview = REVENUE_STATUSES.includes(o.status)
-        const existingReview = reviews.find((r) => r.order_id === o.id)
+        const existingReview = reviews.find((r) => r.order_id === o.id && !r.menu_item_id)
+        const itemReviewsByMenuItemId = new Map(
+          reviews.filter((r) => r.order_id === o.id && r.menu_item_id).map((r) => [r.menu_item_id, r])
+        )
         const isReviewing = reviewingOrderId === o.id
 
         return (
@@ -106,16 +138,38 @@ export default function OrdersTab({ orders, reviews = [], userId }) {
                 </p>
 
                 {o.order_items?.length > 0 && (
-                  <ul className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-300">
-                    {o.order_items.map((item) => (
-                      <li key={item.id} className="flex justify-between">
-                        <span>
-                          {item.name} × {item.quantity}
-                        </span>
-                        <span>SAR {(Number(item.price) * Number(item.quantity)).toFixed(2)}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <>
+                    {isReviewing && (
+                      <p className="mt-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+                        {t('ordersTab.review.rateItemsLabel')}
+                      </p>
+                    )}
+                    <ul className="mt-1 space-y-1 text-sm text-gray-600 dark:text-gray-300">
+                      {o.order_items.map((item) => {
+                        const itemReview = itemReviewsByMenuItemId.get(item.menu_item_id)
+                        return (
+                          <li key={item.id} className="flex items-center justify-between gap-2">
+                            <span>
+                              {item.name} × {item.quantity}
+                            </span>
+                            <span className="flex items-center gap-2">
+                              <span>SAR {(Number(item.price) * Number(item.quantity)).toFixed(2)}</span>
+                              {isReviewing ? (
+                                <StarRating
+                                  value={itemRatings[item.menu_item_id] || 0}
+                                  mode="input"
+                                  onChange={(v) => setItemRating(item.menu_item_id, v)}
+                                  size="sm"
+                                />
+                              ) : (
+                                itemReview && <StarRating value={itemReview.rating} size="sm" />
+                              )}
+                            </span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </>
                 )}
 
                 {o.notes && (
@@ -161,13 +215,18 @@ export default function OrdersTab({ orders, reviews = [], userId }) {
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => openReviewForm(o, existingReview)}
+                          onClick={() => openReviewForm(o, existingReview, itemReviewsByMenuItemId)}
                         >
                           {t('ordersTab.review.edit')}
                         </Button>
                       </div>
                     ) : (
-                      <Button type="button" size="sm" variant="outline" onClick={() => openReviewForm(o, null)}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openReviewForm(o, null, itemReviewsByMenuItemId)}
+                      >
                         {t('ordersTab.review.rate')}
                       </Button>
                     )}

@@ -78,16 +78,17 @@ export default async function MenuPage({ params, searchParams }) {
 
   if (itemsError) console.error("menu_items error:", itemsError);
 
-  const menuItems = itemsError
-    ? []
-    : (items || []).filter((item) => item.is_available !== false);
   const cityName = restaurant?.city?.name || "";
 
   // Rating summary (batched view -- see restaurant_rating_summary migration)
-  // + the review list itself, both public-read via RLS. Queried directly
-  // here (server component) rather than through lib/auth/client.js, which
-  // is browser-only.
-  const [{ data: ratingSummary }, { data: reviews, error: reviewsError }] = await Promise.all([
+  // + the review list itself + per-item rating averages, all public-read via
+  // RLS. Queried directly here (server component) rather than through
+  // lib/auth/client.js, which is browser-only.
+  const [
+    { data: ratingSummary },
+    { data: reviews, error: reviewsError },
+    { data: itemRatings },
+  ] = await Promise.all([
     supabase
       .from("restaurant_rating_summary")
       .select("avg_rating, review_count")
@@ -104,9 +105,21 @@ export default async function MenuPage({ params, searchParams }) {
       .eq("restaurant_id", restaurant.id)
       .is("menu_item_id", null)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("menu_item_rating_summary")
+      .select("menu_item_id, avg_rating, review_count")
+      .eq("restaurant_id", restaurant.id),
   ]);
 
   if (reviewsError) console.error("reviews error:", reviewsError);
+
+  const itemRatingById = new Map((itemRatings || []).map((r) => [r.menu_item_id, r]));
+
+  const menuItems = itemsError
+    ? []
+    : (items || [])
+        .filter((item) => item.is_available !== false)
+        .map((item) => ({ ...item, rating: itemRatingById.get(item.id) || null }));
 
   const cuisinePills =
     restaurant?.restaurant_cuisines?.map((rc) => rc?.cuisine?.name).filter(Boolean) || [];

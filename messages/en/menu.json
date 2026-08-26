@@ -18,7 +18,8 @@
   },
   "reviews": {
     "anonymous": "A customer",
-    "ownerReply": "Owner's reply"
+    "ownerReply": "Owner's reply",
+    "forItem": "For: {name}"
   },
   "uncategorized": "Uncategorized",
   "search": {

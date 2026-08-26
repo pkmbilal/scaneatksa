@@ -8,9 +8,12 @@
 // this component needing to know about owner permissions. Uses the "menu"
 // namespace (not "dashboard.owner") for its two chrome strings since this
 // card renders on both the owner dashboard and the public menu page.
+// `itemName` is optional -- when set, this review is scoped to one menu
+// item rather than the restaurant overall, and gets a small label for it.
 import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import StarRating from "@/components/reviews/StarRating";
 
 function initialsFor(name) {
@@ -18,7 +21,7 @@ function initialsFor(name) {
   return name.trim().charAt(0).toUpperCase();
 }
 
-export default function ReviewCard({ review, ownerActions }) {
+export default function ReviewCard({ review, ownerActions, itemName }) {
   const t = useTranslations("menu");
   // review_replies comes back as a single object (or null), not an array --
   // review_id is unique in review_replies, so PostgREST treats it as a
@@ -38,16 +41,21 @@ export default function ReviewCard({ review, ownerActions }) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
           <Avatar>
-            <AvatarFallback>{initialsFor(reviewer?.full_name)}</AvatarFallback>
+            <AvatarFallback>{initialsFor(review?.reviewer_name)}</AvatarFallback>
           </Avatar>
 
           <div className="min-w-0">
             <p className="font-semibold text-gray-800 dark:text-white/90">
               {review?.reviewer_name || t("reviews.anonymous")}
             </p>
-            <div className="mt-0.5 flex items-center gap-2">
+            <div className="mt-0.5 flex flex-wrap items-center gap-2">
               <StarRating value={review.rating} size="sm" />
               <span className="text-xs text-gray-500 dark:text-gray-400">{formatDate(review.created_at)}</span>
+              {itemName && (
+                <Badge variant="outline" className="text-[10px] font-normal">
+                  {t("reviews.forItem", { name: itemName })}
+                </Badge>
+              )}
             </div>
           </div>
         </div>

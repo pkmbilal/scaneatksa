@@ -9,8 +9,9 @@ import { Star, MessagesSquare, MessageSquareWarning } from "lucide-react";
 import StatCard from "@/components/dashboard/shared/StatCard";
 import ReviewCard from "@/components/reviews/ReviewCard";
 import ReplyDialog from "@/components/dashboard/owner/dialogs/ReplyDialog";
+import StarRating from "@/components/reviews/StarRating";
 
-export default function ReviewsTab({ reviews, kpis, loading, onReplied }) {
+export default function ReviewsTab({ reviews, itemRatings = [], kpis, loading, onReplied }) {
   const t = useTranslations("dashboard.owner");
 
   if (loading) {
@@ -30,6 +31,25 @@ export default function ReviewsTab({ reviews, kpis, loading, onReplied }) {
         />
       </div>
 
+      {itemRatings.length > 0 && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-xs dark:border-gray-800 dark:bg-white/[0.03]">
+          <h3 className="mb-3 font-semibold text-gray-800 dark:text-white/90">{t("reviewsTab.perDishTitle")}</h3>
+          <div className="space-y-2">
+            {itemRatings.map((item) => (
+              <div key={item.menuItemId} className="flex items-center justify-between gap-2">
+                <span className="truncate text-sm text-gray-700 dark:text-gray-300">{item.name}</span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <StarRating value={item.avgRating} size="sm" />
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {t("reviewsTab.reviewCount", { count: item.reviewCount })}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {reviews.length === 0 ? (
         <div className="py-12 text-center text-gray-500 dark:text-gray-400">{t("reviewsTab.empty")}</div>
       ) : (
@@ -38,6 +58,7 @@ export default function ReviewsTab({ reviews, kpis, loading, onReplied }) {
             <ReviewCard
               key={review.id}
               review={review}
+              itemName={review.menu_items?.name}
               ownerActions={<ReplyDialog review={review} onReplied={onReplied} />}
             />
           ))}

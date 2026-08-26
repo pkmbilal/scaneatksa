@@ -636,6 +636,7 @@ export default function OwnerDashboardPage() {
           ) : activeTab === "reviews" ? (
             <ReviewsTab
               reviews={reviews.reviews}
+              itemRatings={reviews.itemRatings}
               kpis={reviews.kpis}
               loading={reviews.loading}
               onReplied={reviews.refresh}
