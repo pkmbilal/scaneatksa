@@ -16,7 +16,8 @@
     "seeReviews": "See all reviews",
     "reviewsSection": {
       "title": "Reviews",
-      "empty": "No reviews yet. Be the first to order and leave one!"
+      "empty": "No reviews yet. Be the first to order and leave one!",
+      "summary": "from {count} guests"
     }
   },
   "reviews": {
@@ -29,7 +30,8 @@
     "placeholder": "Search food..."
   },
   "categories": {
-    "all": "All"
+    "all": "All",
+    "count": "{count, plural, one {# dish} other {# dishes}}"
   },
   "empty": {
     "title": "No items found",
@@ -46,6 +48,8 @@
     "decreaseQtyAria": "Decrease quantity",
     "increaseQtyAria": "Increase quantity",
     "price": "SAR {amount}",
-    "prepTime": "{minutes}min"
+    "prepTime": "{minutes}min",
+    "veg": "Vegetarian",
+    "nonVeg": "Non-vegetarian"
   }
 }

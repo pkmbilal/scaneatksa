@@ -2,270 +2,277 @@
 
 import { useTranslations } from "next-intl";
 import { useCart } from "@/app/CartContext";
-import { ShoppingCart, Plus, Minus, Clock } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import StarRating from "@/components/reviews/StarRating";
+import MashrabiyaFret from "@/components/menu/MashrabiyaFret";
 
-export default function MenuItem({ item, restaurant, categoryMap = {} }) {
+export default function MenuItem({ item, restaurant, index = 0 }) {
   const t = useTranslations("menu");
   const { addToCart, cartItems, updateQuantity, removeFromCart } = useCart();
   const soldOut = !!item.is_sold_out;
 
-  // ✅ FIX: normalize id types so inCartCount works
+  // normalize id types so the in-cart count matches
   const cartItem = cartItems.find((ci) => String(ci.id) === String(item.id));
   const inCartCount = cartItem?.quantity || 0;
 
   const handleAddToCart = () => {
-    if (soldOut) return;
-    addToCart(item, restaurant);
+    if (!soldOut) addToCart(item, restaurant);
   };
-
   const handleIncrement = () => {
-    if (soldOut) return;
-    addToCart(item, restaurant);
+    if (!soldOut) addToCart(item, restaurant);
   };
-
   const handleDecrement = () => {
-    if (soldOut) return;
-    if (!cartItem) return;
+    if (soldOut || !cartItem) return;
     const nextQty = inCartCount - 1;
     if (nextQty <= 0) removeFromCart(item.id);
     else updateQuantity(item.id, nextQty);
   };
 
-  const categoryName = item.category_id
-    ? categoryMap[item.category_id] || t("uncategorized")
-    : t("uncategorized");
+  const categoryName = item.categories?.name || t("uncategorized");
+  const price = t("item.price", { amount: Number(item.price).toFixed(2) });
+  // Stagger the entrance in short waves rather than one long cascade.
+  const riseStyle = { animationDelay: `${(index % 6) * 60}ms` };
+
+  const eyebrowMark = (
+    <MashrabiyaFret
+      variant="tick"
+      className="inline-flex text-[color:var(--m-brass)]"
+    />
+  );
+
+  // Veg / non-veg indicator: the square-with-a-dot convention diners here
+  // recognise. `is_veg` is nullable -- only show a mark when it's set.
+  const dietMark =
+    item.is_veg == null ? null : (
+      <span
+        role="img"
+        aria-label={t(item.is_veg ? "item.veg" : "item.nonVeg")}
+        title={t(item.is_veg ? "item.veg" : "item.nonVeg")}
+        className={cn(
+          "grid h-4 w-4 shrink-0 place-items-center rounded-[3px] border-[1.5px]",
+          item.is_veg
+            ? "border-[color:var(--m-veg)]"
+            : "border-[color:var(--m-nonveg)]"
+        )}
+      >
+        <span
+          className={cn(
+            "h-1.5 w-1.5 rounded-full",
+            item.is_veg
+              ? "bg-[color:var(--m-veg)]"
+              : "bg-[color:var(--m-nonveg)]"
+          )}
+        />
+      </span>
+    );
+
+  const stepper = (small) => (
+    <div
+      className={cn(
+        "inline-flex items-center rounded-full border border-[color:var(--m-emerald)]/30 bg-[color:var(--m-parchment)]",
+        small ? "gap-1.5 px-1.5 py-1" : "p-1"
+      )}
+    >
+      <Button
+        size="icon"
+        variant="ghost"
+        className={cn(
+          "rounded-full text-[color:var(--m-ink)] hover:bg-[color:var(--m-emerald)]/10",
+          small ? "h-6 w-6" : "h-8 w-8"
+        )}
+        onClick={handleDecrement}
+        aria-label={t("item.decreaseQtyAria")}
+      >
+        <Minus className={small ? "h-2.5 w-2.5" : "h-4 w-4"} />
+      </Button>
+      <span
+        className={cn(
+          "text-center font-semibold text-[color:var(--m-ink)] tabular-nums",
+          small ? "min-w-4 text-xs" : "w-8"
+        )}
+      >
+        {inCartCount}
+      </span>
+      <Button
+        size="icon"
+        variant="ghost"
+        className={cn(
+          "rounded-full text-[color:var(--m-ink)] hover:bg-[color:var(--m-emerald)]/10",
+          small ? "h-6 w-6" : "h-8 w-8"
+        )}
+        onClick={handleIncrement}
+        disabled={soldOut}
+        aria-label={t("item.increaseQtyAria")}
+      >
+        <Plus className={small ? "h-2.5 w-2.5" : "h-4 w-4"} />
+      </Button>
+    </div>
+  );
+
+  const addButton = (small) => (
+    <Button
+      onClick={handleAddToCart}
+      disabled={soldOut}
+      className={cn(
+        "rounded-full bg-[color:var(--m-go)] font-semibold text-white shadow-sm transition hover:brightness-95",
+        small ? "h-7 px-3 text-xs" : "h-9 px-4"
+      )}
+    >
+      <Plus className={cn("me-1", small ? "h-3 w-3" : "h-4 w-4")} />
+      {small ? t("item.add") : t("item.addToCart")}
+    </Button>
+  );
+
+  const soldOutTag = (boxed) =>
+    boxed ? (
+      <span className="rounded-full border border-[color:var(--m-line)] px-3 py-1 text-xs font-medium text-[color:var(--m-ink-soft)]">
+        {t("item.soldOutBadge")}
+      </span>
+    ) : (
+      <span className="text-xs font-medium text-[color:var(--m-ink-soft)]">
+        {t("item.soldOutBadge")}
+      </span>
+    );
 
   return (
     <>
       {/* MOBILE */}
-      <div className="sm:hidden">
+      <div className="m-rise sm:hidden" style={riseStyle}>
         <div
           className={cn(
-            "relative bg-white rounded-2xl shadow-sm border border-gray-100 transition-all overflow-hidden",
-            soldOut ? "opacity-60" : "hover:border-gray-200"
+            "m-card m-card-hover relative overflow-hidden rounded-2xl",
+            soldOut && "opacity-60"
           )}
         >
-          {/* ✅ Use min-h so description can show */}
-          <div className="flex min-h-28">
-            {/* Left: image */}
-            <div className="relative w-32 h-32 shrink-0">
-              <div className="w-full h-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-                {item.image_url ? (
-                  <img
-                    src={item.image_url}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <ShoppingCart className="h-8 w-8" />
-                  </div>
-                )}
-
-                {soldOut && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <span className="text-white font-bold text-xs px-2 py-0.5 bg-black/70 rounded-full">
-                      {t("item.soldOutOverlay")}
-                    </span>
-                  </div>
-                )}
-              </div>
+          <div className="flex min-h-32">
+            <div className="relative h-32 w-32 shrink-0 overflow-hidden bg-[color:var(--m-limestone)]">
+              {item.image_url ? (
+                <img
+                  src={item.image_url}
+                  alt={item.name}
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-[color:var(--m-ink-soft)]">
+                  <ShoppingCart className="h-8 w-8" />
+                </div>
+              )}
             </div>
 
-            {/* Right content */}
-            <div className="flex-1 min-w-0 p-4 flex flex-col">
-              {/* Top row: name + price */}
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-1">
+            <div className="flex min-w-0 flex-1 flex-col p-3.5">
+              <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-[color:var(--m-ink-soft)]">
+                {eyebrowMark}
+                {categoryName}
+              </span>
+              <div className="mt-0.5 flex items-start justify-between gap-2">
+                <h3 className="font-display text-sm font-semibold leading-tight text-[color:var(--m-ink)] line-clamp-2">
                   {item.name}
                 </h3>
-                <span className="text-sm font-bold text-gray-900 shrink-0 pt-0.5">
-                  {t("item.price", { amount: Number(item.price).toFixed(2) })}
-                </span>
+                {dietMark}
               </div>
 
               {item.rating?.review_count > 0 && (
-                <StarRating value={item.rating.avg_rating} reviewCount={item.rating.review_count} showValue size="sm" />
+                <div className="mt-1">
+                  <StarRating
+                    value={item.rating.avg_rating}
+                    reviewCount={item.rating.review_count}
+                    showValue
+                    size="sm"
+                    className="text-[color:var(--m-ink-soft)]"
+                  />
+                </div>
               )}
 
-              {/* Description */}
-              {/* {item.description && (
-                <p className="mt-1.5 text-xs text-gray-600 line-clamp-2 leading-relaxed">
+              {item.description && (
+                <p className="mt-1 text-xs leading-relaxed text-[color:var(--m-ink-soft)] line-clamp-2">
                   {item.description}
                 </p>
-              )} */}
+              )}
 
-              {/* Badges */}
-              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                <Badge
-                  variant="outline"
-                  className="text-[10px] font-normal text-gray-600 border-gray-200 h-5"
-                >
-                  {item.categories?.name || categoryName}
-                </Badge>
-
-                {item.prep_time && (
-                  <Badge variant="outline" className="text-[10px] gap-1 h-5 px-1.5">
-                    <Clock className="h-2.5 w-2.5" />
-                    {t("item.prepTime", { minutes: item.prep_time })}
-                  </Badge>
-                )}
-              </div>
-
-              {/* Bottom row */}
-              <div className="mt-auto flex items-center justify-between">
-                <div className="text-xs text-gray-400" />
-
-                {inCartCount > 0 ? (
-                  <div className="flex items-center gap-1.5 bg-green-50 rounded-full px-1.5 py-1 border border-green-100">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6 rounded-full bg-white shadow-sm"
-                      onClick={handleDecrement}
-                      aria-label={t("item.decreaseAria")}
-                    >
-                      <Minus className="h-2.5 w-2.5" />
-                    </Button>
-
-                    <span className="text-xs font-bold text-green-700 min-w-[16px] text-center">
-                      {inCartCount}
-                    </span>
-
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6 rounded-full bg-white shadow-sm"
-                      onClick={handleIncrement}
-                      aria-label={t("item.increaseAria")}
-                    >
-                      <Plus className="h-2.5 w-2.5" />
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    onClick={handleAddToCart}
-                    disabled={soldOut}
-                    size="sm"
-                    className={cn(
-                      "h-7 rounded-full px-3 text-xs font-medium transition-all",
-                      soldOut
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-sm hover:shadow"
-                    )}
-                  >
-                    {soldOut ? (
-                      t("item.soldOutButton")
-                    ) : (
-                      <>
-                        <Plus className="h-3 w-3 me-1" />
-                        {t("item.add")}
-                      </>
-                    )}
-                  </Button>
-                )}
+              <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                <span className="text-sm font-semibold tabular-nums text-[color:var(--m-ink)]">
+                  {price}
+                </span>
+                {soldOut
+                  ? soldOutTag(false)
+                  : inCartCount > 0
+                    ? stepper(true)
+                    : addButton(true)}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* DESKTOP/TABLET (unchanged) */}
-      <div className="hidden sm:block">
-        <Card
+      {/* DESKTOP / TABLET */}
+      <div className="m-rise hidden sm:block" style={riseStyle}>
+        <div
           className={cn(
-            "overflow-hidden transition-shadow border !py-0 !pb-2",
-            soldOut ? "opacity-60" : "hover:shadow-md hover:border-gray-200"
+            "m-card m-card-hover relative flex h-full flex-col overflow-hidden rounded-2xl",
+            soldOut && "opacity-60"
           )}
         >
-          <CardContent className="p-0">
-            {item.image_url && (
-              <div className="relative w-full h-48 overflow-hidden bg-muted">
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
+          {item.image_url ? (
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-[color:var(--m-limestone)]">
+              <img
+                src={item.image_url}
+                alt={item.name}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex aspect-[4/3] w-full items-center justify-center bg-[color:var(--m-limestone)] text-[color:var(--m-ink-soft)]">
+              <ShoppingCart className="h-10 w-10" />
+            </div>
+          )}
+
+          <div className="flex flex-1 flex-col p-4">
+            <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-[color:var(--m-ink-soft)]">
+              {eyebrowMark}
+              {categoryName}
+            </span>
+
+            <div className="mt-1 flex items-start justify-between gap-2">
+              <h3 className="font-display text-lg font-semibold leading-tight text-[color:var(--m-ink)]">
+                {item.name}
+              </h3>
+              {dietMark}
+            </div>
+
+            {item.rating?.review_count > 0 && (
+              <div className="mt-1.5">
+                <StarRating
+                  value={item.rating.avg_rating}
+                  reviewCount={item.rating.review_count}
+                  showValue
+                  size="sm"
+                  className="text-[color:var(--m-ink-soft)]"
                 />
-                {soldOut && (
-                  <span className="absolute top-3 end-3 inline-flex items-center rounded-full bg-background/90 text-foreground text-xs font-semibold px-3 py-1 shadow-sm border">
-                    {t("item.soldOutBadge")}
-                  </span>
-                )}
               </div>
             )}
 
-            <div className="p-4">
-              <Badge variant="secondary" className="mb-2">
-                {item.categories?.name || categoryName}
-              </Badge>
+            {item.description && (
+              <p className="mt-2 text-sm leading-relaxed text-[color:var(--m-ink-soft)] line-clamp-2">
+                {item.description}
+              </p>
+            )}
 
-              <h3 className="text-lg font-bold leading-tight">{item.name}</h3>
-
-              {item.rating?.review_count > 0 && (
-                <div className="mt-1">
-                  <StarRating value={item.rating.avg_rating} reviewCount={item.rating.review_count} showValue size="sm" />
-                </div>
-              )}
-
-              {item.description && (
-                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                  {item.description}
-                </p>
-              )}
-
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-lg font-bold text-primary">
-                  {t("item.price", { amount: Number(item.price).toFixed(2) })}
-                </span>
-
-                {inCartCount > 0 ? (
-                  <div className="inline-flex items-center rounded-full border bg-background p-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full"
-                      onClick={handleDecrement}
-                      aria-label={t("item.decreaseQtyAria")}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <span className="w-8 text-center font-semibold">{inCartCount}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full"
-                      onClick={handleIncrement}
-                      disabled={soldOut}
-                      aria-label={t("item.increaseQtyAria")}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <Button onClick={handleAddToCart} disabled={soldOut} className="rounded-lg cursor-pointer">
-                    <ShoppingCart className="h-4 w-4 me-2" />
-                    {t("item.addToCart")}
-                  </Button>
-                )}
-              </div>
-
-              {!item.image_url && soldOut && (
-                <div className="mt-3">
-                  <Badge variant="outline" className="rounded-full">
-                    {t("item.soldOutBadge")}
-                  </Badge>
-                </div>
-              )}
+            <div className="mt-4 flex items-center justify-between gap-2 pt-2">
+              <span className="text-lg font-semibold tabular-nums text-[color:var(--m-ink)]">
+                {price}
+              </span>
+              {soldOut
+                ? soldOutTag(true)
+                : inCartCount > 0
+                  ? stepper(false)
+                  : addButton(false)}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </>
   );

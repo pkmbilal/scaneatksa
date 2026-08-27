@@ -16,7 +16,8 @@
     "seeReviews": "عرض جميع التقييمات",
     "reviewsSection": {
       "title": "التقييمات",
-      "empty": "لا توجد تقييمات بعد. كن أول من يطلب ويترك تقييمًا!"
+      "empty": "لا توجد تقييمات بعد. كن أول من يطلب ويترك تقييمًا!",
+      "summary": "من {count} ضيف"
     }
   },
   "reviews": {
@@ -29,7 +30,8 @@
     "placeholder": "ابحث عن طعام..."
   },
   "categories": {
-    "all": "الكل"
+    "all": "الكل",
+    "count": "{count, plural, zero {# طبق} one {طبق واحد} two {طبقان} few {# أطباق} many {# طبقًا} other {# طبق}}"
   },
   "empty": {
     "title": "لا توجد أصناف",
@@ -46,6 +48,8 @@
     "decreaseQtyAria": "إنقاص الكمية",
     "increaseQtyAria": "زيادة الكمية",
     "price": "{amount} ريال",
-    "prepTime": "{minutes} د"
+    "prepTime": "{minutes} د",
+    "veg": "نباتي",
+    "nonVeg": "غير نباتي"
   }
 }
