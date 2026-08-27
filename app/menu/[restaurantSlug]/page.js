@@ -8,18 +8,45 @@ import FavoriteButton from "@/components/FavoriteButton";
 import TableCodePersist from "@/components/TableCodePersist";
 import StarRating from "@/components/reviews/StarRating";
 import RestaurantReviewsSection from "@/components/reviews/RestaurantReviewsSection";
-import { Phone } from "lucide-react";
+import MashrabiyaFret from "@/components/menu/MashrabiyaFret";
+import { Phone, MapPin, Truck, ShoppingBag, UtensilsCrossed, Navigation } from "lucide-react";
 
-function Pill({ children, className = "" }) {
+// Meta-row chip, styled for the deep-emerald hero panel. `variant="accent"`
+// is reserved for facts that are actually true right now (delivery/pickup
+// availability) so the brand-green accent stays a signal, not decoration,
+// next to the neutral parchment-glass chips.
+function Chip({ icon: Icon, children, variant = "default" }) {
+  const variants = {
+    default: "border-[color:var(--m-on-emerald)]/20 bg-[color:var(--m-on-emerald)]/10 text-[color:var(--m-on-emerald)]/90",
+    accent: "border-[color:var(--m-go)]/40 bg-[color:var(--m-go)]/15 text-[color:var(--m-on-emerald)]",
+  };
   return (
     <span
       className={[
-        "inline-flex items-center rounded-full border px-3 py-1 text-xs md:text-sm font-semibold",
-        "border-white/20 bg-black/30 text-white backdrop-blur",
-        className,
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur-md md:text-sm",
+        variants[variant] || variants.default,
       ].join(" ")}
     >
+      {Icon && <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
       {children}
+    </span>
+  );
+}
+
+// 1-4 tier price indicator built from `price_level`. Bars instead of "$"
+// signs on purpose -- this is a SAR-priced app, repeated dollar signs read
+// oddly next to SAR prices.
+function PriceBars({ level, label }) {
+  if (!level) return null;
+  return (
+    <span className="inline-flex items-end gap-0.5" role="img" aria-label={label}>
+      {[1, 2, 3, 4].map((bar) => (
+        <span
+          key={bar}
+          className={`block w-1 rounded-full ${bar <= level ? "bg-[color:var(--m-brass)]" : "bg-[color:var(--m-on-emerald)]/25"}`}
+          style={{ height: `${5 + bar * 3}px` }}
+        />
+      ))}
     </span>
   );
 }
@@ -69,7 +96,7 @@ export default async function MenuPage({ params, searchParams }) {
     .from("menu_items")
     .select(`
       *,
-      categories:categories ( id, name )
+      categories:categories ( id, name, sort_order )
     `)
     .eq("restaurant_id", restaurant.id)
     .order("category_id", { ascending: true })
@@ -124,109 +151,172 @@ export default async function MenuPage({ params, searchParams }) {
   const cuisinePills =
     restaurant?.restaurant_cuisines?.map((rc) => rc?.cuisine?.name).filter(Boolean) || [];
 
+  const priceTier = Math.max(0, Math.min(4, Number(restaurant.price_level) || 0));
+
+  // Category list for MenuClient: `{ name, count }` ordered by the owner's
+  // `sort_order` (falling back to name) so the grouped view follows the
+  // intended menu sequence rather than plain alphabetical.
+  const uncategorized = t("uncategorized");
+  const categoryMap = new Map();
+  for (const item of menuItems) {
+    const name = item?.categories?.name || uncategorized;
+    if (!categoryMap.has(name)) {
+      categoryMap.set(name, {
+        name,
+        sortOrder: item?.categories?.sort_order ?? 9999,
+        count: 0,
+      });
+    }
+    categoryMap.get(name).count += 1;
+  }
+  const orderedCategories = [...categoryMap.values()].sort(
+    (a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name)
+  );
+
   return (
-    <div className="min-h-screen">
+    <div className="menu-theme min-h-screen bg-[color:var(--m-limestone)] text-[color:var(--m-ink)]">
       <TableCodePersist restaurantSlug={restaurantSlug} />
 
-      {/* HEADER */}
-      <div className="relative overflow-hidden text-white">
-        {restaurant.image_url ? (
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${restaurant.image_url})` }}
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-700" />
+      {/* HERO -- deep-emerald panel. When a cover photo exists it shows
+          through under a light emerald tint plus a bottom-up gradient that
+          only deepens where the text sits; no black scrim. */}
+      <div className="relative overflow-hidden bg-[color:var(--m-emerald)] text-[color:var(--m-on-emerald)]">
+        {restaurant.image_url && (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${restaurant.image_url})` }}
+            />
+            <div className="absolute inset-0 bg-[color:var(--m-emerald)]/35" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--m-emerald)] via-[color:var(--m-emerald)]/45 to-transparent" />
+          </>
         )}
 
-        <div className="absolute inset-0 bg-black/55" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/60" />
+        {/* Favorite -- overlaid top-end, same corner convention RestaurantCard uses */}
+        <div className="absolute top-4 end-4 z-20 md:top-6 md:end-6">
+          <FavoriteButton restaurantId={restaurant.id} />
+        </div>
 
-        <div className="relative">
-          <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
-            <div className="max-w-3xl">
-              <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md px-5 py-5 md:px-7 md:py-7 shadow-xl">
-                <h1 className="text-3xl md:text-5xl font-bold leading-tight">
-                  {restaurant.name}
-                </h1>
+        <div className="relative mx-auto max-w-6xl px-4 py-12 md:py-16 lg:py-20">
+          <div className="max-w-3xl">
+            <h1 className="font-display text-3xl font-semibold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
+              {restaurant.name}
+            </h1>
 
-                <div className="mt-2">
-                  {ratingSummary?.avg_rating != null ? (
-                    <StarRating
-                      value={ratingSummary.avg_rating}
-                      reviewCount={ratingSummary.review_count}
-                      showValue
-                      size="sm"
-                      className="text-white"
-                    />
-                  ) : (
-                    <span className="text-sm text-white/70">{t("header.noReviews")}</span>
-                  )}
+            <div className="mt-3">
+              {ratingSummary?.avg_rating != null ? (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <StarRating
+                    value={ratingSummary.avg_rating}
+                    reviewCount={ratingSummary.review_count}
+                    showValue
+                    size="sm"
+                    className="text-[color:var(--m-on-emerald)]"
+                  />
+                  <a
+                    href="#reviews"
+                    className="text-xs font-medium text-[color:var(--m-on-emerald)]/70 underline decoration-[color:var(--m-on-emerald)]/30 underline-offset-4 transition hover:text-[color:var(--m-on-emerald)] md:text-sm"
+                  >
+                    {t("header.seeReviews")}
+                  </a>
                 </div>
+              ) : (
+                <span className="text-sm text-[color:var(--m-on-emerald)]/70">{t("header.noReviews")}</span>
+              )}
+            </div>
 
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Pill className="bg-emerald-500/25 border-emerald-300/30">🟢 {t("header.openNow")}</Pill>
+            {/* Info card -- brass hairline on the emerald */}
+            <div className="mt-6 rounded-2xl border border-[color:var(--m-brass)]/40 bg-[color:var(--m-emerald)]/25 p-5 backdrop-blur-md md:p-6">
+              <div className="flex flex-wrap items-center gap-2">
+                {cityName && <Chip icon={MapPin}>{cityName}</Chip>}
 
-                  {cityName && <Pill className="bg-white/10">📍 {cityName}</Pill>}
+                {priceTier > 0 && (
+                  <Chip>
+                    <PriceBars level={priceTier} label={t("header.priceLevel", { level: priceTier })} />
+                  </Chip>
+                )}
 
-                  {restaurant.delivery_available && <Pill className="bg-white/10">🚚 {t("header.delivery")}</Pill>}
-                  {restaurant.pickup_available && <Pill className="bg-white/10">🧍 {t("header.pickup")}</Pill>}
+                {restaurant.delivery_available && (
+                  <Chip icon={Truck} variant="accent">{t("header.delivery")}</Chip>
+                )}
+                {restaurant.pickup_available && (
+                  <Chip icon={ShoppingBag} variant="accent">{t("header.pickup")}</Chip>
+                )}
 
-                  {cuisinePills.slice(0, 8).map((c) => (
-                    <Pill key={c} className="bg-white/10">
-                      🍽️ {c}
-                    </Pill>
-                  ))}
-
-                  {cuisinePills.length === 0 && <Pill className="bg-white/10">🍽️ {t("header.multiCuisine")}</Pill>}
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  {restaurant.address && (
-                    <p className="text-white/90 text-base md:text-lg flex items-start gap-2">
-                      <span className="mt-0.5">📍</span>
-                      <span className="leading-snug">{restaurant.address}</span>
-                    </p>
-                  )}
-
-                  {restaurant.phone && (
-                    <p className="text-white/95 text-base md:text-lg flex items-center gap-2">
-                      <Phone size={18} className="shrink-0" />
-                      <span>{restaurant.phone}</span>
-                    </p>
-                  )}
-                </div>
-
-                <div className="mt-5 flex flex-wrap items-center gap-3">
-                  <FavoriteButton restaurantId={restaurant.id} />
-
-                  {restaurant.phone && (
-                    <a
-                      href={`tel:${restaurant.phone}`}
-                      className="w-fit rounded-xl bg-white/10 border border-white/20 px-4 py-2 font-semibold hover:bg-white/15 transition flex items-center gap-2"
-                    >
-                      <Phone size={16} />
-                      {t("header.call")}
-                    </a>
-                  )}
-                </div>
+                {cuisinePills.slice(0, 8).map((c) => (
+                  <Chip key={c} icon={UtensilsCrossed}>{c}</Chip>
+                ))}
+                {cuisinePills.length === 0 && (
+                  <Chip icon={UtensilsCrossed}>{t("header.multiCuisine")}</Chip>
+                )}
               </div>
 
-              <div className="h-6" />
+              {(restaurant.address || restaurant.phone) && (
+                <div className="mt-4 space-y-2 border-t border-[color:var(--m-brass)]/25 pt-4">
+                  {restaurant.address && (
+                    <p className="flex items-start gap-2 text-sm leading-snug text-[color:var(--m-on-emerald)]/85 md:text-base">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--m-on-emerald)]/55" aria-hidden="true" />
+                      <span>{restaurant.address}</span>
+                    </p>
+                  )}
+
+                  {restaurant.phone && (
+                    <p className="flex items-center gap-2 text-sm text-[color:var(--m-on-emerald)]/90 md:text-base">
+                      <Phone className="h-4 w-4 shrink-0 text-[color:var(--m-on-emerald)]/55" aria-hidden="true" />
+                      {/* dir="ltr" keeps digits/+ from bidi-scrambling under the Arabic locale */}
+                      <span dir="ltr">{restaurant.phone}</span>
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              {restaurant.phone && (
+                <a
+                  href={`tel:${restaurant.phone}`}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--m-go)] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/25 transition hover:brightness-95 md:text-base"
+                >
+                  <Phone size={16} />
+                  {t("header.call")}
+                </a>
+              )}
+
+              {restaurant.address && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--m-on-emerald)]/30 bg-[color:var(--m-on-emerald)]/10 px-5 py-2.5 text-sm font-semibold text-[color:var(--m-on-emerald)] transition hover:bg-[color:var(--m-on-emerald)]/20 md:text-base"
+                >
+                  <Navigation size={16} />
+                  {t("header.directions")}
+                </a>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* MAIN */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 md:py-10">
         <MenuClient
           items={menuItems}
-          categories={[...new Set(menuItems.map((item) => item?.categories?.name || t("uncategorized")))].sort()}
+          categories={orderedCategories}
           restaurant={restaurant}
         />
+      </div>
 
-        <RestaurantReviewsSection reviews={reviewsError ? [] : reviews} />
+      <div className="mx-auto max-w-6xl px-4">
+        <MashrabiyaFret variant="band" />
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 py-10 md:py-12">
+        <RestaurantReviewsSection
+          reviews={reviewsError ? [] : reviews}
+          ratingSummary={ratingSummary}
+        />
       </div>
 
       <CartButton restaurant={restaurant} tableCode={tableCode} />

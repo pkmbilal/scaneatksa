@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import StarRating from "@/components/reviews/StarRating";
 
 function initialsFor(name) {
@@ -21,8 +22,12 @@ function initialsFor(name) {
   return name.trim().charAt(0).toUpperCase();
 }
 
-export default function ReviewCard({ review, ownerActions, itemName }) {
+// `tone="menu"` renders the card in the "Souk Modern" palette used on the
+// public menu page. Any other value keeps the original neutral styling so
+// the owner dashboard's Reviews tab is unaffected.
+export default function ReviewCard({ review, ownerActions, itemName, tone }) {
   const t = useTranslations("menu");
+  const menuTone = tone === "menu";
   // review_replies comes back as a single object (or null), not an array --
   // review_id is unique in review_replies, so PostgREST treats it as a
   // to-one embed.
@@ -37,7 +42,14 @@ export default function ReviewCard({ review, ownerActions, itemName }) {
   };
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-xs dark:border-gray-800 dark:bg-white/[0.03]">
+    <div
+      className={cn(
+        "rounded-2xl border p-4 shadow-theme-xs",
+        menuTone
+          ? "border-[color:var(--m-line)] bg-[color:var(--m-parchment)]"
+          : "border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+      )}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
           <Avatar>
@@ -45,12 +57,28 @@ export default function ReviewCard({ review, ownerActions, itemName }) {
           </Avatar>
 
           <div className="min-w-0">
-            <p className="font-semibold text-gray-800 dark:text-white/90">
+            <p
+              className={cn(
+                "font-semibold",
+                menuTone
+                  ? "text-[color:var(--m-ink)]"
+                  : "text-gray-800 dark:text-white/90"
+              )}
+            >
               {review?.reviewer_name || t("reviews.anonymous")}
             </p>
             <div className="mt-0.5 flex flex-wrap items-center gap-2">
               <StarRating value={review.rating} size="sm" />
-              <span className="text-xs text-gray-500 dark:text-gray-400">{formatDate(review.created_at)}</span>
+              <span
+                className={cn(
+                  "text-xs",
+                  menuTone
+                    ? "text-[color:var(--m-ink-soft)]"
+                    : "text-gray-500 dark:text-gray-400"
+                )}
+              >
+                {formatDate(review.created_at)}
+              </span>
               {itemName && (
                 <Badge variant="outline" className="text-[10px] font-normal">
                   {t("reviews.forItem", { name: itemName })}
@@ -64,17 +92,49 @@ export default function ReviewCard({ review, ownerActions, itemName }) {
       </div>
 
       {review.comment && (
-        <p className="mt-3 whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">{review.comment}</p>
+        <p
+          className={cn(
+            "mt-3 whitespace-pre-wrap text-sm",
+            menuTone
+              ? "text-[color:var(--m-ink)]"
+              : "text-gray-700 dark:text-gray-300"
+          )}
+        >
+          {review.comment}
+        </p>
       )}
 
       {reply && (
         <>
           <Separator className="my-3" />
-          <div className="ms-4 border-s-2 border-brand-200 ps-3 dark:border-brand-800">
-            <p className="text-xs font-semibold text-brand-600 dark:text-brand-400">
+          <div
+            className={cn(
+              "ms-4 border-s-2 ps-3",
+              menuTone
+                ? "border-[color:var(--m-accent-text)]"
+                : "border-brand-200 dark:border-brand-800"
+            )}
+          >
+            <p
+              className={cn(
+                "text-xs font-semibold",
+                menuTone
+                  ? "text-[color:var(--m-accent-text)]"
+                  : "text-brand-600 dark:text-brand-400"
+              )}
+            >
               {t("reviews.ownerReply")}
             </p>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">{reply.reply}</p>
+            <p
+              className={cn(
+                "mt-1 whitespace-pre-wrap text-sm",
+                menuTone
+                  ? "text-[color:var(--m-ink)]"
+                  : "text-gray-700 dark:text-gray-300"
+              )}
+            >
+              {reply.reply}
+            </p>
           </div>
         </>
       )}

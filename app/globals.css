@@ -326,3 +326,110 @@ section[id] {
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #344054;
 }
+
+/* ---------------------------------------------------------------------- */
+/* "Souk Modern" — scoped visual theme for the public restaurant menu     */
+/* page (/menu/[restaurantSlug]). Everything is gated behind .menu-theme  */
+/* so the dashboards and the rest of the app are untouched. Global        */
+/* --primary and the TailAdmin @theme block above are deliberately left   */
+/* alone.                                                                 */
+/* ---------------------------------------------------------------------- */
+.menu-theme {
+  --m-limestone: #f3ede1;
+  --m-parchment: #fbf7ef;
+  --m-ink: #241e17;
+  --m-ink-soft: #6b6154;
+  --m-emerald: #0e3b2e;
+  --m-emerald-tint: #16543f;
+  --m-go: #00c951;
+  --m-line: #ded3c0;
+  --m-brass: #a98b54;
+  --m-on-emerald: #f4efe4;
+  --m-accent-text: #0e3b2e;
+  --m-veg: #3b7a2e;
+  --m-nonveg: #a83a2b;
+
+  --m-card-shadow:
+    0 1px 2px rgba(36, 30, 23, 0.04), 0 14px 30px -14px rgba(36, 30, 23, 0.16);
+
+  font-family: var(--font-body-latin), system-ui, -apple-system, sans-serif;
+  color: var(--m-ink);
+}
+
+html[lang="ar"] .menu-theme {
+  font-family: var(--font-body-arabic), system-ui, -apple-system, sans-serif;
+}
+
+.dark .menu-theme {
+  --m-limestone: #171310;
+  --m-parchment: #211b16;
+  --m-ink: #f2ebdd;
+  --m-ink-soft: #a79c8a;
+  --m-emerald: #123f31;
+  --m-emerald-tint: #1a5240;
+  --m-line: rgba(255, 255, 255, 0.1);
+  --m-accent-text: #8fe0b4;
+  --m-veg: #6bbf57;
+  --m-nonveg: #e0705e;
+  --m-card-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3), 0 14px 30px -14px rgba(0, 0, 0, 0.55);
+}
+
+.menu-theme .font-display {
+  font-family: var(--font-display-latin), Georgia, "Times New Roman", serif;
+  font-optical-sizing: auto;
+}
+html[lang="ar"] .menu-theme .font-display {
+  font-family: var(--font-display-arabic), var(--font-body-arabic), sans-serif;
+}
+
+/* Colour/border/font helpers only — no spacing here, so nothing can       */
+/* cancel out the Tailwind spacing utilities in the JSX.                   */
+.menu-theme .m-card {
+  background-color: var(--m-parchment);
+  border: 1px solid var(--m-line);
+  box-shadow: var(--m-card-shadow);
+}
+
+.menu-theme .m-cart-primary {
+  background-color: var(--m-emerald);
+  color: var(--m-on-emerald);
+}
+.menu-theme .m-cart-primary:hover {
+  background-color: var(--m-emerald-tint);
+}
+.menu-theme .m-cart-bar {
+  background-color: color-mix(in srgb, var(--m-limestone) 92%, transparent);
+  border-color: var(--m-line);
+}
+.menu-theme .m-cart-badge {
+  background-color: var(--m-go);
+  color: #fff;
+  border-color: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes m-rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .menu-theme .m-rise {
+    animation: m-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .menu-theme .m-card {
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .menu-theme .m-card-hover:hover {
+    transform: translateY(-2px);
+    border-color: var(--m-emerald);
+  }
+}
