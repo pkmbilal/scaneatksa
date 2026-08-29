@@ -57,6 +57,7 @@ import OwnerOrdersTab from "@/components/dashboard/owner/OwnerOrdersTab";
 import StaffTab from "@/components/dashboard/owner/tabs/StaffTab";
 import AnalyticsTab from "@/components/dashboard/owner/tabs/AnalyticsTab";
 import AnalyticsDateRangeSelect from "@/components/dashboard/owner/AnalyticsDateRangeSelect";
+import OrdersDateFilterSelect from "@/components/dashboard/owner/OrdersDateFilterSelect";
 import { useOwnerAnalytics } from "@/components/dashboard/owner/hooks/useOwnerAnalytics";
 import ReviewsTab from "@/components/dashboard/owner/tabs/ReviewsTab";
 import { useOwnerReviews } from "@/components/dashboard/owner/hooks/useOwnerReviews";
@@ -92,6 +93,7 @@ export default function OwnerDashboardPage() {
   const [staff, setStaff] = useState([]);
   const [tablesLoading, setTablesLoading] = useState(false);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersRange, setOrdersRange] = useState("today");
   const [staffLoading, setStaffLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
@@ -235,7 +237,7 @@ export default function OwnerDashboardPage() {
       )
       .eq("restaurant_id", restaurantId)
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(200);
 
     if (!error) setOrders(data || []);
     if (!silent) setOrdersLoading(false);
@@ -553,15 +555,18 @@ export default function OwnerDashboardPage() {
       <AddTableDialog restaurantId={restaurant.id} onAdded={() => loadTables(restaurant.id)} />
     ),
     orders: (
-      <button
-        type="button"
-        onClick={() => loadOrders(restaurant.id)}
-        disabled={ordersLoading}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
-      >
-        <RefreshCw className="h-4 w-4" />
-        {ordersLoading ? t("page.actions.refreshingOrders") : t("page.actions.refreshOrders")}
-      </button>
+      <div className="flex items-center gap-2">
+        <OrdersDateFilterSelect value={ordersRange} onChange={setOrdersRange} />
+        <button
+          type="button"
+          onClick={() => loadOrders(restaurant.id)}
+          disabled={ordersLoading}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+        >
+          <RefreshCw className="h-4 w-4" />
+          {ordersLoading ? t("page.actions.refreshingOrders") : t("page.actions.refreshOrders")}
+        </button>
+      </div>
     ),
     analytics: (
       <div className="flex items-center gap-2">
@@ -657,6 +662,7 @@ export default function OwnerDashboardPage() {
               orders={orders}
               ordersLoading={ordersLoading}
               onStatusChange={updateOrderStatus}
+              range={ordersRange}
             />
           ) : activeTab === "analytics" ? (
             <AnalyticsTab analytics={analytics} />

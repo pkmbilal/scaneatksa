@@ -266,6 +266,16 @@
   "ownerOrdersTab": {
     "loading": "جارٍ تحميل الطلبات…",
     "empty": "لا توجد طلبات بعد.",
+    "emptyFiltered": "لا توجد طلبات في هذه الفترة.",
+    "count": "{n, plural, zero {# طلب} one {# طلب} two {# طلبان} few {# طلبات} many {# طلبًا} other {# طلب}}",
+    "range": {
+      "label": "النطاق الزمني",
+      "all": "الكل",
+      "today": "اليوم",
+      "yesterday": "أمس",
+      "last7": "آخر 7 أيام",
+      "last30": "آخر 30 يومًا"
+    },
     "orderLabel": "طلب",
     "channel": {
       "dineIn": "طاولة {number}",

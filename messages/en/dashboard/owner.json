@@ -266,6 +266,16 @@
   "ownerOrdersTab": {
     "loading": "Loading orders…",
     "empty": "No orders yet.",
+    "emptyFiltered": "No orders in this period.",
+    "count": "{n, plural, one {# order} other {# orders}}",
+    "range": {
+      "label": "Date range",
+      "all": "All",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last7": "Last 7 days",
+      "last30": "Last 30 days"
+    },
     "orderLabel": "Order",
     "channel": {
       "dineIn": "Table {number}",

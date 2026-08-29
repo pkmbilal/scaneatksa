@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { STATUS_LABELS, STATUS_TINTS, CHANNEL_META, channelTint, pillClass } from "@/lib/orderStatus";
 import { notifyStatusChange } from "@/lib/whatsappClient";
+import { filterOrdersByRange } from "@/components/dashboard/owner/lib/ordersDateRange";
 
 const ALL_STATUSES = Object.keys(STATUS_LABELS);
 
-export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onStatusChange }) {
+export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onStatusChange, range = "all" }) {
   const t = useTranslations("dashboard.owner");
   const [updatingId, setUpdatingId] = useState(null);
+
+  const visibleOrders = useMemo(() => filterOrdersByRange(orders, range), [orders, range]);
 
   const formatDate = (iso) => {
     try {
@@ -34,12 +37,17 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
     <div>
       {ordersLoading ? (
         <div className="text-sm text-gray-500 dark:text-gray-400">{t("ownerOrdersTab.loading")}</div>
-      ) : orders.length === 0 ? (
-        <div className="py-12 text-center text-gray-500 dark:text-gray-400">{t("ownerOrdersTab.empty")}</div>
+      ) : visibleOrders.length === 0 ? (
+        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+          {orders.length === 0 ? t("ownerOrdersTab.empty") : t("ownerOrdersTab.emptyFiltered")}
+        </div>
       ) : (
         <>
+          <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+            {t("ownerOrdersTab.count", { n: visibleOrders.length })}
+          </p>
           <div className="space-y-3">
-          {orders.map((o) => {
+          {visibleOrders.map((o) => {
             const tableNum = o?.restaurant_tables?.table_number;
             const where =
               o.channel === "dine_in"
