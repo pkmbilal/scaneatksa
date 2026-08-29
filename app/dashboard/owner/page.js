@@ -229,7 +229,8 @@ export default function OwnerDashboardPage() {
         customer_phone,
         delivery_address,
         notes,
-        restaurant_tables ( table_number )
+        restaurant_tables ( table_number ),
+        order_items ( id, name, price, quantity )
       `
       )
       .eq("restaurant_id", restaurantId)

@@ -73,7 +73,34 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
                     </div>
 
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      {formatDate(o.created_at)} • {t("ownerOrdersTab.totalLabel", { amount: Number(o.total || 0).toFixed(2) })}
+                      {formatDate(o.created_at)}
+                    </p>
+
+                    {o.order_items?.length > 0 && (
+                      <ul className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-300">
+                        {o.order_items.map((item) => (
+                          <li key={item.id} className="flex items-start justify-between gap-3">
+                            <span className="min-w-0">
+                              {item.name}{" "}
+                              <span className="text-gray-400 dark:text-gray-500">
+                                {t("ownerOrdersTab.itemUnit", {
+                                  qty: item.quantity,
+                                  price: Number(item.price).toFixed(2),
+                                })}
+                              </span>
+                            </span>
+                            <span className="shrink-0 tabular-nums text-gray-700 dark:text-gray-300">
+                              {t("common.price", {
+                                amount: (Number(item.price) * Number(item.quantity)).toFixed(2),
+                              })}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <p className="mt-2 border-t border-gray-100 pt-2 text-sm font-semibold text-gray-800 dark:border-gray-800 dark:text-white/90">
+                      {t("ownerOrdersTab.totalLabel", { amount: Number(o.total || 0).toFixed(2) })}
                     </p>
 
                     {(o.customer_phone || o.delivery_address) && (

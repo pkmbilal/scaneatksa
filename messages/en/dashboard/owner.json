@@ -273,7 +273,8 @@
       "pickup": "Pickup"
     },
     "totalLabel": "Total: SAR {amount}",
-    "notesLabel": "Notes:",
+    "itemUnit": "{qty} × SAR {price}",
+    "notesLabel": "Special instructions:",
     "changeStatus": "Change status",
     "updating": "Updating…"
   },
