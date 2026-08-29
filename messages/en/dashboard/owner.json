@@ -273,6 +273,8 @@
       "pickup": "Pickup"
     },
     "totalLabel": "Total: SAR {amount}",
+    "totalWord": "Total",
+    "itemsHeading": "Items",
     "itemUnit": "{qty} × SAR {price}",
     "notesLabel": "Special instructions:",
     "changeStatus": "Change status",

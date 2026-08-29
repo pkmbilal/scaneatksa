@@ -273,6 +273,8 @@
       "pickup": "استلام"
     },
     "totalLabel": "الإجمالي: {amount} ر.س",
+    "totalWord": "الإجمالي",
+    "itemsHeading": "الأصناف",
     "itemUnit": "{qty} × {price} ر.س",
     "notesLabel": "تعليمات خاصة:",
     "changeStatus": "تغيير الحالة",
