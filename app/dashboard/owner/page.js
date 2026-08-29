@@ -43,7 +43,10 @@ import DashboardBackdrop from "@/components/dashboard/shared/DashboardBackdrop";
 import DashboardMain from "@/components/dashboard/shared/DashboardMain";
 import StatCard from "@/components/dashboard/shared/StatCard";
 import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
+import SoundToggle from "@/components/dashboard/shared/SoundToggle";
 import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
+import { useOrderAlerts } from "@/components/dashboard/shared/hooks/useOrderAlerts";
+import { classifyOrderEvent } from "@/lib/orderNotifications";
 
 import OverviewTab from "@/components/dashboard/owner/tabs/OverviewTab";
 import MenuItemsTab from "@/components/dashboard/owner/tabs/MenuItemsTab";
@@ -113,9 +116,24 @@ export default function OwnerDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const alerts = useOrderAlerts();
+
   // Live order updates -- new orders placed, or status changes made by
-  // kitchen/waiter -- so the owner never has to refresh to see them.
-  useRestaurantOrdersRealtime(restaurant?.id, () => loadOrders(restaurant.id, { silent: true }));
+  // kitchen/waiter -- so the owner never has to refresh to see them. The same
+  // subscription feeds the toast + chime notification layer.
+  useRestaurantOrdersRealtime(
+    restaurant?.id,
+    () => loadOrders(restaurant.id, { silent: true }),
+    (payload) =>
+      alerts.push(
+        classifyOrderEvent({
+          role: "owner",
+          eventType: payload.eventType,
+          next: payload.new,
+          prev: payload.old,
+        })
+      )
+  );
 
   // Analytics data/aggregation -- fetched only while the Analytics tab is
   // active, and re-fetched when the selected date range changes.
@@ -606,6 +624,14 @@ export default function OwnerDashboardPage() {
               homeHref="/dashboard/owner"
               homeLabel={t("page.homeLabel")}
               editProfileHref="/dashboard/owner/edit-profile"
+              notifications={{
+                items: alerts.items,
+                unreadCount: alerts.unreadCount,
+                onViewAll: alerts.markAllRead,
+              }}
+              extraActions={
+                <SoundToggle enabled={alerts.soundEnabled} onToggle={alerts.toggleSound} />
+              }
             />
           }
         >

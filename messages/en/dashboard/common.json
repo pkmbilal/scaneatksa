@@ -20,7 +20,19 @@
     "justNow": "just now",
     "minutesAgo": "{minutes} min ago",
     "hoursAgo": "{hours} hr ago",
-    "daysAgo": "{days}d ago"
+    "daysAgo": "{days}d ago",
+    "order": {
+      "newTitle": "New order",
+      "newBody": "Total {amount}",
+      "newBodyNoAmount": "A new order just came in",
+      "readyTitle": "Order ready to serve",
+      "statusTitle": "Order {status}",
+      "ref": "Order #{ref}"
+    },
+    "sound": {
+      "mute": "Mute alert sound",
+      "unmute": "Unmute alert sound"
+    }
   },
   "userMenu": {
     "requestOwnerAccess": "Request Owner Access",

@@ -1,10 +1,11 @@
 'use client'
 
 // Ported from TailAdmin's components/header/NotificationDropdown.tsx.
-// Shared by all role dashboards — the caller supplies the list of items and
-// their labels/copy (e.g. admin wires it to pending restaurant-owner
-// requests; other dashboards can wire it to their own notifications, or omit
-// it from DashboardHeader entirely).
+// Shared by all role dashboards — the caller supplies pre-shaped items
+// (`{ id, title, subtitle, timestamp }`) plus copy overrides. Admin wires it to
+// pending restaurant-owner requests; the staff/owner/customer dashboards wire
+// it to live order notifications (see useOrderAlerts). Pass `unreadCount` to
+// drive the bell badge off unread items rather than the full list length.
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
@@ -25,6 +26,7 @@ function timeAgo(dateString, t) {
 
 export default function NotificationDropdown({
   items = [],
+  unreadCount,
   title,
   emptyText,
   viewAllLabel,
@@ -36,6 +38,8 @@ export default function NotificationDropdown({
   const resolvedViewAllLabel = viewAllLabel ?? t('notifications.viewAll')
   const [isOpen, setIsOpen] = useState(false)
   const hasItems = items.length > 0
+  const badgeCount = typeof unreadCount === 'number' ? unreadCount : items.length
+  const showBadge = badgeCount > 0
 
   const toggleDropdown = () => setIsOpen((prev) => !prev)
   const closeDropdown = () => setIsOpen(false)
@@ -48,7 +52,7 @@ export default function NotificationDropdown({
         onClick={toggleDropdown}
         aria-label={resolvedTitle}
       >
-        {hasItems && (
+        {showBadge && (
           <span className="absolute end-1.5 top-1.5 z-10 h-2 w-2 rounded-full bg-orange-400">
             <span className="absolute inline-flex w-full h-full bg-orange-400 rounded-full opacity-75 animate-ping" />
           </span>
@@ -73,8 +77,8 @@ export default function NotificationDropdown({
           </p>
         ) : (
           <ul className="flex flex-col h-auto overflow-y-auto custom-scrollbar">
-            {items.slice(0, 6).map((request) => (
-              <li key={request.id}>
+            {items.slice(0, 6).map((item) => (
+              <li key={item.id}>
                 <DropdownItem
                   onItemClick={() => {
                     closeDropdown()
@@ -83,16 +87,18 @@ export default function NotificationDropdown({
                   className="flex flex-col gap-1 rounded-lg border-b border-gray-100 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
                 >
                   <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
-                    {request.restaurant_name}
+                    {item.title}
                   </span>
-                  <span className="text-theme-xs text-gray-500 dark:text-gray-400">
-                    {request.user_profiles?.full_name || request.user_profiles?.email || t('notifications.unknownUser')}
-                  </span>
-                  <span className="flex items-center gap-2 text-gray-500 text-theme-xs dark:text-gray-400">
-                    <span>{t('notifications.request')}</span>
-                    <span className="w-1 h-1 bg-gray-400 rounded-full" />
-                    <span>{timeAgo(request.created_at, t)}</span>
-                  </span>
+                  {item.subtitle && (
+                    <span className="text-theme-xs text-gray-500 dark:text-gray-400">
+                      {item.subtitle}
+                    </span>
+                  )}
+                  {item.timestamp && (
+                    <span className="flex items-center gap-2 text-gray-500 text-theme-xs dark:text-gray-400">
+                      <span>{timeAgo(item.timestamp, t)}</span>
+                    </span>
+                  )}
                 </DropdownItem>
               </li>
             ))}

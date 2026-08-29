@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   getCurrentUser,
@@ -11,9 +11,19 @@ import {
   getUserReviews,
 } from '@/lib/auth/client'
 import { supabaseBrowser } from '@/lib/supabase/client'
+import { useOrderAlerts } from '@/components/dashboard/shared/hooks/useOrderAlerts'
+import { classifyOrderEvent } from '@/lib/orderNotifications'
 
 export function useCustomerDashboardData() {
   const router = useRouter()
+
+  const orderAlerts = useOrderAlerts()
+  // Kept in a ref so the realtime effect below doesn't re-subscribe when the
+  // hook re-renders.
+  const orderAlertsPushRef = useRef(orderAlerts.push)
+  useEffect(() => {
+    orderAlertsPushRef.current = orderAlerts.push
+  })
 
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
@@ -159,6 +169,14 @@ export function useCustomerDashboardData() {
             setOrders((prev) =>
               prev.map((o) => (o.id === payload.new.id ? { ...o, ...payload.new } : o))
             )
+            orderAlertsPushRef.current(
+              classifyOrderEvent({
+                role: 'customer',
+                eventType: 'UPDATE',
+                next: payload.new,
+                prev: payload.old,
+              })
+            )
           } else {
             // INSERT/DELETE need the joined restaurant/table/item data getUserOrders
             // provides, which the realtime payload doesn't include — just refetch.
@@ -214,5 +232,6 @@ export function useCustomerDashboardData() {
     setReviews,
     refreshReviews, // ✅ exported if you want manual refresh
     loading,
+    orderAlerts, // toast/chime + header-bell notifications for live order updates
   }
 }

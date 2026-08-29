@@ -83,6 +83,7 @@ export default function DashboardHeader({
             {notifications && (
               <NotificationDropdown
                 items={notifications.items}
+                unreadCount={notifications.unreadCount}
                 title={notifications.title}
                 emptyText={notifications.emptyText}
                 viewAllLabel={notifications.viewAllLabel}
@@ -147,6 +148,7 @@ export default function DashboardHeader({
             {notifications && (
               <NotificationDropdown
                 items={notifications.items}
+                unreadCount={notifications.unreadCount}
                 title={notifications.title}
                 emptyText={notifications.emptyText}
                 viewAllLabel={notifications.viewAllLabel}

@@ -11,6 +11,7 @@ import DashboardSidebar from '@/components/dashboard/shared/DashboardSidebar'
 import DashboardHeader from '@/components/dashboard/shared/DashboardHeader'
 import DashboardBackdrop from '@/components/dashboard/shared/DashboardBackdrop'
 import DashboardMain from '@/components/dashboard/shared/DashboardMain'
+import SoundToggle from '@/components/dashboard/shared/SoundToggle'
 import StatCard from '@/components/dashboard/shared/StatCard'
 import TabSectionHeader from '@/components/dashboard/shared/TabSectionHeader'
 
@@ -31,6 +32,7 @@ export default function CustomerDashboardPage() {
     orders,
     reviews,
     loading,
+    orderAlerts,
   } = useCustomerDashboardData()
 
   const [activeTab, setActiveTab] = useState('overview')
@@ -128,6 +130,17 @@ export default function CustomerDashboardPage() {
               homeHref="/dashboard/customer"
               homeLabel={t('page.homeLabel')}
               editProfileHref="/dashboard/customer/edit-profile"
+              notifications={{
+                items: orderAlerts.items,
+                unreadCount: orderAlerts.unreadCount,
+                onViewAll: orderAlerts.markAllRead,
+              }}
+              extraActions={
+                <SoundToggle
+                  enabled={orderAlerts.soundEnabled}
+                  onToggle={orderAlerts.toggleSound}
+                />
+              }
             />
           }
         >

@@ -20,7 +20,19 @@
     "justNow": "الآن",
     "minutesAgo": "قبل {minutes} د",
     "hoursAgo": "قبل {hours} س",
-    "daysAgo": "قبل {days} يوم"
+    "daysAgo": "قبل {days} يوم",
+    "order": {
+      "newTitle": "طلب جديد",
+      "newBody": "الإجمالي {amount}",
+      "newBodyNoAmount": "وصل طلب جديد للتو",
+      "readyTitle": "طلب جاهز للتقديم",
+      "statusTitle": "الطلب {status}",
+      "ref": "الطلب رقم {ref}"
+    },
+    "sound": {
+      "mute": "كتم صوت التنبيه",
+      "unmute": "تشغيل صوت التنبيه"
+    }
   },
   "userMenu": {
     "requestOwnerAccess": "طلب صلاحية مالك",
