@@ -47,6 +47,7 @@ import CuisinesTab from '@/components/dashboard/admin/tabs/CuisinesTab'
 
 export default function AdminDashboard() {
   const t = useTranslations('dashboard.admin')
+  const tCommon = useTranslations('dashboard.common')
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
 
@@ -615,7 +616,15 @@ export default function AdminDashboard() {
               homeLabel={t('page.homeLabel')}
               editProfileHref="/dashboard/admin/edit-profile"
               notifications={{
-                items: pendingRequests,
+                items: pendingRequests.map((req) => ({
+                  id: req.id,
+                  title: req.restaurant_name,
+                  subtitle:
+                    req.user_profiles?.full_name ||
+                    req.user_profiles?.email ||
+                    tCommon('notifications.unknownUser'),
+                  timestamp: req.created_at,
+                })),
                 title: t('page.notificationsTitle'),
                 emptyText: t('page.notificationsEmpty'),
                 viewAllLabel: t('page.viewAllRequests'),

@@ -17,7 +17,10 @@ import DashboardBackdrop from "@/components/dashboard/shared/DashboardBackdrop";
 import DashboardMain from "@/components/dashboard/shared/DashboardMain";
 import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
 import OrderQueue from "@/components/dashboard/staff/OrderQueue";
+import SoundToggle from "@/components/dashboard/shared/SoundToggle";
 import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
+import { useOrderAlerts } from "@/components/dashboard/shared/hooks/useOrderAlerts";
+import { classifyOrderEvent } from "@/lib/orderNotifications";
 
 // Kitchen's queue is orders in `new` or `preparing` status -- kitchen starts
 // an order (`new` -> `preparing`) and then marks it ready (`preparing` ->
@@ -38,9 +41,24 @@ export default function KitchenDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const alerts = useOrderAlerts();
+
   // Live queue updates -- a new order landing in `new`, or one leaving it --
-  // so kitchen never has to refresh.
-  useRestaurantOrdersRealtime(restaurant?.id, () => loadOrders(restaurant.id, { silent: true }));
+  // so kitchen never has to refresh. The same subscription feeds the toast +
+  // chime notification layer.
+  useRestaurantOrdersRealtime(
+    restaurant?.id,
+    () => loadOrders(restaurant.id, { silent: true }),
+    (payload) =>
+      alerts.push(
+        classifyOrderEvent({
+          role: "kitchen",
+          eventType: payload.eventType,
+          next: payload.new,
+          prev: payload.old,
+        })
+      )
+  );
 
   async function loadData() {
     setLoading(true);
@@ -143,6 +161,14 @@ export default function KitchenDashboardPage() {
               homeHref="/dashboard/kitchen"
               homeLabel={t("kitchen.homeLabel")}
               editProfileHref="/dashboard/kitchen"
+              notifications={{
+                items: alerts.items,
+                unreadCount: alerts.unreadCount,
+                onViewAll: alerts.markAllRead,
+              }}
+              extraActions={
+                <SoundToggle enabled={alerts.soundEnabled} onToggle={alerts.toggleSound} />
+              }
             />
           }
         >

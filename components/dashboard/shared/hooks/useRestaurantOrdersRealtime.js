@@ -7,11 +7,16 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 // dashboard's order list updates live -- a new order placed, or its status
 // changed by another role -- without a manual refresh. `onChange` is called
 // with no args on every insert/update/delete; callers pass a silent
-// refetch. Kept in a ref so callers don't need to memoize it themselves.
-export function useRestaurantOrdersRealtime(restaurantId, onChange) {
+// refetch. `onEvent` (optional) is called with the raw Supabase payload
+// (`{ eventType, new, old, ... }`) so a caller can also raise a notification
+// off the same single subscription. Both callbacks are kept in refs so callers
+// don't need to memoize them.
+export function useRestaurantOrdersRealtime(restaurantId, onChange, onEvent) {
   const onChangeRef = useRef(onChange);
+  const onEventRef = useRef(onEvent);
   useEffect(() => {
     onChangeRef.current = onChange;
+    onEventRef.current = onEvent;
   });
 
   useEffect(() => {
@@ -22,7 +27,10 @@ export function useRestaurantOrdersRealtime(restaurantId, onChange) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "orders", filter: `restaurant_id=eq.${restaurantId}` },
-        () => onChangeRef.current?.()
+        (payload) => {
+          onChangeRef.current?.();
+          onEventRef.current?.(payload);
+        }
       )
       .subscribe();
 

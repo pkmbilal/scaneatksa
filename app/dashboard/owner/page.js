@@ -43,7 +43,10 @@ import DashboardBackdrop from "@/components/dashboard/shared/DashboardBackdrop";
 import DashboardMain from "@/components/dashboard/shared/DashboardMain";
 import StatCard from "@/components/dashboard/shared/StatCard";
 import TabSectionHeader from "@/components/dashboard/shared/TabSectionHeader";
+import SoundToggle from "@/components/dashboard/shared/SoundToggle";
 import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
+import { useOrderAlerts } from "@/components/dashboard/shared/hooks/useOrderAlerts";
+import { classifyOrderEvent } from "@/lib/orderNotifications";
 
 import OverviewTab from "@/components/dashboard/owner/tabs/OverviewTab";
 import MenuItemsTab from "@/components/dashboard/owner/tabs/MenuItemsTab";
@@ -54,6 +57,7 @@ import OwnerOrdersTab from "@/components/dashboard/owner/OwnerOrdersTab";
 import StaffTab from "@/components/dashboard/owner/tabs/StaffTab";
 import AnalyticsTab from "@/components/dashboard/owner/tabs/AnalyticsTab";
 import AnalyticsDateRangeSelect from "@/components/dashboard/owner/AnalyticsDateRangeSelect";
+import OrdersDateFilterSelect from "@/components/dashboard/owner/OrdersDateFilterSelect";
 import { useOwnerAnalytics } from "@/components/dashboard/owner/hooks/useOwnerAnalytics";
 import ReviewsTab from "@/components/dashboard/owner/tabs/ReviewsTab";
 import { useOwnerReviews } from "@/components/dashboard/owner/hooks/useOwnerReviews";
@@ -89,6 +93,7 @@ export default function OwnerDashboardPage() {
   const [staff, setStaff] = useState([]);
   const [tablesLoading, setTablesLoading] = useState(false);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersRange, setOrdersRange] = useState("today");
   const [staffLoading, setStaffLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
@@ -113,9 +118,24 @@ export default function OwnerDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const alerts = useOrderAlerts();
+
   // Live order updates -- new orders placed, or status changes made by
-  // kitchen/waiter -- so the owner never has to refresh to see them.
-  useRestaurantOrdersRealtime(restaurant?.id, () => loadOrders(restaurant.id, { silent: true }));
+  // kitchen/waiter -- so the owner never has to refresh to see them. The same
+  // subscription feeds the toast + chime notification layer.
+  useRestaurantOrdersRealtime(
+    restaurant?.id,
+    () => loadOrders(restaurant.id, { silent: true }),
+    (payload) =>
+      alerts.push(
+        classifyOrderEvent({
+          role: "owner",
+          eventType: payload.eventType,
+          next: payload.new,
+          prev: payload.old,
+        })
+      )
+  );
 
   // Analytics data/aggregation -- fetched only while the Analytics tab is
   // active, and re-fetched when the selected date range changes.
@@ -211,12 +231,13 @@ export default function OwnerDashboardPage() {
         customer_phone,
         delivery_address,
         notes,
-        restaurant_tables ( table_number )
+        restaurant_tables ( table_number ),
+        order_items ( id, name, price, quantity )
       `
       )
       .eq("restaurant_id", restaurantId)
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(200);
 
     if (!error) setOrders(data || []);
     if (!silent) setOrdersLoading(false);
@@ -534,15 +555,18 @@ export default function OwnerDashboardPage() {
       <AddTableDialog restaurantId={restaurant.id} onAdded={() => loadTables(restaurant.id)} />
     ),
     orders: (
-      <button
-        type="button"
-        onClick={() => loadOrders(restaurant.id)}
-        disabled={ordersLoading}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
-      >
-        <RefreshCw className="h-4 w-4" />
-        {ordersLoading ? t("page.actions.refreshingOrders") : t("page.actions.refreshOrders")}
-      </button>
+      <div className="flex items-center gap-2">
+        <OrdersDateFilterSelect value={ordersRange} onChange={setOrdersRange} />
+        <button
+          type="button"
+          onClick={() => loadOrders(restaurant.id)}
+          disabled={ordersLoading}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+        >
+          <RefreshCw className="h-4 w-4" />
+          {ordersLoading ? t("page.actions.refreshingOrders") : t("page.actions.refreshOrders")}
+        </button>
+      </div>
     ),
     analytics: (
       <div className="flex items-center gap-2">
@@ -606,6 +630,14 @@ export default function OwnerDashboardPage() {
               homeHref="/dashboard/owner"
               homeLabel={t("page.homeLabel")}
               editProfileHref="/dashboard/owner/edit-profile"
+              notifications={{
+                items: alerts.items,
+                unreadCount: alerts.unreadCount,
+                onViewAll: alerts.markAllRead,
+              }}
+              extraActions={
+                <SoundToggle enabled={alerts.soundEnabled} onToggle={alerts.toggleSound} />
+              }
             />
           }
         >
@@ -630,6 +662,7 @@ export default function OwnerDashboardPage() {
               orders={orders}
               ordersLoading={ordersLoading}
               onStatusChange={updateOrderStatus}
+              range={ordersRange}
             />
           ) : activeTab === "analytics" ? (
             <AnalyticsTab analytics={analytics} />

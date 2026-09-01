@@ -266,16 +266,32 @@
   "ownerOrdersTab": {
     "loading": "جارٍ تحميل الطلبات…",
     "empty": "لا توجد طلبات بعد.",
+    "emptyFiltered": "لا توجد طلبات في هذه الفترة.",
+    "count": "{n, plural, zero {# طلب} one {# طلب} two {# طلبان} few {# طلبات} many {# طلبًا} other {# طلب}}",
+    "range": {
+      "label": "النطاق الزمني",
+      "all": "الكل",
+      "today": "اليوم",
+      "yesterday": "أمس",
+      "last7": "آخر 7 أيام",
+      "last30": "آخر 30 يومًا"
+    },
     "orderLabel": "طلب",
+    "orderNumber": "طلب #{n}",
     "channel": {
       "dineIn": "طاولة {number}",
       "delivery": "توصيل",
       "pickup": "استلام"
     },
     "totalLabel": "الإجمالي: {amount} ر.س",
-    "notesLabel": "ملاحظات:",
+    "totalWord": "الإجمالي",
+    "itemsHeading": "الأصناف",
+    "itemUnit": "{qty} × {price} ر.س",
+    "notesLabel": "تعليمات خاصة:",
     "changeStatus": "تغيير الحالة",
-    "updating": "جارٍ التحديث…"
+    "updating": "جارٍ التحديث…",
+    "viewList": "عرض القائمة",
+    "viewCard": "عرض البطاقات"
   },
   "ownerTablesQrTab": {
     "onlineLinkTitle": "رابط الطلب عبر الإنترنت",
