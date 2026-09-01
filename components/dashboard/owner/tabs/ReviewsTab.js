@@ -59,7 +59,11 @@ export default function ReviewsTab({ reviews, itemRatings = [], kpis, loading, o
               key={review.id}
               review={review}
               itemName={review.menu_items?.name}
-              ownerActions={<ReplyDialog review={review} onReplied={onReplied} />}
+              ownerActions={
+                review.menu_item_id ? undefined : (
+                  <ReplyDialog review={review} onReplied={onReplied} />
+                )
+              }
             />
           ))}
         </div>

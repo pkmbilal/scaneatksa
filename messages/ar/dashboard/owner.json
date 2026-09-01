@@ -277,6 +277,7 @@
       "last30": "آخر 30 يومًا"
     },
     "orderLabel": "طلب",
+    "orderNumber": "طلب #{n}",
     "channel": {
       "dineIn": "طاولة {number}",
       "delivery": "توصيل",

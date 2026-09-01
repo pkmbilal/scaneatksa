@@ -17,6 +17,26 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
 
   const visibleOrders = useMemo(() => filterOrdersByRange(orders, range), [orders, range]);
 
+  // Per-day sequence number (oldest order of a calendar day = #1). Computed from
+  // the full orders list so a given order keeps the same number across filters.
+  const dayNumberById = useMemo(() => {
+    const byDay = new Map();
+    for (const o of orders || []) {
+      const d = new Date(o.created_at);
+      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      if (!byDay.has(key)) byDay.set(key, []);
+      byDay.get(key).push(o);
+    }
+    const map = new Map();
+    for (const list of byDay.values()) {
+      list
+        .slice()
+        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+        .forEach((o, i) => map.set(o.id, i + 1));
+    }
+    return map;
+  }, [orders]);
+
   const formatDate = (iso) => {
     try {
       return new Date(iso).toLocaleString();
@@ -110,7 +130,11 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
 
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold text-gray-800 dark:text-white/90">{t("ownerOrdersTab.orderLabel")}</p>
+                      <p className="font-semibold text-gray-800 dark:text-white/90">
+                        {dayNumberById.has(o.id)
+                          ? t("ownerOrdersTab.orderNumber", { n: dayNumberById.get(o.id) })
+                          : t("ownerOrdersTab.orderLabel")}
+                      </p>
                       <span className={`${pillClass} ${channelTint}`}>{where}</span>
                       <span className={`${pillClass} ${STATUS_TINTS[o.status] || STATUS_TINTS.new}`}>
                         {o.status && STATUS_LABELS[o.status] ? t(`status.${o.status}`) : o.status}

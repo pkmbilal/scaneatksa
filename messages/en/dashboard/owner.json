@@ -277,6 +277,7 @@
       "last30": "Last 30 days"
     },
     "orderLabel": "Order",
+    "orderNumber": "Order #{n}",
     "channel": {
       "dineIn": "Table {number}",
       "delivery": "Delivery",
