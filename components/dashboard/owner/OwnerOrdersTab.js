@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { List, LayoutGrid } from "lucide-react";
 import { STATUS_LABELS, STATUS_TINTS, STATUS_DOT, CHANNEL_META, channelTint, pillClass } from "@/lib/orderStatus";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { notifyStatusChange } from "@/lib/whatsappClient";
@@ -12,6 +13,7 @@ const ALL_STATUSES = Object.keys(STATUS_LABELS);
 export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onStatusChange, range = "all" }) {
   const t = useTranslations("dashboard.owner");
   const [updatingId, setUpdatingId] = useState(null);
+  const [viewMode, setViewMode] = useState("card");
 
   const visibleOrders = useMemo(() => filterOrdersByRange(orders, range), [orders, range]);
 
@@ -47,7 +49,39 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
           <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
             {t("ownerOrdersTab.count", { n: visibleOrders.length })}
           </p>
-          <div className="space-y-3">
+          <div className="mb-3 hidden justify-end md:flex">
+            <div className="inline-flex rounded-lg border border-gray-200 p-0.5 dark:border-gray-800">
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                aria-pressed={viewMode === "list"}
+                aria-label={t("ownerOrdersTab.viewList")}
+                title={t("ownerOrdersTab.viewList")}
+                className={`rounded-md p-1.5 transition-colors cursor-pointer ${
+                  viewMode === "list"
+                    ? "bg-brand-500 text-white"
+                    : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                }`}
+              >
+                <List className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("card")}
+                aria-pressed={viewMode === "card"}
+                aria-label={t("ownerOrdersTab.viewCard")}
+                title={t("ownerOrdersTab.viewCard")}
+                className={`rounded-md p-1.5 transition-colors cursor-pointer ${
+                  viewMode === "card"
+                    ? "bg-brand-500 text-white"
+                    : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                }`}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          <div className={viewMode === "card" ? "grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
           {visibleOrders.map((o) => {
             const tableNum = o?.restaurant_tables?.table_number;
             const where =
@@ -62,7 +96,9 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
             return (
               <div
                 key={o.id}
-                className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-gray-200 bg-white p-4 shadow-theme-xs transition-all duration-200 hover:border-gray-300 hover:shadow-theme-md dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-gray-700 md:flex-row md:items-center md:justify-between ${meta.accent}`}
+                className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-gray-200 bg-white p-4 shadow-theme-xs transition-all duration-200 hover:border-gray-300 hover:shadow-theme-md dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-gray-700 ${
+                  viewMode === "list" ? "md:flex-row md:items-center md:justify-between" : ""
+                } ${meta.accent}`}
               >
                 <div className="flex min-w-0 items-start gap-3">
                   <div

@@ -288,7 +288,9 @@
     "itemUnit": "{qty} × SAR {price}",
     "notesLabel": "Special instructions:",
     "changeStatus": "Change status",
-    "updating": "Updating…"
+    "updating": "Updating…",
+    "viewList": "List view",
+    "viewCard": "Card view"
   },
   "ownerTablesQrTab": {
     "onlineLinkTitle": "Online ordering link",

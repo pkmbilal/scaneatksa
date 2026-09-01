@@ -288,7 +288,9 @@
     "itemUnit": "{qty} × {price} ر.س",
     "notesLabel": "تعليمات خاصة:",
     "changeStatus": "تغيير الحالة",
-    "updating": "جارٍ التحديث…"
+    "updating": "جارٍ التحديث…",
+    "viewList": "عرض القائمة",
+    "viewCard": "عرض البطاقات"
   },
   "ownerTablesQrTab": {
     "onlineLinkTitle": "رابط الطلب عبر الإنترنت",
