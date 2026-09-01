@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { STATUS_LABELS, STATUS_TINTS, CHANNEL_META, channelTint, pillClass } from "@/lib/orderStatus";
+import { STATUS_LABELS, STATUS_TINTS, STATUS_DOT, CHANNEL_META, channelTint, pillClass } from "@/lib/orderStatus";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { notifyStatusChange } from "@/lib/whatsappClient";
 import { filterOrdersByRange } from "@/components/dashboard/owner/lib/ordersDateRange";
 
@@ -141,21 +142,27 @@ export default function OwnerOrdersTab({ restaurant, orders, ordersLoading, onSt
                 </div>
 
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
-                  <select
+                  <Select
                     value=""
-                    onChange={(e) => handleStatusPick(o, e.target.value)}
+                    onValueChange={(next) => handleStatusPick(o, next)}
                     disabled={updatingId === o.id}
-                    className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                   >
-                    <option value="" disabled>
-                      {updatingId === o.id ? t("ownerOrdersTab.updating") : t("ownerOrdersTab.changeStatus")}
-                    </option>
-                    {ALL_STATUSES.filter((s) => s !== o.status).map((s) => (
-                      <option key={s} value={s}>
-                        {t(`status.${s}`)}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger
+                      className={`h-auto w-fit cursor-pointer gap-1.5 rounded-full border-0 px-2.5 py-1.5 text-xs font-semibold shadow-none ${STATUS_TINTS[o.status] || STATUS_TINTS.new}`}
+                      aria-label={t("ownerOrdersTab.changeStatus")}
+                    >
+                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATUS_DOT[o.status] || STATUS_DOT.new}`} />
+                      {updatingId === o.id ? t("ownerOrdersTab.updating") : t(`status.${o.status}`)}
+                    </SelectTrigger>
+                    <SelectContent position="popper" align="end">
+                      {ALL_STATUSES.filter((s) => s !== o.status).map((s) => (
+                        <SelectItem key={s} value={s} className="cursor-pointer">
+                          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATUS_DOT[s]}`} />
+                          {t(`status.${s}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             );
