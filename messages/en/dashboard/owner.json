@@ -26,6 +26,18 @@
     "cancelled": "Cancelled",
     "completed": "Completed"
   },
+  "subscriptionBanner": {
+    "trialWord": "trial",
+    "subscriptionWord": "subscription",
+    "suspended": "Your account is suspended. Your restaurant is hidden from customers — contact us to reactivate it.",
+    "expired": "Your {kind} has expired. Your restaurant is now hidden from customers. Contact us to renew and go back live.",
+    "endingSoon": "Your {kind} ends in {count, plural, one {# day} other {# days}}. Contact us to keep your restaurant live.",
+    "trial": "Free trial — {count, plural, one {# day} other {# days}} left. Contact us to subscribe before it ends.",
+    "contactWhatsapp": "WhatsApp us",
+    "contactEmail": "Email us",
+    "whatsappMessage": "Hi, I'd like to subscribe / renew ScanEat for my restaurant \"{name}\".",
+    "emailSubject": "ScanEat subscription — {name}"
+  },
   "page": {
     "loading": "Loading owner dashboard...",
     "homeLabel": "Owner Dashboard",

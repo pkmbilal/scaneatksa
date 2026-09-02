@@ -48,6 +48,7 @@ import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks
 import { useOrderAlerts } from "@/components/dashboard/shared/hooks/useOrderAlerts";
 import { classifyOrderEvent } from "@/lib/orderNotifications";
 
+import SubscriptionBanner from "@/components/dashboard/owner/SubscriptionBanner";
 import OverviewTab from "@/components/dashboard/owner/tabs/OverviewTab";
 import MenuItemsTab from "@/components/dashboard/owner/tabs/MenuItemsTab";
 import CategoriesTab from "@/components/dashboard/owner/tabs/CategoriesTab";
@@ -649,6 +650,8 @@ export default function OwnerDashboardPage() {
               <StatCard icon={Receipt} label={t("page.stats.orders")} value={orders.length} tint="warning" />
             </div>
           )}
+
+          <SubscriptionBanner restaurant={restaurant} />
 
           <TabSectionHeader
             title={tabTitles[activeTab]}

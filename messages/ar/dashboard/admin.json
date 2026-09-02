@@ -11,6 +11,7 @@
     "all": "جميع الطلبات",
     "users": "المستخدمون",
     "restaurants": "المطاعم",
+    "subscriptions": "الاشتراكات",
     "cities": "المدن",
     "cuisines": "المطابخ"
   },
@@ -30,6 +31,10 @@
     "restaurants": {
       "title": "المطاعم",
       "description": "جميع المطاعم المعتمدة على المنصة."
+    },
+    "subscriptions": {
+      "title": "الاشتراكات",
+      "description": "إدارة الفترة التجريبية والاشتراك المدفوع لكل مطعم. لا يوجد دفع إلكتروني بعد — عيّن الحالة وتواريخ انتهاء الصلاحية يدويًا هنا."
     },
     "cities": {
       "title": "المدن",
@@ -175,6 +180,61 @@
     "deleteDescription": "سيؤدي هذا إلى حذف \"{name}\" وجميع عناصر قائمته نهائيًا! اكتب \"{name}\" للتأكيد:",
     "deleteConfirm": "حذف",
     "deletedSuccess": "تم حذف المطعم بنجاح"
+  },
+  "subscriptionsTab": {
+    "emptyState": "لا توجد مطاعم مطابقة لهذا الفلتر.",
+    "filters": {
+      "all": "الكل",
+      "trial": "تجريبي",
+      "active": "نشط",
+      "expired": "منتهٍ",
+      "suspended": "موقوف"
+    },
+    "state": {
+      "trial": "تجريبي",
+      "active": "مدفوع",
+      "unlimited": "غير محدود",
+      "expired": "منتهٍ",
+      "suspended": "موقوف"
+    },
+    "expiryLabel": "ينتهي في:",
+    "unlimited": "وصول غير محدود",
+    "daysLeft": "{count, plural, zero {# يوم متبقٍ} one {# يوم متبقٍ} two {يومان متبقيان} few {# أيام متبقية} many {# يومًا متبقيًا} other {# يوم متبقٍ}}",
+    "daysAgo": "{count, plural, zero {منذ # يوم} one {منذ # يوم} two {منذ يومين} few {منذ # أيام} many {منذ # يومًا} other {منذ # يوم}}",
+    "trialUsedHint": "تم استخدام الفترة التجريبية المجانية مرة واحدة بالفعل.",
+    "notesLabel": "ملاحظات:",
+    "actions": {
+      "plus7d": "+7 أيام",
+      "plus1m": "+شهر",
+      "plus3m": "+3 أشهر",
+      "plus1y": "+سنة",
+      "setDate": "تحديد تاريخ…",
+      "markPaid": "تعيين كمدفوع",
+      "startTrial": "بدء / إعادة الفترة التجريبية",
+      "grantUnlimited": "منح وصول غير محدود",
+      "editNotes": "تعديل الملاحظات…",
+      "suspend": "إيقاف",
+      "unsuspend": "إلغاء الإيقاف"
+    },
+    "dateDialog": {
+      "title": "تحديد تاريخ انتهاء الصلاحية",
+      "description": "اختر تاريخ انتهاء الصلاحية الجديد لـ {name}. هذا يعيّن الاشتراك أيضًا كمدفوع."
+    },
+    "notesDialog": {
+      "title": "ملاحظات الاشتراك",
+      "description": "ملاحظات إدارية خاصة لـ {name} (مثل طريقة الدفع، المبلغ، التاريخ).",
+      "placeholder": "مثال: دُفع 200 ريال نقدًا في 2026-09-01"
+    },
+    "messages": {
+      "extended": "تم تمديد الصلاحية لـ {name}.",
+      "expirySet": "تم تحديث تاريخ انتهاء الصلاحية لـ {name}.",
+      "activated": "تم تعيين {name} كمدفوع.",
+      "trialStarted": "تمت إعادة الفترة التجريبية لـ {name} (30 يومًا).",
+      "unlimitedGranted": "أصبح لدى {name} وصول غير محدود.",
+      "suspended": "تم إيقاف {name} — مخفي عن العملاء.",
+      "unsuspended": "تمت إعادة تفعيل {name}.",
+      "notesSaved": "تم حفظ الملاحظات لـ {name}."
+    }
   },
   "usersTab": {
     "noName": "بدون اسم",

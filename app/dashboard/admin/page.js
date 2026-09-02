@@ -5,7 +5,7 @@ const supabase = supabaseBrowser();
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Inbox, ListChecks, Users as UsersIcon, Store, MapPin, UtensilsCrossed, TriangleAlert, CheckCircle } from 'lucide-react'
+import { Inbox, ListChecks, Users as UsersIcon, Store, MapPin, UtensilsCrossed, CreditCard, TriangleAlert, CheckCircle } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
 import LoadingScreen from '@/components/common/LoadingScreen'
 
@@ -42,6 +42,7 @@ import PendingRequestsTab from '@/components/dashboard/admin/tabs/PendingRequest
 import AllRequestsTab from '@/components/dashboard/admin/tabs/AllRequestsTab'
 import UsersTab from '@/components/dashboard/admin/tabs/UsersTab'
 import RestaurantsTab from '@/components/dashboard/admin/tabs/RestaurantsTab'
+import SubscriptionsTab from '@/components/dashboard/admin/tabs/SubscriptionsTab'
 import CitiesTab from '@/components/dashboard/admin/tabs/CitiesTab'
 import CuisinesTab from '@/components/dashboard/admin/tabs/CuisinesTab'
 
@@ -273,6 +274,9 @@ export default function AdminDashboard() {
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-|-$/g, '')
 
+          const nowIso = new Date().toISOString()
+          const trialEndsIso = new Date(Date.now() + 30 * 864e5).toISOString()
+
           const { data: restaurant, error: restaurantError } = await supabase
             .from('restaurants')
             .insert([
@@ -284,7 +288,12 @@ export default function AdminDashboard() {
                 owner_id: request.user_id,
                 owner_email: request.user_profiles?.email,
                 is_active: true,
-                approved_at: new Date().toISOString(),
+                approved_at: nowIso,
+                // Every newly approved restaurant starts on a 30-day free trial.
+                subscription_status: 'trial',
+                subscription_started_at: nowIso,
+                subscription_expires_at: trialEndsIso,
+                trial_used: true,
               },
             ])
             .select()
@@ -542,6 +551,24 @@ export default function AdminDashboard() {
     })
   }
 
+  // Manual subscription control -- one write per action, authorised by the
+  // restaurants_admin_all RLS policy. All actions are reversible, so they apply
+  // immediately with a success toast rather than a confirm dialog.
+  const handleSubscriptionUpdate = async (restaurant, patch, messageKey) => {
+    const { error } = await supabase.from('restaurants').update(patch).eq('id', restaurant.id)
+    if (error) {
+      setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
+    } else {
+      setInfoDialog({
+        open: true,
+        title: t('dialogs.successTitle'),
+        description: t(`subscriptionsTab.messages.${messageKey}`, { name: restaurant.name }),
+        isError: false,
+      })
+      loadRestaurants()
+    }
+  }
+
   const handleDeleteRestaurant = async (restaurant) => {
     setInputDialog({
       open: true,
@@ -566,11 +593,20 @@ export default function AdminDashboard() {
     return <LoadingScreen message={t('page.loading')} />
   }
 
+  // Restaurants that are expired or expiring within 7 days -- surfaced as a
+  // badge on the Subscriptions nav item so the operator notices renewals due.
+  const subscriptionsDueCount = allRestaurants.filter((r) => {
+    if (r.subscription_status === 'suspended' || !r.subscription_expires_at) return false
+    const days = Math.ceil((new Date(r.subscription_expires_at).getTime() - Date.now()) / 864e5)
+    return days <= 7
+  }).length
+
   const navItems = [
     { key: 'pending', label: t('nav.pending'), icon: Inbox, count: pendingRequests.length },
     { key: 'all', label: t('nav.all'), icon: ListChecks },
     { key: 'users', label: t('nav.users'), icon: UsersIcon },
     { key: 'restaurants', label: t('nav.restaurants'), icon: Store },
+    { key: 'subscriptions', label: t('nav.subscriptions'), icon: CreditCard, count: subscriptionsDueCount },
     { key: 'cities', label: t('nav.cities'), icon: MapPin },
     { key: 'cuisines', label: t('nav.cuisines'), icon: UtensilsCrossed },
   ]
@@ -580,6 +616,7 @@ export default function AdminDashboard() {
     all: t('tabs.all.title'),
     users: t('tabs.users.title'),
     restaurants: t('tabs.restaurants.title'),
+    subscriptions: t('tabs.subscriptions.title'),
     cities: t('tabs.cities.title'),
     cuisines: t('tabs.cuisines.title'),
   }
@@ -589,6 +626,7 @@ export default function AdminDashboard() {
     all: t('tabs.all.description'),
     users: t('tabs.users.description'),
     restaurants: t('tabs.restaurants.description'),
+    subscriptions: t('tabs.subscriptions.description'),
     cities: t('tabs.cities.description'),
     cuisines: t('tabs.cuisines.description'),
   }
@@ -673,6 +711,13 @@ export default function AdminDashboard() {
                   allRestaurants={allRestaurants}
                   onToggle={handleToggleRestaurant}
                   onDelete={handleDeleteRestaurant}
+                />
+              )}
+
+              {activeTab === 'subscriptions' && (
+                <SubscriptionsTab
+                  restaurants={allRestaurants}
+                  onUpdate={handleSubscriptionUpdate}
                 />
               )}
 

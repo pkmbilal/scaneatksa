@@ -26,6 +26,18 @@
     "cancelled": "ملغى",
     "completed": "مكتمل"
   },
+  "subscriptionBanner": {
+    "trialWord": "الفترة التجريبية",
+    "subscriptionWord": "الاشتراك",
+    "suspended": "تم إيقاف حسابك. مطعمك مخفي عن العملاء — تواصل معنا لإعادة تفعيله.",
+    "expired": "انتهت صلاحية {kind}. أصبح مطعمك الآن مخفيًا عن العملاء. تواصل معنا للتجديد والعودة للعمل.",
+    "endingSoon": "تنتهي {kind} خلال {count, plural, zero {# يوم} one {# يوم} two {يومين} few {# أيام} many {# يومًا} other {# يوم}}. تواصل معنا لإبقاء مطعمك نشطًا.",
+    "trial": "فترة تجريبية مجانية — متبقٍ {count, plural, zero {# يوم} one {# يوم} two {يومان} few {# أيام} many {# يومًا} other {# يوم}}. تواصل معنا للاشتراك قبل انتهائها.",
+    "contactWhatsapp": "راسلنا على واتساب",
+    "contactEmail": "راسلنا بالبريد",
+    "whatsappMessage": "مرحبًا، أرغب في الاشتراك / التجديد في ScanEat لمطعمي \"{name}\".",
+    "emailSubject": "اشتراك ScanEat — {name}"
+  },
   "page": {
     "loading": "جارٍ تحميل لوحة تحكم المالك...",
     "homeLabel": "لوحة تحكم المالك",
