@@ -1,0 +1,119 @@
+'use client'
+
+// Editable pill: name + inline rename / enable-disable toggle / delete.
+// Shared by the admin CRUD tabs (currently CuisinesTab).
+
+import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { Pencil, Trash2, Ban, CheckCircle, X } from 'lucide-react'
+
+export function Pill({ item, onRename, onToggle, onDelete }) {
+  const t = useTranslations('dashboard.admin')
+  const [editing, setEditing] = useState(false)
+  const [name, setName] = useState(item.name)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => setName(item.name), [item.name])
+
+  const save = async () => {
+    setError('')
+    setSaving(true)
+
+    const res = await onRename(item.id, name)
+
+    setSaving(false)
+    if (!res?.ok) {
+      setError(res?.message || t('pill.renameFailedError'))
+      return
+    }
+    setEditing(false)
+  }
+
+  return (
+    <div
+      className={`flex items-center gap-2 px-3 py-1 rounded-full border ${
+        item.is_active
+          ? 'bg-gray-100 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
+          : 'bg-error-50 border-error-200 dark:bg-error-500/10 dark:border-error-800'
+      }`}
+    >
+      {!editing ? (
+        <>
+          <span
+            className={`text-sm font-semibold ${
+              item.is_active ? 'text-gray-800 dark:text-gray-200' : 'text-error-700 dark:text-error-400'
+            }`}
+          >
+            {item.name}
+          </span>
+
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="p-1 rounded-full text-gray-500 hover:text-gray-800 hover:bg-white/70 dark:hover:bg-white/10 transition cursor-pointer"
+            title={t('pill.renameTooltip')}
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onToggle(item)}
+            className={`p-1 rounded-full transition cursor-pointer ${
+              item.is_active
+                ? 'text-warning-600 hover:text-warning-700 hover:bg-white/70 dark:hover:bg-white/10'
+                : 'text-success-600 hover:text-success-700 hover:bg-white/70 dark:hover:bg-white/10'
+            }`}
+            title={item.is_active ? t('pill.disableTooltip') : t('pill.enableTooltip')}
+          >
+            {item.is_active ? <Ban className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onDelete(item)}
+            className="p-1 rounded-full text-error-600 hover:text-error-700 hover:bg-white/70 dark:hover:bg-white/10 transition cursor-pointer"
+            title={t('pill.deleteTooltip')}
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </>
+      ) : (
+        <>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-32 text-sm px-2 py-1 rounded-lg border border-gray-300 dark:border-gray-700 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 bg-white dark:bg-gray-900 dark:text-white"
+            autoFocus
+          />
+
+          <button
+            type="button"
+            onClick={save}
+            disabled={saving}
+            className="p-1 rounded-full text-success-600 hover:text-success-700 hover:bg-white/70 dark:hover:bg-white/10 transition disabled:opacity-50"
+            title={t('pill.saveTooltip')}
+          >
+            <CheckCircle className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setEditing(false)
+              setName(item.name)
+              setError('')
+            }}
+            className="p-1 rounded-full text-gray-500 hover:text-gray-800 hover:bg-white/70 dark:hover:bg-white/10 transition"
+            title={t('pill.cancelTooltip')}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </>
+      )}
+
+      {error && <span className="text-xs text-error-600 dark:text-error-400 ms-1">{error}</span>}
+    </div>
+  )
+}

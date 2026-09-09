@@ -14,11 +14,12 @@ export default async function RestaurantsPage({ searchParams }) {
   const cuisine = (params?.cuisine ?? '').toString()
   const veg = (params?.veg ?? '').toString() // '1' => pure veg only (option A)
 
-  // Load dropdowns
-  const [{ data: cities }, { data: cuisines }] = await Promise.all([
-    supabase.from('cities').select('id,name').eq('is_active', true).order('name', { ascending: true }),
-    supabase.from('cuisines').select('id,name').eq('is_active', true).order('name', { ascending: true }),
-  ])
+  // Load dropdowns (cities are a bundled static list -- see lib/saudiCities.js)
+  const { data: cuisines } = await supabase
+    .from('cuisines')
+    .select('id,name')
+    .eq('is_active', true)
+    .order('name', { ascending: true })
 
   const intersect = (a, b) => {
     const setB = new Set(b)
@@ -78,14 +79,13 @@ export default async function RestaurantsPage({ searchParams }) {
       address,
       image_url,
       is_active,
-      city_id,
-      cities:city_id ( id, name )
+      city
     `
     )
     .eq('is_active', true)
     .order('created_at', { ascending: false })
 
-  if (city) restaurantsQuery = restaurantsQuery.eq('city_id', city)
+  if (city) restaurantsQuery = restaurantsQuery.eq('city', city)
   if (type === 'restaurants' && q) restaurantsQuery = restaurantsQuery.ilike('name', `%${q}%`)
 
   if (constrainedRestaurantIds !== null) {
@@ -128,7 +128,7 @@ export default async function RestaurantsPage({ searchParams }) {
         </div>
 
         <div className="mb-4 md:mb-8">
-          <RestaurantsFilters cities={cities || []} cuisines={cuisines || []} />
+          <RestaurantsFilters cuisines={cuisines || []} />
         </div>
 
         {restaurantsWithRatings.length > 0 ? (

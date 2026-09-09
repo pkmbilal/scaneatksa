@@ -11,7 +11,6 @@
     "all": "All Requests",
     "users": "Users",
     "restaurants": "Restaurants",
-    "cities": "Cities",
     "cuisines": "Cuisines"
   },
   "tabs": {
@@ -31,10 +30,6 @@
       "title": "Restaurants",
       "description": "All approved restaurants on the platform."
     },
-    "cities": {
-      "title": "Cities",
-      "description": "Manage the cities customers can select when browsing restaurants."
-    },
     "cuisines": {
       "title": "Cuisines",
       "description": "Manage the cuisine tags restaurants can be filtered by."
@@ -45,7 +40,6 @@
     "users": "Users",
     "restaurants": "Restaurants",
     "requests": "Requests",
-    "cities": "Cities",
     "cuisines": "Cuisines"
   },
   "roles": {
@@ -90,22 +84,6 @@
     "rejectRequestDescription": "Please provide a reason for rejecting this request.",
     "rejectReasonPlaceholder": "Reason for rejection...",
     "rejectConfirm": "Reject"
-  },
-  "citiesTab": {
-    "addHeading": "Add City",
-    "namePlaceholder": "e.g., Riyadh",
-    "addingButton": "Adding...",
-    "addButton": "Add",
-    "emptyState": "No cities yet. Add your first one.",
-    "nameEmptyError": "City name cannot be empty",
-    "duplicateError": "City already exists.",
-    "disableTitle": "Disable City",
-    "enableTitle": "Enable City",
-    "disableDescription": "Are you sure you want to disable {name}?",
-    "enableDescription": "Are you sure you want to enable {name}?",
-    "deleteTitle": "Delete City",
-    "deleteDescription": "Type \"{name}\" to delete this city:",
-    "deleteConfirm": "Delete"
   },
   "cuisinesTab": {
     "addHeading": "Add Cuisine",
