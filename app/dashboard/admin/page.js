@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Inbox, ListChecks, Users as UsersIcon, Store, MapPin, UtensilsCrossed, CreditCard, TriangleAlert, CheckCircle } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
-import { DUE_SOON_DAYS, freshTrialExpiry } from '@/lib/subscription'
+import { DUE_SOON_DAYS, freshTrialExpiry, latestSubscriptionAction } from '@/lib/subscription'
 import LoadingScreen from '@/components/common/LoadingScreen'
 
 import {
@@ -631,9 +631,11 @@ export default function AdminDashboard() {
     return <LoadingScreen message={t('page.loading')} />
   }
 
-  // Restaurants that are expired or expiring within 7 days -- surfaced as a
-  // badge on the Subscriptions nav item so the operator notices renewals due.
+  // Restaurants that are expired/expiring soon, or have an owner-submitted
+  // renewal request pending -- surfaced as a badge on the Subscriptions nav
+  // item so the operator notices anything needing attention.
   const subscriptionsDueCount = allRestaurants.filter((r) => {
+    if (latestSubscriptionAction(subscriptionEvents, r.id) === 'renewalRequested') return true
     if (r.subscription_status === 'suspended' || !r.subscription_expires_at) return false
     const days = Math.ceil((new Date(r.subscription_expires_at).getTime() - Date.now()) / 864e5)
     return days <= DUE_SOON_DAYS

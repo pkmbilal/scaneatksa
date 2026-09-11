@@ -187,13 +187,16 @@
       "all": "الكل",
       "trial": "تجريبي",
       "active": "نشط",
+      "grace": "فترة سماح",
       "expired": "منتهٍ",
-      "suspended": "موقوف"
+      "suspended": "موقوف",
+      "requested": "طُلب التجديد"
     },
     "state": {
       "trial": "تجريبي",
       "active": "مدفوع",
       "unlimited": "غير محدود",
+      "grace": "فترة سماح",
       "expired": "منتهٍ",
       "suspended": "موقوف"
     },
@@ -202,6 +205,7 @@
     "daysLeft": "{count, plural, zero {# يوم متبقٍ} one {# يوم متبقٍ} two {يومان متبقيان} few {# أيام متبقية} many {# يومًا متبقيًا} other {# يوم متبقٍ}}",
     "daysAgo": "{count, plural, zero {منذ # يوم} one {منذ # يوم} two {منذ يومين} few {منذ # أيام} many {منذ # يومًا} other {منذ # يوم}}",
     "trialUsedHint": "تم استخدام الفترة التجريبية المجانية مرة واحدة بالفعل.",
+    "renewalRequestedBadge": "طُلب التجديد",
     "notesLabel": "ملاحظات:",
     "actions": {
       "plus7d": "+7 أيام",
@@ -255,6 +259,7 @@
         "activated": "تم التعيين كمدفوع",
         "trialStarted": "تم بدء الفترة التجريبية",
         "unlimitedGranted": "تم منح وصول غير محدود",
+        "renewalRequested": "طلب المالك تجديد الاشتراك",
         "suspended": "تم الإيقاف",
         "unsuspended": "تمت إعادة التفعيل",
         "notesSaved": "تم تحديث الملاحظات"

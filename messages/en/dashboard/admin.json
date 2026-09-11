@@ -187,13 +187,16 @@
       "all": "All",
       "trial": "Trial",
       "active": "Active",
+      "grace": "Grace period",
       "expired": "Expired",
-      "suspended": "Suspended"
+      "suspended": "Suspended",
+      "requested": "Renewal requested"
     },
     "state": {
       "trial": "Trial",
       "active": "Paid",
       "unlimited": "Unlimited",
+      "grace": "Grace period",
       "expired": "Expired",
       "suspended": "Suspended"
     },
@@ -202,6 +205,7 @@
     "daysLeft": "{count, plural, one {# day left} other {# days left}}",
     "daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
     "trialUsedHint": "Free trial already used once.",
+    "renewalRequestedBadge": "Renewal requested",
     "notesLabel": "Notes:",
     "actions": {
       "plus7d": "+7 days",
@@ -255,6 +259,7 @@
         "activated": "Marked as paid",
         "trialStarted": "Trial started",
         "unlimitedGranted": "Unlimited access granted",
+        "renewalRequested": "Renewal requested by owner",
         "suspended": "Suspended",
         "unsuspended": "Reactivated",
         "notesSaved": "Notes updated"

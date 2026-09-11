@@ -34,17 +34,19 @@ import {
   daysUntil,
   extendExpiry,
   freshTrialExpiry,
+  latestSubscriptionAction,
   TRIAL_DAYS,
   DUE_SOON_DAYS,
 } from '@/lib/subscription'
 
-const FILTERS = ['all', 'trial', 'active', 'expired', 'suspended']
+const FILTERS = ['all', 'trial', 'active', 'grace', 'expired', 'suspended', 'requested']
 const PAYMENT_METHODS = ['bankTransfer', 'stcPay', 'cash', 'other']
 
 const BADGE_CLASS = {
   trial: 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400',
   active: 'bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400',
   unlimited: 'bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400',
+  grace: 'bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400',
   expired: 'bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400',
   suspended: 'bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400',
 }
@@ -57,8 +59,9 @@ function sortByExpiry(list) {
   })
 }
 
-function matchesFilter(restaurant, filter) {
+function matchesFilter(restaurant, filter, pendingRenewalIds) {
   if (filter === 'all') return true
+  if (filter === 'requested') return pendingRenewalIds.has(restaurant.id)
   const state = getSubscriptionState(restaurant)
   if (filter === 'active') return state === 'active' || state === 'unlimited'
   return state === filter
@@ -78,7 +81,15 @@ export default function SubscriptionsTab({ restaurants, events, onUpdate }) {
     reference: '',
   })
 
-  const visible = sortByExpiry(restaurants || []).filter((r) => matchesFilter(r, filter))
+  const pendingRenewalIds = new Set(
+    (restaurants || [])
+      .filter((r) => latestSubscriptionAction(events, r.id) === 'renewalRequested')
+      .map((r) => r.id)
+  )
+
+  const visible = sortByExpiry(restaurants || []).filter((r) =>
+    matchesFilter(r, filter, pendingRenewalIds)
+  )
 
   const startTrial = (restaurant) => {
     const patch = {
@@ -174,6 +185,7 @@ export default function SubscriptionsTab({ restaurants, events, onUpdate }) {
             key={restaurant.id}
             restaurant={restaurant}
             events={(events || []).filter((e) => e.restaurant_id === restaurant.id)}
+            isPendingRenewal={pendingRenewalIds.has(restaurant.id)}
             onUpdate={onUpdate}
             onStartTrial={() => startTrial(restaurant)}
             onOpenPayment={() =>
@@ -378,7 +390,16 @@ export default function SubscriptionsTab({ restaurants, events, onUpdate }) {
   )
 }
 
-function SubscriptionCard({ restaurant, events, onUpdate, onStartTrial, onOpenPayment, onOpenDate, onOpenNotes }) {
+function SubscriptionCard({
+  restaurant,
+  events,
+  isPendingRenewal,
+  onUpdate,
+  onStartTrial,
+  onOpenPayment,
+  onOpenDate,
+  onOpenNotes,
+}) {
   const t = useTranslations('dashboard.admin')
   const [historyOpen, setHistoryOpen] = useState(false)
   const state = getSubscriptionState(restaurant)
@@ -401,6 +422,11 @@ function SubscriptionCard({ restaurant, events, onUpdate, onStartTrial, onOpenPa
         >
           {t(`subscriptionsTab.state.${state}`)}
         </span>
+        {isPendingRenewal && (
+          <span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-500/15 dark:text-blue-400">
+            {t('subscriptionsTab.renewalRequestedBadge')}
+          </span>
+        )}
         <Link
           href={`/menu/${restaurant.slug}`}
           target="_blank"
