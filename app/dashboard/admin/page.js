@@ -5,7 +5,7 @@ const supabase = supabaseBrowser();
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Inbox, ListChecks, Users as UsersIcon, Store, MapPin, UtensilsCrossed, TriangleAlert, CheckCircle } from 'lucide-react'
+import { Inbox, ListChecks, Users as UsersIcon, Store, UtensilsCrossed, TriangleAlert, CheckCircle } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
 import LoadingScreen from '@/components/common/LoadingScreen'
 
@@ -42,7 +42,6 @@ import PendingRequestsTab from '@/components/dashboard/admin/tabs/PendingRequest
 import AllRequestsTab from '@/components/dashboard/admin/tabs/AllRequestsTab'
 import UsersTab from '@/components/dashboard/admin/tabs/UsersTab'
 import RestaurantsTab from '@/components/dashboard/admin/tabs/RestaurantsTab'
-import CitiesTab from '@/components/dashboard/admin/tabs/CitiesTab'
 import CuisinesTab from '@/components/dashboard/admin/tabs/CuisinesTab'
 
 export default function AdminDashboard() {
@@ -56,12 +55,6 @@ export default function AdminDashboard() {
   const [allUsers, setAllUsers] = useState([])
   const [allRestaurants, setAllRestaurants] = useState([])
 
-  // Cities
-  const [cities, setCities] = useState([])
-  const [cityName, setCityName] = useState('')
-  const [cityLoading, setCityLoading] = useState(false)
-  const [cityError, setCityError] = useState('')
-
   // Cuisines
   const [cuisines, setCuisines] = useState([])
   const [cuisineName, setCuisineName] = useState('')
@@ -69,7 +62,7 @@ export default function AdminDashboard() {
   const [cuisineError, setCuisineError] = useState('')
 
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('pending') // pending, all, users, restaurants, cities, cuisines
+  const [activeTab, setActiveTab] = useState('pending') // pending, all, users, restaurants, cuisines
   const router = useRouter()
 
   // Dialog States
@@ -114,7 +107,6 @@ export default function AdminDashboard() {
       loadRequests(),
       loadUsers(),
       loadRestaurants(),
-      loadCities(),
       loadCuisines(),
     ])
 
@@ -167,20 +159,6 @@ export default function AdminDashboard() {
       ascending: false,
     })
     setAllRestaurants(data || [])
-  }
-
-  async function loadCities() {
-    const { data, error } = await supabase.from('cities').select('*').order('name', {
-      ascending: true,
-    })
-
-    if (error) {
-      console.error('Error loading cities:', error)
-      setCities([])
-      return
-    }
-
-    setCities(data || [])
   }
 
   async function loadCuisines() {
@@ -347,91 +325,6 @@ export default function AdminDashboard() {
     setRejectDialog({ open: false, request: null, reason: '' })
   }
 
-  /* ---------------- Cities actions ---------------- */
-  const handleAddCity = async (e) => {
-    e.preventDefault()
-    setCityError('')
-
-    const clean = cityName.trim()
-    if (!clean) return setCityError(t('citiesTab.nameEmptyError'))
-
-    setCityLoading(true)
-
-    const { error } = await supabase.from('cities').insert([{ name: clean }])
-
-    if (error) {
-      const msg = error.message?.toLowerCase().includes('duplicate')
-        ? t('citiesTab.duplicateError')
-        : error.message
-      setCityError(msg)
-      setCityLoading(false)
-      return
-    }
-
-    setCityName('')
-    setCityLoading(false)
-    loadCities()
-  }
-
-  const handleRenameCity = async (cityId, newName) => {
-    const clean = newName.trim()
-    if (!clean) return { ok: false, message: t('pill.renameEmptyError') }
-
-    const { error } = await supabase.from('cities').update({ name: clean }).eq('id', cityId)
-
-    if (error) {
-      const msg = error.message?.toLowerCase().includes('duplicate')
-        ? t('citiesTab.duplicateError')
-        : error.message
-      return { ok: false, message: msg }
-    }
-
-    await loadCities()
-    return { ok: true }
-  }
-
-  const handleToggleCity = async (city) => {
-    const disabling = !!city.is_active
-    setConfirmDialog({
-      open: true,
-      title: disabling ? t('citiesTab.disableTitle') : t('citiesTab.enableTitle'),
-      description: disabling
-        ? t('citiesTab.disableDescription', { name: city.name })
-        : t('citiesTab.enableDescription', { name: city.name }),
-      action: async () => {
-        const { error } = await supabase
-          .from('cities')
-          .update({ is_active: !city.is_active })
-          .eq('id', city.id)
-
-        if (error) {
-          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
-        } else {
-          loadCities()
-        }
-      },
-    })
-  }
-
-  const handleDeleteCity = async (city) => {
-    setInputDialog({
-      open: true,
-      title: t('citiesTab.deleteTitle'),
-      description: t('citiesTab.deleteDescription', { name: city.name }),
-      placeholder: city.name,
-      matchValue: city.name,
-      confirmText: t('citiesTab.deleteConfirm'),
-      action: async () => {
-        const { error } = await supabase.from('cities').delete().eq('id', city.id)
-        if (error) {
-          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
-        } else {
-          loadCities()
-        }
-      },
-    })
-  }
-
   /* ---------------- Cuisines actions ---------------- */
   const handleAddCuisine = async (e) => {
     e.preventDefault()
@@ -571,7 +464,6 @@ export default function AdminDashboard() {
     { key: 'all', label: t('nav.all'), icon: ListChecks },
     { key: 'users', label: t('nav.users'), icon: UsersIcon },
     { key: 'restaurants', label: t('nav.restaurants'), icon: Store },
-    { key: 'cities', label: t('nav.cities'), icon: MapPin },
     { key: 'cuisines', label: t('nav.cuisines'), icon: UtensilsCrossed },
   ]
 
@@ -580,7 +472,6 @@ export default function AdminDashboard() {
     all: t('tabs.all.title'),
     users: t('tabs.users.title'),
     restaurants: t('tabs.restaurants.title'),
-    cities: t('tabs.cities.title'),
     cuisines: t('tabs.cuisines.title'),
   }
 
@@ -589,7 +480,6 @@ export default function AdminDashboard() {
     all: t('tabs.all.description'),
     users: t('tabs.users.description'),
     restaurants: t('tabs.restaurants.description'),
-    cities: t('tabs.cities.description'),
     cuisines: t('tabs.cuisines.description'),
   }
 
@@ -639,7 +529,6 @@ export default function AdminDashboard() {
               <StatCard icon={UsersIcon} label={t('stats.users')} value={allUsers.length} tint="brand" />
               <StatCard icon={Store} label={t('stats.restaurants')} value={allRestaurants.length} tint="success" />
               <StatCard icon={ListChecks} label={t('stats.requests')} value={allRequests.length} tint="gray" />
-              <StatCard icon={MapPin} label={t('stats.cities')} value={cities.length} tint="gray" />
               <StatCard icon={UtensilsCrossed} label={t('stats.cuisines')} value={cuisines.length} tint="gray" />
             </div>
           )}
@@ -673,20 +562,6 @@ export default function AdminDashboard() {
                   allRestaurants={allRestaurants}
                   onToggle={handleToggleRestaurant}
                   onDelete={handleDeleteRestaurant}
-                />
-              )}
-
-              {activeTab === 'cities' && (
-                <CitiesTab
-                  cities={cities}
-                  cityName={cityName}
-                  setCityName={setCityName}
-                  cityLoading={cityLoading}
-                  cityError={cityError}
-                  onAddCity={handleAddCity}
-                  onRename={handleRenameCity}
-                  onToggle={handleToggleCity}
-                  onDelete={handleDeleteCity}
                 />
               )}
 

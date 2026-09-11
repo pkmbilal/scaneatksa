@@ -1,10 +1,10 @@
 'use client'
 
-// Cuisines CRUD. Same data/handlers as the original page.js. Reuses the same
-// editable-pill UI as CitiesTab (identical shape: name + rename/toggle/delete).
+// Cuisines CRUD. Same data/handlers as the original page.js. Reuses the shared
+// editable-pill UI (name + rename/toggle/delete).
 
 import { useTranslations } from 'next-intl'
-import { Pill } from './CitiesTab'
+import { Pill } from './Pill'
 
 export default function CuisinesTab({
   cuisines,

@@ -11,7 +11,6 @@
     "all": "جميع الطلبات",
     "users": "المستخدمون",
     "restaurants": "المطاعم",
-    "cities": "المدن",
     "cuisines": "المطابخ"
   },
   "tabs": {
@@ -31,10 +30,6 @@
       "title": "المطاعم",
       "description": "جميع المطاعم المعتمدة على المنصة."
     },
-    "cities": {
-      "title": "المدن",
-      "description": "إدارة المدن التي يمكن للعملاء اختيارها عند تصفح المطاعم."
-    },
     "cuisines": {
       "title": "المطابخ",
       "description": "إدارة تصنيفات المطابخ التي يمكن تصفية المطاعم بواسطتها."
@@ -45,7 +40,6 @@
     "users": "المستخدمون",
     "restaurants": "المطاعم",
     "requests": "الطلبات",
-    "cities": "المدن",
     "cuisines": "المطابخ"
   },
   "roles": {
@@ -90,22 +84,6 @@
     "rejectRequestDescription": "يرجى تقديم سبب لرفض هذا الطلب.",
     "rejectReasonPlaceholder": "سبب الرفض...",
     "rejectConfirm": "رفض"
-  },
-  "citiesTab": {
-    "addHeading": "إضافة مدينة",
-    "namePlaceholder": "مثال: الرياض",
-    "addingButton": "جارٍ الإضافة...",
-    "addButton": "إضافة",
-    "emptyState": "لا توجد مدن بعد. أضف أول مدينة.",
-    "nameEmptyError": "لا يمكن أن يكون اسم المدينة فارغًا",
-    "duplicateError": "المدينة موجودة بالفعل.",
-    "disableTitle": "تعطيل المدينة",
-    "enableTitle": "تفعيل المدينة",
-    "disableDescription": "هل أنت متأكد أنك تريد تعطيل {name}؟",
-    "enableDescription": "هل أنت متأكد أنك تريد تفعيل {name}؟",
-    "deleteTitle": "حذف المدينة",
-    "deleteDescription": "اكتب \"{name}\" لحذف هذه المدينة:",
-    "deleteConfirm": "حذف"
   },
   "cuisinesTab": {
     "addHeading": "إضافة مطبخ",

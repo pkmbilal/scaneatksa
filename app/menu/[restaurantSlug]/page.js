@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
+import { cityLabel } from "@/lib/saudiCities";
 
 import MenuClient from "@/components/MenuClient";
 import CartButton from "@/components/CartButton";
@@ -67,7 +68,6 @@ export default async function MenuPage({ params, searchParams }) {
     .select(
       `
       *,
-      city:cities ( id, name ),
       restaurant_cuisines (
         cuisine:cuisines ( id, name )
       )
@@ -105,7 +105,7 @@ export default async function MenuPage({ params, searchParams }) {
 
   if (itemsError) console.error("menu_items error:", itemsError);
 
-  const cityName = restaurant?.city?.name || "";
+  const cityName = cityLabel(restaurant?.city, await getLocale()) || "";
 
   // Rating summary (batched view -- see restaurant_rating_summary migration)
   // + the review list itself + per-item rating averages, all public-read via

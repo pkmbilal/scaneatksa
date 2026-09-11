@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Search, ChevronDown } from "lucide-react";
+import { citiesForLocale, cityLabel } from "@/lib/saudiCities";
 
-export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
+export default function RestaurantsFilters({ cuisines = [] }) {
   const t = useTranslations("restaurants");
+  const locale = useLocale();
+  const cities = citiesForLocale(locale);
   const router = useRouter();
   const sp = useSearchParams();
 
@@ -120,8 +123,8 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
               >
                 <option value="">{t("filters.cityLabel")}</option>
                 {cities.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
+                  <option key={c.slug} value={c.slug}>
+                    {cityLabel(c.slug, locale)}
                   </option>
                 ))}
               </select>
@@ -255,8 +258,8 @@ export default function RestaurantsFilters({ cities = [], cuisines = [] }) {
             >
               <option value="">{t("filters.cityAllOption")}</option>
               {cities.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
+                <option key={c.slug} value={c.slug}>
+                  {cityLabel(c.slug, locale)}
                 </option>
               ))}
             </select>

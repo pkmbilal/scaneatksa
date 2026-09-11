@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { getTranslations } from "next-intl/server"
+import { getTranslations, getLocale } from "next-intl/server"
 import FavoriteButton from "@/components/FavoriteButton"
+import { cityLabel } from "@/lib/saudiCities"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { UtensilsCrossed, MapPin, Star, Clock } from "lucide-react"
@@ -8,7 +9,7 @@ import { UtensilsCrossed, MapPin, Star, Clock } from "lucide-react"
 export default async function RestaurantCard({ restaurant }) {
   const t = await getTranslations('restaurants')
   const { id, slug, name, address, image_url } = restaurant
-  const cityName = restaurant?.cities?.name || restaurant?.city || null
+  const cityName = cityLabel(restaurant?.city, await getLocale())
 
   // avg_rating/review_count come from the batched restaurant_rating_summary
   // view (merged onto the restaurant row in app/restaurants/page.js) --

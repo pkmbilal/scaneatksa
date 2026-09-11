@@ -4,8 +4,9 @@ const supabase = supabaseBrowser();
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
+import { citiesForLocale, cityLabel } from "@/lib/saudiCities";
 
 import {
   getCurrentUser,
@@ -49,12 +50,13 @@ import {
 
 export default function RequestRestaurantPage() {
   const t = useTranslations("dashboard.customer");
+  const locale = useLocale();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [existingRequests, setExistingRequests] = useState([]);
   const [formData, setFormData] = useState({
     restaurantName: "",
-    city_id: "",
+    city: "",
     phone: "",
     address: "",
     description: "",
@@ -63,7 +65,8 @@ export default function RequestRestaurantPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [cities, setCities] = useState([]);
+
+  const cities = citiesForLocale(locale);
 
   const router = useRouter();
 
@@ -83,14 +86,6 @@ export default function RequestRestaurantPage() {
         router.push("/dashboard");
         return;
       }
-
-      const { data: citiesData, error: citiesError } = await supabase
-        .from("cities")
-        .select("id, name")
-        .eq("is_active", true)
-        .order("name", { ascending: true });
-
-      if (!citiesError) setCities(citiesData || []);
 
       const { data: requests } = await getUserRequests(currentUser.id);
       setExistingRequests(requests || []);
@@ -126,7 +121,7 @@ export default function RequestRestaurantPage() {
     try {
       const { error: submitError } = await submitRestaurantRequest(user.id, {
         name: formData.restaurantName,
-        city_id: formData.city_id,
+        city: formData.city,
         phone: formData.phone,
         address: formData.address,
         description: formData.description,
@@ -141,7 +136,7 @@ export default function RequestRestaurantPage() {
       setSuccess(true);
       setFormData({
         restaurantName: "",
-        city_id: "",
+        city: "",
         phone: "",
         address: "",
         description: "",
@@ -267,8 +262,8 @@ export default function RequestRestaurantPage() {
                   </Label>
 
                   <Select
-                    value={formData.city_id}
-                    onValueChange={(v) => setFormData({ ...formData, city_id: v })}
+                    value={formData.city}
+                    onValueChange={(v) => setFormData({ ...formData, city: v })}
                     disabled={hasPendingRequest}
                   >
                     <SelectTrigger className="w-full">
@@ -276,8 +271,8 @@ export default function RequestRestaurantPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.name}
+                        <SelectItem key={c.slug} value={c.slug}>
+                          {cityLabel(c.slug, locale)}
                         </SelectItem>
                       ))}
                     </SelectContent>
