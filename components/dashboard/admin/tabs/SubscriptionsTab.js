@@ -9,7 +9,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { CreditCard } from 'lucide-react'
+import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,13 +23,23 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   getSubscriptionState,
   daysUntil,
   extendExpiry,
   freshTrialExpiry,
+  TRIAL_DAYS,
+  DUE_SOON_DAYS,
 } from '@/lib/subscription'
 
 const FILTERS = ['all', 'trial', 'active', 'expired', 'suspended']
+const PAYMENT_METHODS = ['bankTransfer', 'stcPay', 'cash', 'other']
 
 const BADGE_CLASS = {
   trial: 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400',
@@ -54,13 +64,65 @@ function matchesFilter(restaurant, filter) {
   return state === filter
 }
 
-export default function SubscriptionsTab({ restaurants, onUpdate }) {
+export default function SubscriptionsTab({ restaurants, events, onUpdate }) {
   const t = useTranslations('dashboard.admin')
   const [filter, setFilter] = useState('all')
   const [dateDialog, setDateDialog] = useState({ open: false, restaurant: null, value: '' })
   const [notesDialog, setNotesDialog] = useState({ open: false, restaurant: null, value: '' })
+  const [restartTrialDialog, setRestartTrialDialog] = useState({ open: false, restaurant: null })
+  const [paymentDialog, setPaymentDialog] = useState({
+    open: false,
+    restaurant: null,
+    amount: '',
+    method: 'bankTransfer',
+    reference: '',
+  })
 
   const visible = sortByExpiry(restaurants || []).filter((r) => matchesFilter(r, filter))
+
+  const startTrial = (restaurant) => {
+    const patch = {
+      subscription_status: 'trial',
+      subscription_started_at: new Date().toISOString(),
+      subscription_expires_at: freshTrialExpiry(),
+      trial_used: true,
+    }
+    if (restaurant.trial_used) {
+      setRestartTrialDialog({ open: true, restaurant })
+      return
+    }
+    onUpdate(restaurant, patch, 'trialStarted', { messageParams: { days: TRIAL_DAYS } })
+  }
+
+  const confirmRestartTrial = () => {
+    const { restaurant } = restartTrialDialog
+    if (!restaurant) return
+    onUpdate(
+      restaurant,
+      {
+        subscription_status: 'trial',
+        subscription_started_at: new Date().toISOString(),
+        subscription_expires_at: freshTrialExpiry(),
+        trial_used: true,
+      },
+      'trialStarted',
+      { messageParams: { days: TRIAL_DAYS } }
+    )
+    setRestartTrialDialog({ open: false, restaurant: null })
+  }
+
+  const submitPayment = () => {
+    const { restaurant, amount, method, reference } = paymentDialog
+    if (!restaurant) return
+    onUpdate(restaurant, { subscription_status: 'active' }, 'activated', {
+      eventDetails: {
+        amount: amount.trim() || null,
+        method,
+        reference: reference.trim() || null,
+      },
+    })
+    setPaymentDialog({ open: false, restaurant: null, amount: '', method: 'bankTransfer', reference: '' })
+  }
 
   const submitDate = () => {
     const { restaurant, value } = dateDialog
@@ -111,7 +173,18 @@ export default function SubscriptionsTab({ restaurants, onUpdate }) {
           <SubscriptionCard
             key={restaurant.id}
             restaurant={restaurant}
+            events={(events || []).filter((e) => e.restaurant_id === restaurant.id)}
             onUpdate={onUpdate}
+            onStartTrial={() => startTrial(restaurant)}
+            onOpenPayment={() =>
+              setPaymentDialog({
+                open: true,
+                restaurant,
+                amount: '',
+                method: 'bankTransfer',
+                reference: '',
+              })
+            }
             onOpenDate={() =>
               setDateDialog({
                 open: true,
@@ -199,12 +272,115 @@ export default function SubscriptionsTab({ restaurants, onUpdate }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm restarting an already-used trial */}
+      <Dialog
+        open={restartTrialDialog.open}
+        onOpenChange={(open) => setRestartTrialDialog((prev) => ({ ...prev, open }))}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('subscriptionsTab.restartTrialDialog.title')}</DialogTitle>
+            <DialogDescription>
+              {t('subscriptionsTab.restartTrialDialog.description', {
+                name: restartTrialDialog.restaurant?.name || '',
+                days: TRIAL_DAYS,
+              })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setRestartTrialDialog({ open: false, restaurant: null })}
+            >
+              {t('dialogs.cancel')}
+            </Button>
+            <Button className="bg-brand-500 hover:bg-brand-600" onClick={confirmRestartTrial}>
+              {t('dialogs.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Record a manual payment when marking a restaurant paid */}
+      <Dialog
+        open={paymentDialog.open}
+        onOpenChange={(open) => setPaymentDialog((prev) => ({ ...prev, open }))}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('subscriptionsTab.paymentDialog.title')}</DialogTitle>
+            <DialogDescription>
+              {t('subscriptionsTab.paymentDialog.description', {
+                name: paymentDialog.restaurant?.name || '',
+              })}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-gray-400">
+                {t('subscriptionsTab.paymentDialog.amountLabel')}
+              </label>
+              <Input
+                type="text"
+                inputMode="decimal"
+                value={paymentDialog.amount}
+                onChange={(e) => setPaymentDialog({ ...paymentDialog, amount: e.target.value })}
+                placeholder={t('subscriptionsTab.paymentDialog.amountPlaceholder')}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-gray-400">
+                {t('subscriptionsTab.paymentDialog.methodLabel')}
+              </label>
+              <Select
+                value={paymentDialog.method}
+                onValueChange={(value) => setPaymentDialog({ ...paymentDialog, method: value })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.map((method) => (
+                    <SelectItem key={method} value={method}>
+                      {t(`subscriptionsTab.paymentDialog.methods.${method}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-gray-400">
+                {t('subscriptionsTab.paymentDialog.referenceLabel')}
+              </label>
+              <Input
+                type="text"
+                value={paymentDialog.reference}
+                onChange={(e) => setPaymentDialog({ ...paymentDialog, reference: e.target.value })}
+                placeholder={t('subscriptionsTab.paymentDialog.referencePlaceholder')}
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setPaymentDialog({ ...paymentDialog, open: false })}
+            >
+              {t('dialogs.cancel')}
+            </Button>
+            <Button className="bg-brand-500 hover:bg-brand-600" onClick={submitPayment}>
+              {t('dialogs.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-function SubscriptionCard({ restaurant, onUpdate, onOpenDate, onOpenNotes }) {
+function SubscriptionCard({ restaurant, events, onUpdate, onStartTrial, onOpenPayment, onOpenDate, onOpenNotes }) {
   const t = useTranslations('dashboard.admin')
+  const [historyOpen, setHistoryOpen] = useState(false)
   const state = getSubscriptionState(restaurant)
   const days = daysUntil(restaurant.subscription_expires_at)
   const expiresAt = restaurant.subscription_expires_at
@@ -250,7 +426,7 @@ function SubscriptionCard({ restaurant, onUpdate, onOpenDate, onOpenNotes }) {
           {expiresAt ? (
             <>
               {new Date(expiresAt).toLocaleDateString()}{' '}
-              <span className={days != null && days <= 7 ? 'text-warning-600 dark:text-warning-400' : ''}>
+              <span className={days != null && days <= DUE_SOON_DAYS ? 'text-warning-600 dark:text-warning-400' : ''}>
                 (
                 {days != null && days < 0
                   ? t('subscriptionsTab.daysAgo', { count: Math.abs(days) })
@@ -290,26 +466,10 @@ function SubscriptionCard({ restaurant, onUpdate, onOpenDate, onOpenNotes }) {
         </ActionButton>
         <ActionButton onClick={onOpenDate}>{t('subscriptionsTab.actions.setDate')}</ActionButton>
 
-        <ActionButton
-          tone="success"
-          onClick={() => onUpdate(restaurant, { subscription_status: 'active' }, 'activated')}
-        >
+        <ActionButton tone="success" onClick={onOpenPayment}>
           {t('subscriptionsTab.actions.markPaid')}
         </ActionButton>
-        <ActionButton
-          onClick={() =>
-            onUpdate(
-              restaurant,
-              {
-                subscription_status: 'trial',
-                subscription_started_at: new Date().toISOString(),
-                subscription_expires_at: freshTrialExpiry(),
-                trial_used: true,
-              },
-              'trialStarted'
-            )
-          }
-        >
+        <ActionButton onClick={onStartTrial}>
           {t('subscriptionsTab.actions.startTrial')}
         </ActionButton>
         <ActionButton
@@ -341,7 +501,59 @@ function SubscriptionCard({ restaurant, onUpdate, onOpenDate, onOpenNotes }) {
           </ActionButton>
         )}
       </div>
+
+      {events && events.length > 0 && (
+        <div className="mt-4 border-t border-gray-100 pt-3 dark:border-gray-800">
+          <button
+            onClick={() => setHistoryOpen((v) => !v)}
+            className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            {historyOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            {historyOpen
+              ? t('subscriptionsTab.history.hide')
+              : t('subscriptionsTab.history.show', { count: events.length })}
+          </button>
+          {historyOpen && (
+            <ul className="mt-2 space-y-1.5">
+              {events.map((event) => (
+                <HistoryEntry key={event.id} event={event} />
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
+  )
+}
+
+function HistoryEntry({ event }) {
+  const t = useTranslations('dashboard.admin')
+  const actionLabel = t.has(`subscriptionsTab.history.actions.${event.action}`)
+    ? t(`subscriptionsTab.history.actions.${event.action}`)
+    : event.action
+  const details = event.details || {}
+  const bits = []
+  if (details.amount) bits.push(t('subscriptionsTab.history.amountBit', { amount: details.amount }))
+  if (details.method) {
+    bits.push(
+      t.has(`subscriptionsTab.paymentDialog.methods.${details.method}`)
+        ? t(`subscriptionsTab.paymentDialog.methods.${details.method}`)
+        : details.method
+    )
+  }
+  if (details.reference) {
+    bits.push(t('subscriptionsTab.history.referenceBit', { reference: details.reference }))
+  }
+
+  return (
+    <li className="text-xs text-gray-500 dark:text-gray-400">
+      <span className="font-semibold text-gray-700 dark:text-gray-300">{actionLabel}</span>
+      {bits.length > 0 && <span> — {bits.join(' · ')}</span>}
+      <span className="block text-[11px] text-gray-400 dark:text-gray-500">
+        {new Date(event.created_at).toLocaleString()}
+        {event.actor_email ? ` · ${event.actor_email}` : ''}
+      </span>
+    </li>
   )
 }
 

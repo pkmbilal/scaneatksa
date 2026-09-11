@@ -225,11 +225,46 @@
       "description": "Private admin notes for {name} (e.g. payment method, amount, date).",
       "placeholder": "e.g. Paid 200 SAR cash on 2026-09-01"
     },
+    "restartTrialDialog": {
+      "title": "Restart free trial?",
+      "description": "{name} has already used its free trial once. Starting a new {days}-day trial anyway?"
+    },
+    "paymentDialog": {
+      "title": "Mark as paid",
+      "description": "Record the payment for {name}. This is kept in the subscription history — it doesn't charge anything.",
+      "amountLabel": "Amount (SAR)",
+      "amountPlaceholder": "e.g. 200",
+      "methodLabel": "Payment method",
+      "methods": {
+        "bankTransfer": "Bank transfer",
+        "stcPay": "STC Pay",
+        "cash": "Cash",
+        "other": "Other"
+      },
+      "referenceLabel": "Reference (optional)",
+      "referencePlaceholder": "e.g. transaction #"
+    },
+    "history": {
+      "show": "{count, plural, one {Show history (# entry)} other {Show history (# entries)}}",
+      "hide": "Hide history",
+      "amountBit": "{amount} SAR",
+      "referenceBit": "Ref: {reference}",
+      "actions": {
+        "extended": "Expiry extended",
+        "expirySet": "Expiry date set",
+        "activated": "Marked as paid",
+        "trialStarted": "Trial started",
+        "unlimitedGranted": "Unlimited access granted",
+        "suspended": "Suspended",
+        "unsuspended": "Reactivated",
+        "notesSaved": "Notes updated"
+      }
+    },
     "messages": {
       "extended": "Expiry extended for {name}.",
       "expirySet": "Expiry date updated for {name}.",
       "activated": "{name} marked as paid.",
-      "trialStarted": "Trial restarted for {name} (30 days).",
+      "trialStarted": "Trial restarted for {name} ({days} days).",
       "unlimitedGranted": "{name} now has unlimited access.",
       "suspended": "{name} suspended — hidden from customers.",
       "unsuspended": "{name} reactivated.",

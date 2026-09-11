@@ -225,11 +225,46 @@
       "description": "ملاحظات إدارية خاصة لـ {name} (مثل طريقة الدفع، المبلغ، التاريخ).",
       "placeholder": "مثال: دُفع 200 ريال نقدًا في 2026-09-01"
     },
+    "restartTrialDialog": {
+      "title": "إعادة الفترة التجريبية؟",
+      "description": "استخدم {name} الفترة التجريبية المجانية بالفعل. هل تريد بدء فترة تجريبية جديدة مدتها {days} يومًا رغم ذلك؟"
+    },
+    "paymentDialog": {
+      "title": "تعيين كمدفوع",
+      "description": "تسجيل الدفعة الخاصة بـ {name}. يتم حفظ هذا في سجل الاشتراك — لا يتم تحصيل أي مبلغ فعليًا.",
+      "amountLabel": "المبلغ (ريال)",
+      "amountPlaceholder": "مثال: 200",
+      "methodLabel": "طريقة الدفع",
+      "methods": {
+        "bankTransfer": "تحويل بنكي",
+        "stcPay": "STC Pay",
+        "cash": "نقدًا",
+        "other": "أخرى"
+      },
+      "referenceLabel": "المرجع (اختياري)",
+      "referencePlaceholder": "مثال: رقم العملية"
+    },
+    "history": {
+      "show": "{count, plural, zero {إظهار السجل (# إدخال)} one {إظهار السجل (# إدخال)} two {إظهار السجل (إدخالان)} few {إظهار السجل (# إدخالات)} many {إظهار السجل (# إدخالًا)} other {إظهار السجل (# إدخال)}}",
+      "hide": "إخفاء السجل",
+      "amountBit": "{amount} ريال",
+      "referenceBit": "المرجع: {reference}",
+      "actions": {
+        "extended": "تم تمديد الصلاحية",
+        "expirySet": "تم تحديد تاريخ الانتهاء",
+        "activated": "تم التعيين كمدفوع",
+        "trialStarted": "تم بدء الفترة التجريبية",
+        "unlimitedGranted": "تم منح وصول غير محدود",
+        "suspended": "تم الإيقاف",
+        "unsuspended": "تمت إعادة التفعيل",
+        "notesSaved": "تم تحديث الملاحظات"
+      }
+    },
     "messages": {
       "extended": "تم تمديد الصلاحية لـ {name}.",
       "expirySet": "تم تحديث تاريخ انتهاء الصلاحية لـ {name}.",
       "activated": "تم تعيين {name} كمدفوع.",
-      "trialStarted": "تمت إعادة الفترة التجريبية لـ {name} (30 يومًا).",
+      "trialStarted": "تمت إعادة الفترة التجريبية لـ {name} ({days} يومًا).",
       "unlimitedGranted": "أصبح لدى {name} وصول غير محدود.",
       "suspended": "تم إيقاف {name} — مخفي عن العملاء.",
       "unsuspended": "تمت إعادة تفعيل {name}.",

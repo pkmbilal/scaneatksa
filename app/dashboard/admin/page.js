@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Inbox, ListChecks, Users as UsersIcon, Store, MapPin, UtensilsCrossed, CreditCard, TriangleAlert, CheckCircle } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
+import { DUE_SOON_DAYS, freshTrialExpiry } from '@/lib/subscription'
 import LoadingScreen from '@/components/common/LoadingScreen'
 
 import {
@@ -56,6 +57,7 @@ export default function AdminDashboard() {
   const [allRequests, setAllRequests] = useState([])
   const [allUsers, setAllUsers] = useState([])
   const [allRestaurants, setAllRestaurants] = useState([])
+  const [subscriptionEvents, setSubscriptionEvents] = useState([])
 
   // Cities
   const [cities, setCities] = useState([])
@@ -115,6 +117,7 @@ export default function AdminDashboard() {
       loadRequests(),
       loadUsers(),
       loadRestaurants(),
+      loadSubscriptionEvents(),
       loadCities(),
       loadCuisines(),
     ])
@@ -168,6 +171,22 @@ export default function AdminDashboard() {
       ascending: false,
     })
     setAllRestaurants(data || [])
+  }
+
+  async function loadSubscriptionEvents() {
+    const { data, error } = await supabase
+      .from('subscription_events')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500)
+
+    if (error) {
+      console.error('Error loading subscription events:', error)
+      setSubscriptionEvents([])
+      return
+    }
+
+    setSubscriptionEvents(data || [])
   }
 
   async function loadCities() {
@@ -275,7 +294,7 @@ export default function AdminDashboard() {
             .replace(/^-|-$/g, '')
 
           const nowIso = new Date().toISOString()
-          const trialEndsIso = new Date(Date.now() + 30 * 864e5).toISOString()
+          const trialEndsIso = freshTrialExpiry()
 
           const { data: restaurant, error: restaurantError } = await supabase
             .from('restaurants')
@@ -553,19 +572,38 @@ export default function AdminDashboard() {
 
   // Manual subscription control -- one write per action, authorised by the
   // restaurants_admin_all RLS policy. All actions are reversible, so they apply
-  // immediately with a success toast rather than a confirm dialog.
-  const handleSubscriptionUpdate = async (restaurant, patch, messageKey) => {
+  // immediately with a success toast rather than a confirm dialog. Every action
+  // is also appended to subscription_events as a lightweight audit trail --
+  // that insert never blocks or fails the user-visible action.
+  const handleSubscriptionUpdate = async (restaurant, patch, messageKey, options = {}) => {
+    const { eventDetails, messageParams } = options
     const { error } = await supabase.from('restaurants').update(patch).eq('id', restaurant.id)
     if (error) {
       setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
+      return
+    }
+
+    setInfoDialog({
+      open: true,
+      title: t('dialogs.successTitle'),
+      description: t(`subscriptionsTab.messages.${messageKey}`, { name: restaurant.name, ...messageParams }),
+      isError: false,
+    })
+    loadRestaurants()
+
+    const { error: eventError } = await supabase.from('subscription_events').insert([
+      {
+        restaurant_id: restaurant.id,
+        actor_id: user?.id || null,
+        actor_email: user?.email || null,
+        action: messageKey,
+        details: { ...patch, ...eventDetails },
+      },
+    ])
+    if (eventError) {
+      console.error('Error logging subscription event:', eventError)
     } else {
-      setInfoDialog({
-        open: true,
-        title: t('dialogs.successTitle'),
-        description: t(`subscriptionsTab.messages.${messageKey}`, { name: restaurant.name }),
-        isError: false,
-      })
-      loadRestaurants()
+      loadSubscriptionEvents()
     }
   }
 
@@ -598,7 +636,7 @@ export default function AdminDashboard() {
   const subscriptionsDueCount = allRestaurants.filter((r) => {
     if (r.subscription_status === 'suspended' || !r.subscription_expires_at) return false
     const days = Math.ceil((new Date(r.subscription_expires_at).getTime() - Date.now()) / 864e5)
-    return days <= 7
+    return days <= DUE_SOON_DAYS
   }).length
 
   const navItems = [
@@ -717,6 +755,7 @@ export default function AdminDashboard() {
               {activeTab === 'subscriptions' && (
                 <SubscriptionsTab
                   restaurants={allRestaurants}
+                  events={subscriptionEvents}
                   onUpdate={handleSubscriptionUpdate}
                 />
               )}

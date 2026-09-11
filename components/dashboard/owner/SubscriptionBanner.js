@@ -10,7 +10,7 @@ import { AlertTriangle, Clock, MessageCircle, Mail } from 'lucide-react'
 
 import { contactData } from '@/lib/siteData'
 import { buildWhatsAppLink } from '@/lib/whatsapp'
-import { getSubscriptionState, daysUntil } from '@/lib/subscription'
+import { getSubscriptionState, daysUntil, DUE_SOON_DAYS } from '@/lib/subscription'
 
 const TONE = {
   error: 'border-error-200 bg-error-50 text-error-800 dark:border-error-500/30 dark:bg-error-500/10 dark:text-error-200',
@@ -29,7 +29,7 @@ export default function SubscriptionBanner({ restaurant }) {
   // Healthy paid subscription that isn't near expiry -- nothing to show. A trial
   // always shows (owner should always know a clock is running).
   if (state === 'unlimited') return null
-  if (state === 'active' && (days == null || days > 7)) return null
+  if (state === 'active' && (days == null || days > DUE_SOON_DAYS)) return null
 
   const kindWord =
     state === 'trial' || (state === 'expired' && restaurant.subscription_status === 'trial')
@@ -48,7 +48,7 @@ export default function SubscriptionBanner({ restaurant }) {
     tone = 'error'
     Icon = AlertTriangle
     message = t('subscriptionBanner.expired', { kind: kindWord })
-  } else if (days != null && days <= 7) {
+  } else if (days != null && days <= DUE_SOON_DAYS) {
     tone = 'warning'
     Icon = AlertTriangle
     message = t('subscriptionBanner.endingSoon', { kind: kindWord, count: days })
