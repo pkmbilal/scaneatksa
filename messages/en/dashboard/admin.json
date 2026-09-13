@@ -3,14 +3,18 @@
     "loading": "Loading admin dashboard...",
     "homeLabel": "Admin Dashboard",
     "notificationsTitle": "Pending Requests",
-    "notificationsEmpty": "No pending restaurant requests.",
-    "viewAllRequests": "View All Requests"
+    "notificationsEmpty": "No pending requests.",
+    "viewAllRequests": "View All Requests",
+    "renewalRequestedNotification": "Renewal requested",
+    "renewalToastTitle": "Renewal requested",
+    "renewalToastBody": "{name} requested a subscription renewal."
   },
   "nav": {
     "pending": "Pending Requests",
     "all": "All Requests",
     "users": "Users",
     "restaurants": "Restaurants",
+    "subscriptions": "Subscriptions",
     "cuisines": "Cuisines"
   },
   "tabs": {
@@ -29,6 +33,10 @@
     "restaurants": {
       "title": "Restaurants",
       "description": "All approved restaurants on the platform."
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "description": "Manage each restaurant's trial and paid subscription. There's no online payment yet — set status and expiry dates by hand here."
     },
     "cuisines": {
       "title": "Cuisines",
@@ -153,6 +161,101 @@
     "deleteDescription": "This will permanently delete \"{name}\" and all its menu items! Type \"{name}\" to confirm:",
     "deleteConfirm": "Delete",
     "deletedSuccess": "Restaurant deleted successfully"
+  },
+  "subscriptionsTab": {
+    "emptyState": "No restaurants match this filter.",
+    "filters": {
+      "all": "All",
+      "trial": "Trial",
+      "active": "Active",
+      "grace": "Grace period",
+      "expired": "Expired",
+      "suspended": "Suspended",
+      "requested": "Renewal requested"
+    },
+    "state": {
+      "trial": "Trial",
+      "active": "Paid",
+      "unlimited": "Unlimited",
+      "grace": "Grace period",
+      "expired": "Expired",
+      "suspended": "Suspended"
+    },
+    "expiryLabel": "Expires:",
+    "unlimited": "Unlimited access",
+    "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+    "daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+    "trialUsedHint": "Free trial already used once.",
+    "renewalRequestedBadge": "Renewal requested",
+    "notesLabel": "Notes:",
+    "actions": {
+      "plus7d": "+7 days",
+      "plus1m": "+1 month",
+      "plus3m": "+3 months",
+      "plus1y": "+1 year",
+      "setDate": "Set date…",
+      "markPaid": "Mark paid",
+      "startTrial": "Start / restart trial",
+      "grantUnlimited": "Grant unlimited",
+      "editNotes": "Edit notes…",
+      "suspend": "Suspend",
+      "unsuspend": "Unsuspend"
+    },
+    "dateDialog": {
+      "title": "Set expiry date",
+      "description": "Choose the new expiry date for {name}. This also marks the subscription as paid."
+    },
+    "notesDialog": {
+      "title": "Subscription notes",
+      "description": "Private admin notes for {name} (e.g. payment method, amount, date).",
+      "placeholder": "e.g. Paid 200 SAR cash on 2026-09-01"
+    },
+    "restartTrialDialog": {
+      "title": "Restart free trial?",
+      "description": "{name} has already used its free trial once. Starting a new {days}-day trial anyway?"
+    },
+    "paymentDialog": {
+      "title": "Mark as paid",
+      "description": "Record the payment for {name}. This is kept in the subscription history — it doesn't charge anything.",
+      "amountLabel": "Amount (SAR)",
+      "amountPlaceholder": "e.g. 200",
+      "methodLabel": "Payment method",
+      "methods": {
+        "bankTransfer": "Bank transfer",
+        "stcPay": "STC Pay",
+        "cash": "Cash",
+        "other": "Other"
+      },
+      "referenceLabel": "Reference (optional)",
+      "referencePlaceholder": "e.g. transaction #"
+    },
+    "history": {
+      "show": "{count, plural, one {Show history (# entry)} other {Show history (# entries)}}",
+      "hide": "Hide history",
+      "amountBit": "{amount} SAR",
+      "referenceBit": "Ref: {reference}",
+      "actions": {
+        "extended": "Expiry extended",
+        "expirySet": "Expiry date set",
+        "activated": "Marked as paid",
+        "trialStarted": "Trial started",
+        "unlimitedGranted": "Unlimited access granted",
+        "renewalRequested": "Renewal requested by owner",
+        "suspended": "Suspended",
+        "unsuspended": "Reactivated",
+        "notesSaved": "Notes updated"
+      }
+    },
+    "messages": {
+      "extended": "Expiry extended for {name}.",
+      "expirySet": "Expiry date updated for {name}.",
+      "activated": "{name} marked as paid.",
+      "trialStarted": "Trial restarted for {name} ({days} days).",
+      "unlimitedGranted": "{name} now has unlimited access.",
+      "suspended": "{name} suspended — hidden from customers.",
+      "unsuspended": "{name} reactivated.",
+      "notesSaved": "Notes saved for {name}."
+    }
   },
   "usersTab": {
     "noName": "No name",

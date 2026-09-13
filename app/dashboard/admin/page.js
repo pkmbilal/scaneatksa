@@ -5,9 +5,12 @@ const supabase = supabaseBrowser();
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Inbox, ListChecks, Users as UsersIcon, Store, UtensilsCrossed, TriangleAlert, CheckCircle } from 'lucide-react'
+import { toast } from 'sonner'
+import { Inbox, ListChecks, Users as UsersIcon, Store, UtensilsCrossed, CreditCard, TriangleAlert, CheckCircle } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
+import { DUE_SOON_DAYS, freshTrialExpiry, latestSubscriptionAction, latestSubscriptionEvent } from '@/lib/subscription'
 import LoadingScreen from '@/components/common/LoadingScreen'
+import { useSubscriptionEventsRealtime } from '@/components/dashboard/shared/hooks/useSubscriptionEventsRealtime'
 
 import {
   AlertDialog,
@@ -42,6 +45,7 @@ import PendingRequestsTab from '@/components/dashboard/admin/tabs/PendingRequest
 import AllRequestsTab from '@/components/dashboard/admin/tabs/AllRequestsTab'
 import UsersTab from '@/components/dashboard/admin/tabs/UsersTab'
 import RestaurantsTab from '@/components/dashboard/admin/tabs/RestaurantsTab'
+import SubscriptionsTab from '@/components/dashboard/admin/tabs/SubscriptionsTab'
 import CuisinesTab from '@/components/dashboard/admin/tabs/CuisinesTab'
 
 export default function AdminDashboard() {
@@ -54,6 +58,7 @@ export default function AdminDashboard() {
   const [allRequests, setAllRequests] = useState([])
   const [allUsers, setAllUsers] = useState([])
   const [allRestaurants, setAllRestaurants] = useState([])
+  const [subscriptionEvents, setSubscriptionEvents] = useState([])
 
   // Cuisines
   const [cuisines, setCuisines] = useState([])
@@ -62,7 +67,7 @@ export default function AdminDashboard() {
   const [cuisineError, setCuisineError] = useState('')
 
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('pending') // pending, all, users, restaurants, cuisines
+  const [activeTab, setActiveTab] = useState('pending') // pending, all, users, restaurants, subscriptions, cuisines
   const router = useRouter()
 
   // Dialog States
@@ -84,6 +89,18 @@ export default function AdminDashboard() {
     loadAdminData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router])
+
+  // Live "renewal requested" signal -- an owner's click on SubscriptionBanner's
+  // request-renewal button inserts a subscription_events row; this streams
+  // that insert in immediately instead of waiting for a manual refresh, so the
+  // Subscriptions nav badge and bell dropdown (below) update without reload.
+  useSubscriptionEventsRealtime((payload) => {
+    const restaurant = allRestaurants.find((r) => r.id === payload.new?.restaurant_id)
+    toast(t('page.renewalToastTitle'), {
+      description: t('page.renewalToastBody', { name: restaurant?.name || tCommon('notifications.unknownUser') }),
+    })
+    loadSubscriptionEvents()
+  })
 
   async function loadAdminData() {
     setLoading(true)
@@ -107,6 +124,7 @@ export default function AdminDashboard() {
       loadRequests(),
       loadUsers(),
       loadRestaurants(),
+      loadSubscriptionEvents(),
       loadCuisines(),
     ])
 
@@ -159,6 +177,22 @@ export default function AdminDashboard() {
       ascending: false,
     })
     setAllRestaurants(data || [])
+  }
+
+  async function loadSubscriptionEvents() {
+    const { data, error } = await supabase
+      .from('subscription_events')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500)
+
+    if (error) {
+      console.error('Error loading subscription events:', error)
+      setSubscriptionEvents([])
+      return
+    }
+
+    setSubscriptionEvents(data || [])
   }
 
   async function loadCuisines() {
@@ -251,6 +285,9 @@ export default function AdminDashboard() {
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-|-$/g, '')
 
+          const nowIso = new Date().toISOString()
+          const trialEndsIso = freshTrialExpiry()
+
           const { data: restaurant, error: restaurantError } = await supabase
             .from('restaurants')
             .insert([
@@ -262,7 +299,12 @@ export default function AdminDashboard() {
                 owner_id: request.user_id,
                 owner_email: request.user_profiles?.email,
                 is_active: true,
-                approved_at: new Date().toISOString(),
+                approved_at: nowIso,
+                // Every newly approved restaurant starts on a 30-day free trial.
+                subscription_status: 'trial',
+                subscription_started_at: nowIso,
+                subscription_expires_at: trialEndsIso,
+                trial_used: true,
               },
             ])
             .select()
@@ -435,6 +477,43 @@ export default function AdminDashboard() {
     })
   }
 
+  // Manual subscription control -- one write per action, authorised by the
+  // restaurants_admin_all RLS policy. All actions are reversible, so they apply
+  // immediately with a success toast rather than a confirm dialog. Every action
+  // is also appended to subscription_events as a lightweight audit trail --
+  // that insert never blocks or fails the user-visible action.
+  const handleSubscriptionUpdate = async (restaurant, patch, messageKey, options = {}) => {
+    const { eventDetails, messageParams } = options
+    const { error } = await supabase.from('restaurants').update(patch).eq('id', restaurant.id)
+    if (error) {
+      setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
+      return
+    }
+
+    setInfoDialog({
+      open: true,
+      title: t('dialogs.successTitle'),
+      description: t(`subscriptionsTab.messages.${messageKey}`, { name: restaurant.name, ...messageParams }),
+      isError: false,
+    })
+    loadRestaurants()
+
+    const { error: eventError } = await supabase.from('subscription_events').insert([
+      {
+        restaurant_id: restaurant.id,
+        actor_id: user?.id || null,
+        actor_email: user?.email || null,
+        action: messageKey,
+        details: { ...patch, ...eventDetails },
+      },
+    ])
+    if (eventError) {
+      console.error('Error logging subscription event:', eventError)
+    } else {
+      loadSubscriptionEvents()
+    }
+  }
+
   const handleDeleteRestaurant = async (restaurant) => {
     setInputDialog({
       open: true,
@@ -459,11 +538,46 @@ export default function AdminDashboard() {
     return <LoadingScreen message={t('page.loading')} />
   }
 
+  // Restaurants that are expired/expiring soon, or have an owner-submitted
+  // renewal request pending -- surfaced as a badge on the Subscriptions nav
+  // item so the operator notices anything needing attention.
+  const subscriptionsDueCount = allRestaurants.filter((r) => {
+    if (latestSubscriptionAction(subscriptionEvents, r.id) === 'renewalRequested') return true
+    if (r.subscription_status === 'suspended' || !r.subscription_expires_at) return false
+    const days = Math.ceil((new Date(r.subscription_expires_at).getTime() - Date.now()) / 864e5)
+    return days <= DUE_SOON_DAYS
+  }).length
+
+  // Pending renewal requests, shaped for the header bell dropdown -- merged
+  // with restaurant-approval requests below so admins see both without
+  // needing to already be on the Subscriptions tab.
+  const pendingRenewalNotifications = allRestaurants
+    .map((r) => ({ restaurant: r, event: latestSubscriptionEvent(subscriptionEvents, r.id) }))
+    .filter(({ event }) => event?.action === 'renewalRequested')
+    .map(({ restaurant, event }) => ({
+      id: `renewal-${event.id}`,
+      title: restaurant.name,
+      subtitle: t('page.renewalRequestedNotification'),
+      timestamp: event.created_at,
+    }))
+
+  const headerNotificationItems = [
+    ...pendingRequests.map((req) => ({
+      id: req.id,
+      title: req.restaurant_name,
+      subtitle:
+        req.user_profiles?.full_name || req.user_profiles?.email || tCommon('notifications.unknownUser'),
+      timestamp: req.created_at,
+    })),
+    ...pendingRenewalNotifications,
+  ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+
   const navItems = [
     { key: 'pending', label: t('nav.pending'), icon: Inbox, count: pendingRequests.length },
     { key: 'all', label: t('nav.all'), icon: ListChecks },
     { key: 'users', label: t('nav.users'), icon: UsersIcon },
     { key: 'restaurants', label: t('nav.restaurants'), icon: Store },
+    { key: 'subscriptions', label: t('nav.subscriptions'), icon: CreditCard, count: subscriptionsDueCount },
     { key: 'cuisines', label: t('nav.cuisines'), icon: UtensilsCrossed },
   ]
 
@@ -472,6 +586,7 @@ export default function AdminDashboard() {
     all: t('tabs.all.title'),
     users: t('tabs.users.title'),
     restaurants: t('tabs.restaurants.title'),
+    subscriptions: t('tabs.subscriptions.title'),
     cuisines: t('tabs.cuisines.title'),
   }
 
@@ -480,6 +595,7 @@ export default function AdminDashboard() {
     all: t('tabs.all.description'),
     users: t('tabs.users.description'),
     restaurants: t('tabs.restaurants.description'),
+    subscriptions: t('tabs.subscriptions.description'),
     cuisines: t('tabs.cuisines.description'),
   }
 
@@ -506,15 +622,7 @@ export default function AdminDashboard() {
               homeLabel={t('page.homeLabel')}
               editProfileHref="/dashboard/admin/edit-profile"
               notifications={{
-                items: pendingRequests.map((req) => ({
-                  id: req.id,
-                  title: req.restaurant_name,
-                  subtitle:
-                    req.user_profiles?.full_name ||
-                    req.user_profiles?.email ||
-                    tCommon('notifications.unknownUser'),
-                  timestamp: req.created_at,
-                })),
+                items: headerNotificationItems,
                 title: t('page.notificationsTitle'),
                 emptyText: t('page.notificationsEmpty'),
                 viewAllLabel: t('page.viewAllRequests'),
@@ -562,6 +670,14 @@ export default function AdminDashboard() {
                   allRestaurants={allRestaurants}
                   onToggle={handleToggleRestaurant}
                   onDelete={handleDeleteRestaurant}
+                />
+              )}
+
+              {activeTab === 'subscriptions' && (
+                <SubscriptionsTab
+                  restaurants={allRestaurants}
+                  events={subscriptionEvents}
+                  onUpdate={handleSubscriptionUpdate}
                 />
               )}
 

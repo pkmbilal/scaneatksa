@@ -3,14 +3,18 @@
     "loading": "جاري تحميل لوحة تحكم المشرف...",
     "homeLabel": "لوحة تحكم المشرف",
     "notificationsTitle": "الطلبات المعلقة",
-    "notificationsEmpty": "لا توجد طلبات مطاعم معلقة.",
-    "viewAllRequests": "عرض جميع الطلبات"
+    "notificationsEmpty": "لا توجد طلبات معلقة.",
+    "viewAllRequests": "عرض جميع الطلبات",
+    "renewalRequestedNotification": "طُلب التجديد",
+    "renewalToastTitle": "طُلب التجديد",
+    "renewalToastBody": "طلب {name} تجديد الاشتراك."
   },
   "nav": {
     "pending": "الطلبات المعلقة",
     "all": "جميع الطلبات",
     "users": "المستخدمون",
     "restaurants": "المطاعم",
+    "subscriptions": "الاشتراكات",
     "cuisines": "المطابخ"
   },
   "tabs": {
@@ -29,6 +33,10 @@
     "restaurants": {
       "title": "المطاعم",
       "description": "جميع المطاعم المعتمدة على المنصة."
+    },
+    "subscriptions": {
+      "title": "الاشتراكات",
+      "description": "إدارة الفترة التجريبية والاشتراك المدفوع لكل مطعم. لا يوجد دفع إلكتروني بعد — عيّن الحالة وتواريخ انتهاء الصلاحية يدويًا هنا."
     },
     "cuisines": {
       "title": "المطابخ",
@@ -153,6 +161,101 @@
     "deleteDescription": "سيؤدي هذا إلى حذف \"{name}\" وجميع عناصر قائمته نهائيًا! اكتب \"{name}\" للتأكيد:",
     "deleteConfirm": "حذف",
     "deletedSuccess": "تم حذف المطعم بنجاح"
+  },
+  "subscriptionsTab": {
+    "emptyState": "لا توجد مطاعم مطابقة لهذا الفلتر.",
+    "filters": {
+      "all": "الكل",
+      "trial": "تجريبي",
+      "active": "نشط",
+      "grace": "فترة سماح",
+      "expired": "منتهٍ",
+      "suspended": "موقوف",
+      "requested": "طُلب التجديد"
+    },
+    "state": {
+      "trial": "تجريبي",
+      "active": "مدفوع",
+      "unlimited": "غير محدود",
+      "grace": "فترة سماح",
+      "expired": "منتهٍ",
+      "suspended": "موقوف"
+    },
+    "expiryLabel": "ينتهي في:",
+    "unlimited": "وصول غير محدود",
+    "daysLeft": "{count, plural, zero {# يوم متبقٍ} one {# يوم متبقٍ} two {يومان متبقيان} few {# أيام متبقية} many {# يومًا متبقيًا} other {# يوم متبقٍ}}",
+    "daysAgo": "{count, plural, zero {منذ # يوم} one {منذ # يوم} two {منذ يومين} few {منذ # أيام} many {منذ # يومًا} other {منذ # يوم}}",
+    "trialUsedHint": "تم استخدام الفترة التجريبية المجانية مرة واحدة بالفعل.",
+    "renewalRequestedBadge": "طُلب التجديد",
+    "notesLabel": "ملاحظات:",
+    "actions": {
+      "plus7d": "+7 أيام",
+      "plus1m": "+شهر",
+      "plus3m": "+3 أشهر",
+      "plus1y": "+سنة",
+      "setDate": "تحديد تاريخ…",
+      "markPaid": "تعيين كمدفوع",
+      "startTrial": "بدء / إعادة الفترة التجريبية",
+      "grantUnlimited": "منح وصول غير محدود",
+      "editNotes": "تعديل الملاحظات…",
+      "suspend": "إيقاف",
+      "unsuspend": "إلغاء الإيقاف"
+    },
+    "dateDialog": {
+      "title": "تحديد تاريخ انتهاء الصلاحية",
+      "description": "اختر تاريخ انتهاء الصلاحية الجديد لـ {name}. هذا يعيّن الاشتراك أيضًا كمدفوع."
+    },
+    "notesDialog": {
+      "title": "ملاحظات الاشتراك",
+      "description": "ملاحظات إدارية خاصة لـ {name} (مثل طريقة الدفع، المبلغ، التاريخ).",
+      "placeholder": "مثال: دُفع 200 ريال نقدًا في 2026-09-01"
+    },
+    "restartTrialDialog": {
+      "title": "إعادة الفترة التجريبية؟",
+      "description": "استخدم {name} الفترة التجريبية المجانية بالفعل. هل تريد بدء فترة تجريبية جديدة مدتها {days} يومًا رغم ذلك؟"
+    },
+    "paymentDialog": {
+      "title": "تعيين كمدفوع",
+      "description": "تسجيل الدفعة الخاصة بـ {name}. يتم حفظ هذا في سجل الاشتراك — لا يتم تحصيل أي مبلغ فعليًا.",
+      "amountLabel": "المبلغ (ريال)",
+      "amountPlaceholder": "مثال: 200",
+      "methodLabel": "طريقة الدفع",
+      "methods": {
+        "bankTransfer": "تحويل بنكي",
+        "stcPay": "STC Pay",
+        "cash": "نقدًا",
+        "other": "أخرى"
+      },
+      "referenceLabel": "المرجع (اختياري)",
+      "referencePlaceholder": "مثال: رقم العملية"
+    },
+    "history": {
+      "show": "{count, plural, zero {إظهار السجل (# إدخال)} one {إظهار السجل (# إدخال)} two {إظهار السجل (إدخالان)} few {إظهار السجل (# إدخالات)} many {إظهار السجل (# إدخالًا)} other {إظهار السجل (# إدخال)}}",
+      "hide": "إخفاء السجل",
+      "amountBit": "{amount} ريال",
+      "referenceBit": "المرجع: {reference}",
+      "actions": {
+        "extended": "تم تمديد الصلاحية",
+        "expirySet": "تم تحديد تاريخ الانتهاء",
+        "activated": "تم التعيين كمدفوع",
+        "trialStarted": "تم بدء الفترة التجريبية",
+        "unlimitedGranted": "تم منح وصول غير محدود",
+        "renewalRequested": "طلب المالك تجديد الاشتراك",
+        "suspended": "تم الإيقاف",
+        "unsuspended": "تمت إعادة التفعيل",
+        "notesSaved": "تم تحديث الملاحظات"
+      }
+    },
+    "messages": {
+      "extended": "تم تمديد الصلاحية لـ {name}.",
+      "expirySet": "تم تحديث تاريخ انتهاء الصلاحية لـ {name}.",
+      "activated": "تم تعيين {name} كمدفوع.",
+      "trialStarted": "تمت إعادة الفترة التجريبية لـ {name} ({days} يومًا).",
+      "unlimitedGranted": "أصبح لدى {name} وصول غير محدود.",
+      "suspended": "تم إيقاف {name} — مخفي عن العملاء.",
+      "unsuspended": "تمت إعادة تفعيل {name}.",
+      "notesSaved": "تم حفظ الملاحظات لـ {name}."
+    }
   },
   "usersTab": {
     "noName": "بدون اسم",
