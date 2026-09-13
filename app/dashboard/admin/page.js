@@ -5,10 +5,12 @@ const supabase = supabaseBrowser();
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { toast } from 'sonner'
 import { Inbox, ListChecks, Users as UsersIcon, Store, MapPin, UtensilsCrossed, CreditCard, TriangleAlert, CheckCircle } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
-import { DUE_SOON_DAYS, freshTrialExpiry, latestSubscriptionAction } from '@/lib/subscription'
+import { DUE_SOON_DAYS, freshTrialExpiry, latestSubscriptionAction, latestSubscriptionEvent } from '@/lib/subscription'
 import LoadingScreen from '@/components/common/LoadingScreen'
+import { useSubscriptionEventsRealtime } from '@/components/dashboard/shared/hooks/useSubscriptionEventsRealtime'
 
 import {
   AlertDialog,
@@ -94,6 +96,18 @@ export default function AdminDashboard() {
     loadAdminData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router])
+
+  // Live "renewal requested" signal -- an owner's click on SubscriptionBanner's
+  // request-renewal button inserts a subscription_events row; this streams
+  // that insert in immediately instead of waiting for a manual refresh, so the
+  // Subscriptions nav badge and bell dropdown (below) update without reload.
+  useSubscriptionEventsRealtime((payload) => {
+    const restaurant = allRestaurants.find((r) => r.id === payload.new?.restaurant_id)
+    toast(t('page.renewalToastTitle'), {
+      description: t('page.renewalToastBody', { name: restaurant?.name || tCommon('notifications.unknownUser') }),
+    })
+    loadSubscriptionEvents()
+  })
 
   async function loadAdminData() {
     setLoading(true)
@@ -641,6 +655,30 @@ export default function AdminDashboard() {
     return days <= DUE_SOON_DAYS
   }).length
 
+  // Pending renewal requests, shaped for the header bell dropdown -- merged
+  // with restaurant-approval requests below so admins see both without
+  // needing to already be on the Subscriptions tab.
+  const pendingRenewalNotifications = allRestaurants
+    .map((r) => ({ restaurant: r, event: latestSubscriptionEvent(subscriptionEvents, r.id) }))
+    .filter(({ event }) => event?.action === 'renewalRequested')
+    .map(({ restaurant, event }) => ({
+      id: `renewal-${event.id}`,
+      title: restaurant.name,
+      subtitle: t('page.renewalRequestedNotification'),
+      timestamp: event.created_at,
+    }))
+
+  const headerNotificationItems = [
+    ...pendingRequests.map((req) => ({
+      id: req.id,
+      title: req.restaurant_name,
+      subtitle:
+        req.user_profiles?.full_name || req.user_profiles?.email || tCommon('notifications.unknownUser'),
+      timestamp: req.created_at,
+    })),
+    ...pendingRenewalNotifications,
+  ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+
   const navItems = [
     { key: 'pending', label: t('nav.pending'), icon: Inbox, count: pendingRequests.length },
     { key: 'all', label: t('nav.all'), icon: ListChecks },
@@ -694,15 +732,7 @@ export default function AdminDashboard() {
               homeLabel={t('page.homeLabel')}
               editProfileHref="/dashboard/admin/edit-profile"
               notifications={{
-                items: pendingRequests.map((req) => ({
-                  id: req.id,
-                  title: req.restaurant_name,
-                  subtitle:
-                    req.user_profiles?.full_name ||
-                    req.user_profiles?.email ||
-                    tCommon('notifications.unknownUser'),
-                  timestamp: req.created_at,
-                })),
+                items: headerNotificationItems,
                 title: t('page.notificationsTitle'),
                 emptyText: t('page.notificationsEmpty'),
                 viewAllLabel: t('page.viewAllRequests'),

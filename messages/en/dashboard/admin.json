@@ -3,8 +3,11 @@
     "loading": "Loading admin dashboard...",
     "homeLabel": "Admin Dashboard",
     "notificationsTitle": "Pending Requests",
-    "notificationsEmpty": "No pending restaurant requests.",
-    "viewAllRequests": "View All Requests"
+    "notificationsEmpty": "No pending requests.",
+    "viewAllRequests": "View All Requests",
+    "renewalRequestedNotification": "Renewal requested",
+    "renewalToastTitle": "Renewal requested",
+    "renewalToastBody": "{name} requested a subscription renewal."
   },
   "nav": {
     "pending": "Pending Requests",

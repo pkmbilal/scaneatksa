@@ -3,8 +3,11 @@
     "loading": "جاري تحميل لوحة تحكم المشرف...",
     "homeLabel": "لوحة تحكم المشرف",
     "notificationsTitle": "الطلبات المعلقة",
-    "notificationsEmpty": "لا توجد طلبات مطاعم معلقة.",
-    "viewAllRequests": "عرض جميع الطلبات"
+    "notificationsEmpty": "لا توجد طلبات معلقة.",
+    "viewAllRequests": "عرض جميع الطلبات",
+    "renewalRequestedNotification": "طُلب التجديد",
+    "renewalToastTitle": "طُلب التجديد",
+    "renewalToastBody": "طلب {name} تجديد الاشتراك."
   },
   "nav": {
     "pending": "الطلبات المعلقة",
