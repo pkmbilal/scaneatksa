@@ -394,7 +394,6 @@
     "nameLabel": "اسم المطعم *",
     "cityLabel": "المدينة *",
     "selectCity": "اختر المدينة",
-    "noCitiesHint": "لا توجد مدن نشطة. اطلب من الإدارة إضافة مدن.",
     "serviceOptionsLabel": "خيارات الخدمة",
     "deliveryTitle": "🚚 التوصيل",
     "deliveryHint": "يمكنك التوصيل للعملاء",

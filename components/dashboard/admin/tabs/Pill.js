@@ -1,65 +1,11 @@
 'use client'
 
-// Cities CRUD. Same data/handlers as the original page.js.
+// Editable pill: name + inline rename / enable-disable toggle / delete.
+// Shared by the admin CRUD tabs (currently CuisinesTab).
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Pencil, Trash2, Ban, CheckCircle, X } from 'lucide-react'
-
-export default function CitiesTab({
-  cities,
-  cityName,
-  setCityName,
-  cityLoading,
-  cityError,
-  onAddCity,
-  onRename,
-  onToggle,
-  onDelete,
-}) {
-  const t = useTranslations('dashboard.admin')
-
-  return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-        <h3 className="text-lg font-bold text-gray-800 dark:text-white/90 mb-3">{t('citiesTab.addHeading')}</h3>
-
-        <form onSubmit={onAddCity} className="flex flex-col sm:flex-row gap-3">
-          <input
-            value={cityName}
-            onChange={(e) => setCityName(e.target.value)}
-            placeholder={t('citiesTab.namePlaceholder')}
-            className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300"
-          />
-
-          <button
-            type="submit"
-            disabled={cityLoading}
-            className="bg-brand-500 hover:bg-brand-600 text-white px-6 py-3 rounded-lg font-semibold disabled:bg-gray-400"
-          >
-            {cityLoading ? t('citiesTab.addingButton') : t('citiesTab.addButton')}
-          </button>
-        </form>
-
-        {cityError && (
-          <div className="mt-3 bg-error-50 border border-error-200 text-error-700 dark:bg-error-500/10 dark:border-error-800 dark:text-error-400 px-4 py-3 rounded-lg">
-            {cityError}
-          </div>
-        )}
-      </div>
-
-      {cities.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">{t('citiesTab.emptyState')}</div>
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          {cities.map((c) => (
-            <Pill key={c.id} item={c} onRename={onRename} onToggle={onToggle} onDelete={onDelete} />
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 
 export function Pill({ item, onRename, onToggle, onDelete }) {
   const t = useTranslations('dashboard.admin')

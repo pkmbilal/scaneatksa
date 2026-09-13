@@ -5,8 +5,9 @@ const supabase = supabaseBrowser();
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { getCurrentUser, getUserProfile, getUserRestaurant } from '@/lib/auth/client'
+import { citiesForLocale, cityLabel } from '@/lib/saudiCities'
 import { Switch } from '@/components/ui/switch'
 
 const inputClass =
@@ -14,13 +15,13 @@ const inputClass =
 
 export default function EditRestaurantPage() {
   const t = useTranslations('dashboard.owner')
+  const locale = useLocale()
   const router = useRouter()
+
+  const cities = citiesForLocale(locale)
 
   const [loading, setLoading] = useState(true)
   const [restaurant, setRestaurant] = useState(null)
-
-  // ✅ Cities list
-  const [cities, setCities] = useState([])
 
   // ✅ Cuisines list + selected cuisines
   const [cuisines, setCuisines] = useState([])
@@ -31,7 +32,7 @@ export default function EditRestaurantPage() {
     phone: '',
     address: '',
     image_url: '',
-    city_id: '',
+    city: '',
     is_active: true,
 
     // ✅ NEW (matches your schema)
@@ -47,22 +48,6 @@ export default function EditRestaurantPage() {
     loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  async function loadCities() {
-    const { data, error } = await supabase
-      .from('cities')
-      .select('id, name')
-      .eq('is_active', true)
-      .order('name', { ascending: true })
-
-    if (error) {
-      console.error('Error loading cities:', error)
-      setCities([])
-      return
-    }
-
-    setCities(data || [])
-  }
 
   async function loadCuisines() {
     const { data, error } = await supabase
@@ -110,8 +95,8 @@ export default function EditRestaurantPage() {
       return
     }
 
-    // ✅ load cities + cuisines first (for dropdowns)
-    await Promise.all([loadCities(), loadCuisines()])
+    // ✅ load cuisines first (for the dropdown); cities are a bundled static list
+    await loadCuisines()
 
     const { data: userRestaurant, error: restaurantError } = await getUserRestaurant(currentUser.id)
     if (restaurantError || !userRestaurant) {
@@ -127,7 +112,7 @@ export default function EditRestaurantPage() {
       phone: userRestaurant.phone || '',
       address: userRestaurant.address || '',
       image_url: userRestaurant.image_url || '',
-      city_id: userRestaurant.city_id || '',
+      city: userRestaurant.city || '',
       is_active: userRestaurant.is_active ?? true,
 
       // ✅ map from your DB columns
@@ -161,7 +146,7 @@ export default function EditRestaurantPage() {
       phone: formData.phone.trim(),
       address: formData.address.trim(),
       image_url: formData.image_url.trim(),
-      city_id: formData.city_id || null,
+      city: formData.city || null,
       is_active: formData.is_active,
 
       // ✅ save to your schema fields
@@ -263,8 +248,8 @@ export default function EditRestaurantPage() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('editRestaurantPage.cityLabel')}</label>
               <select
-                value={formData.city_id}
-                onChange={(e) => setFormData({ ...formData, city_id: e.target.value })}
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 className={inputClass}
                 required
               >
@@ -272,17 +257,11 @@ export default function EditRestaurantPage() {
                   {t('editRestaurantPage.selectCity')}
                 </option>
                 {cities.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
+                  <option key={c.slug} value={c.slug}>
+                    {cityLabel(c.slug, locale)}
                   </option>
                 ))}
               </select>
-
-              {cities.length === 0 && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {t('editRestaurantPage.noCitiesHint')}
-                </p>
-              )}
             </div>
 
             {/* ✅ Delivery / Pickup */}
@@ -447,7 +426,7 @@ export default function EditRestaurantPage() {
             <div className="flex gap-4 pt-4">
               <button
                 type="submit"
-                disabled={saving || cities.length === 0}
+                disabled={saving}
                 className="flex-1 bg-brand-500 hover:bg-brand-600 text-white py-3 rounded-lg font-semibold disabled:bg-gray-400 transition-colors"
               >
                 {saving ? t('editRestaurantPage.saving') : t('editRestaurantPage.save')}

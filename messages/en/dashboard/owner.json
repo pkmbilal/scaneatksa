@@ -394,7 +394,6 @@
     "nameLabel": "Restaurant Name *",
     "cityLabel": "City *",
     "selectCity": "Select city",
-    "noCitiesHint": "No active cities found. Ask admin to add cities.",
     "serviceOptionsLabel": "Service Options",
     "deliveryTitle": "🚚 Delivery",
     "deliveryHint": "You can deliver to customers",
