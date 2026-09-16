@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import ImageUploadField from "@/components/common/ImageUploadField";
 
 // lucide
 import {
@@ -46,11 +47,14 @@ import {
 
 export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
   const t = useTranslations("dashboard.common.editProfile");
+  const tCommon = useTranslations("dashboard.common");
+  const uploadLabels = tCommon.raw("imageUpload");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
+    avatar_url: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -81,6 +85,7 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
       setFormData({
         full_name: userProfile.full_name || "",
         phone: userProfile.phone || "",
+        avatar_url: userProfile.avatar_url || "",
       });
     }
 
@@ -111,6 +116,7 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
         .update({
           full_name: formData.full_name,
           phone: formData.phone,
+          avatar_url: formData.avatar_url || null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", user.id)
@@ -215,6 +221,22 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
                   </Label>
                   <Input value={user?.email || ""} disabled />
                   <p className="text-xs text-muted-foreground">{t("emailHint")}</p>
+                </div>
+
+                {/* Avatar */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <UserIcon className="h-4 w-4 text-muted-foreground" />
+                    {t("avatarLabel")}
+                  </Label>
+                  <ImageUploadField
+                    value={formData.avatar_url}
+                    onChange={(url) => setFormData({ ...formData, avatar_url: url })}
+                    kind="avatar"
+                    labels={uploadLabels}
+                    previewClassName="h-20 w-20 rounded-full object-cover border border-border"
+                  />
+                  <p className="text-xs text-muted-foreground">{t("avatarHint")}</p>
                 </div>
 
                 {/* Full name */}

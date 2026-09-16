@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import ImageUploadField from "@/components/common/ImageUploadField";
 
 const inputClass =
   "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white";
@@ -17,6 +18,8 @@ const selectTriggerClass =
 
 export default function AddItemForm({ restaurantId, categories, onSuccess }) {
   const t = useTranslations("dashboard.owner");
+  const tCommon = useTranslations("dashboard.common");
+  const uploadLabels = tCommon.raw("imageUpload");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -149,12 +152,13 @@ export default function AddItemForm({ restaurantId, categories, onSuccess }) {
         </div>
 
         <div className="md:col-span-3">
-          <label className={labelClass}>{t("addItemForm.imageUrlLabel")}</label>
-          <input
+          <label className={labelClass}>{t("addItemForm.imageLabel")}</label>
+          <ImageUploadField
             value={form.image_url}
-            onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-            placeholder={t("addItemForm.imageUrlPlaceholder")}
-            className={inputClass}
+            onChange={(url) => setForm({ ...form, image_url: url })}
+            kind="menu-item"
+            labels={uploadLabels}
+            previewClassName="w-full max-h-64 object-cover rounded-lg border border-gray-200 dark:border-gray-800"
           />
         </div>
       </div>

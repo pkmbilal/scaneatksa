@@ -40,6 +40,15 @@
     "changePassword": "تغيير كلمة المرور",
     "signOut": "تسجيل الخروج"
   },
+  "imageUpload": {
+    "choose": "اختر صورة",
+    "change": "تغيير الصورة",
+    "uploading": "جارٍ الرفع…",
+    "remove": "إزالة",
+    "invalidType": "الرجاء اختيار صورة بصيغة JPEG أو PNG أو WebP أو GIF.",
+    "tooLarge": "يجب ألا يتجاوز حجم الصورة 5 ميجابايت.",
+    "uploadFailed": "فشل الرفع. حاول مرة أخرى."
+  },
   "editProfile": {
     "loading": "جارٍ تحميل ملفك الشخصي…",
     "backToDashboard": "العودة إلى لوحة التحكم",
@@ -53,6 +62,8 @@
     "detailsDescription": "تساعد هذه التفاصيل المطاعم على التواصل معك عند الحاجة.",
     "emailLabel": "البريد الإلكتروني",
     "emailHint": "لا يمكن تغيير البريد الإلكتروني.",
+    "avatarLabel": "الصورة الشخصية",
+    "avatarHint": "JPEG أو PNG أو WebP أو GIF. الحد الأقصى 5 ميجابايت.",
     "fullNameLabel": "الاسم الكامل",
     "fullNamePlaceholder": "أدخل اسمك الكامل",
     "phoneLabel": "رقم الهاتف",

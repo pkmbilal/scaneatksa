@@ -9,12 +9,15 @@ import { useTranslations, useLocale } from 'next-intl'
 import { getCurrentUser, getUserProfile, getUserRestaurant } from '@/lib/auth/client'
 import { citiesForLocale, cityLabel } from '@/lib/saudiCities'
 import { Switch } from '@/components/ui/switch'
+import ImageUploadField from '@/components/common/ImageUploadField'
 
 const inputClass =
   'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white'
 
 export default function EditRestaurantPage() {
   const t = useTranslations('dashboard.owner')
+  const tCommon = useTranslations('dashboard.common')
+  const uploadLabels = tCommon.raw('imageUpload')
   const locale = useLocale()
   const router = useRouter()
 
@@ -370,32 +373,17 @@ export default function EditRestaurantPage() {
               />
             </div>
 
-            {/* Image URL */}
+            {/* Image */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                {t('editRestaurantPage.imageUrlLabel')}
+                {t('editRestaurantPage.imageLabel')}
               </label>
-              <input
-                type="url"
+              <ImageUploadField
                 value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                placeholder={t('editRestaurantPage.imageUrlPlaceholder')}
-                className={inputClass}
+                onChange={(url) => setFormData({ ...formData, image_url: url })}
+                kind="restaurant-logo"
+                labels={uploadLabels}
               />
-
-              {!!formData.image_url?.trim() && (
-                <div className="mt-3">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t('editRestaurantPage.imagePreviewLabel')}</p>
-                  <img
-                    src={formData.image_url}
-                    alt={t('editRestaurantPage.imagePreviewAlt')}
-                    className="w-full h-44 object-cover rounded-lg border border-gray-200 dark:border-gray-800"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none'
-                    }}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Active toggle */}
