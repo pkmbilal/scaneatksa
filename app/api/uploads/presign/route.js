@@ -72,14 +72,16 @@ export async function POST(req) {
   const { key, error: keyError } = await resolveKey(kind, userId, ext);
   if (keyError) return keyError;
 
-  // Note: PutObjectCommand's presigned URL can't hard-enforce fileSize --
-  // that needs an S3 POST policy with conditions. Fine for v1 given this is
-  // owner/authenticated-user-only, not a public upload form; revisit if this
-  // ever opens up to anonymous/customer uploads.
+  // Pinning ContentLength signs Content-Length as part of the presigned PUT,
+  // so R2 rejects any request whose actual body size doesn't match exactly
+  // -- this is what actually enforces the fileSize check above server-side;
+  // without it a client could declare a small fileSize here and then PUT an
+  // arbitrarily large body straight to the signed URL.
   const command = new PutObjectCommand({
     Bucket: R2_BUCKET_NAME,
     Key: key,
     ContentType: contentType,
+    ContentLength: fileSize,
   });
 
   const uploadUrl = await getSignedUrl(r2Client, command, { expiresIn: 60 });
