@@ -16,6 +16,7 @@ const DEFAULT_LABELS = {
   change: "Change image",
   uploading: "Uploading…",
   remove: "Remove",
+  cancel: "Cancel",
   invalidType: "Please choose a JPEG, PNG, WebP, or GIF image.",
   tooLarge: "Image must be smaller than 5MB.",
   uploadFailed: "Upload failed. Please try again.",
@@ -30,7 +31,9 @@ export default function ImageUploadField({
 }) {
   const t = { ...DEFAULT_LABELS, ...labels };
   const inputRef = useRef(null);
+  const abortControllerRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const [previewBroken, setPreviewBroken] = useState(false);
 
@@ -45,15 +48,25 @@ export default function ImageUploadField({
     if (!file) return;
 
     setError("");
+    setProgress(0);
     setUploading(true);
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     try {
-      const url = await uploadImageToR2(file, kind);
+      const url = await uploadImageToR2(file, kind, { onProgress: setProgress, signal: controller.signal });
       onChange?.(url);
     } catch (err) {
-      setError(err instanceof UploadValidationError ? t[err.message] || t.uploadFailed : t.uploadFailed);
+      if (err?.name !== "AbortError") {
+        setError(err instanceof UploadValidationError ? t[err.message] || t.uploadFailed : t.uploadFailed);
+      }
     } finally {
+      abortControllerRef.current = null;
       setUploading(false);
     }
+  }
+
+  function handleCancel() {
+    abortControllerRef.current?.abort();
   }
 
   return (
@@ -88,6 +101,16 @@ export default function ImageUploadField({
           )}
         </Button>
 
+        {uploading && (
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="text-xs text-gray-500 hover:text-error-600 dark:text-gray-400 dark:hover:text-error-400"
+          >
+            {t.cancel}
+          </button>
+        )}
+
         {value && !uploading && (
           <button
             type="button"
@@ -98,6 +121,15 @@ export default function ImageUploadField({
           </button>
         )}
       </div>
+
+      {uploading && (
+        <div className="mt-2 h-1 w-full max-w-xs overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+          <div
+            className="h-full rounded-full bg-brand-500 transition-all duration-200"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
 
       {error && <p className="mt-2 text-xs text-error-600 dark:text-error-400">{error}</p>}
 

@@ -45,6 +45,7 @@
     "change": "Change image",
     "uploading": "Uploading…",
     "remove": "Remove",
+    "cancel": "Cancel",
     "invalidType": "Please choose a JPEG, PNG, WebP, or GIF image.",
     "tooLarge": "Image must be smaller than 5MB.",
     "uploadFailed": "Upload failed. Please try again."
