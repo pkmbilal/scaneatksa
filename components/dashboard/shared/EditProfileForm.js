@@ -30,6 +30,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import ImageUploadField from "@/components/common/ImageUploadField";
+import { cleanupOldImage } from "@/lib/r2/upload";
 
 // lucide
 import {
@@ -128,6 +129,11 @@ export default function EditProfileForm({ backHref = "/dashboard/customer" }) {
         setSaving(false);
         return;
       }
+
+      // Only clean up the old avatar once the new one is actually persisted
+      // -- deleting it right when the upload finishes would leave this
+      // profile's avatar_url pointing at a deleted object if never saved.
+      cleanupOldImage(profile?.avatar_url, formData.avatar_url || null);
 
       setSuccess(true);
       setProfile(data);

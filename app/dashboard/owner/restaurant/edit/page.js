@@ -10,6 +10,7 @@ import { getCurrentUser, getUserProfile, getUserRestaurant } from '@/lib/auth/cl
 import { citiesForLocale, cityLabel } from '@/lib/saudiCities'
 import { Switch } from '@/components/ui/switch'
 import ImageUploadField from '@/components/common/ImageUploadField'
+import { cleanupOldImage } from '@/lib/r2/upload'
 
 const inputClass =
   'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white'
@@ -167,6 +168,11 @@ export default function EditRestaurantPage() {
       setSaving(false)
       return
     }
+
+    // Only clean up the old image once the new one is actually persisted --
+    // if we deleted it as soon as the upload finished, a replace-then-cancel
+    // would leave this restaurant's image_url pointing at a deleted object.
+    cleanupOldImage(restaurant.image_url, payload.image_url)
 
     // ✅ Save cuisines mapping (replace all)
     const { error: delError } = await supabase

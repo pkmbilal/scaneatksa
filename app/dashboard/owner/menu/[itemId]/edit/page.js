@@ -13,6 +13,7 @@ import {
 } from "@/lib/auth/client";
 import { Switch } from "@/components/ui/switch";
 import ImageUploadField from "@/components/common/ImageUploadField";
+import { cleanupOldImage } from "@/lib/r2/upload";
 
 const inputClass =
   "w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-white/[0.03] dark:text-white";
@@ -154,6 +155,11 @@ export default function EditMenuItemPage() {
       setSaving(false);
       return;
     }
+
+    // Only clean up the old image once the new one is actually persisted --
+    // deleting it right when the upload finishes would leave this item's
+    // image_url pointing at a deleted object if the edit is never saved.
+    cleanupOldImage(item.image_url, payload.image_url);
 
     setSaving(false);
     router.push("/dashboard/owner");
