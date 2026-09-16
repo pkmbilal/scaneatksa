@@ -5,8 +5,11 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/r2/client";
 import { getAuthedUserId } from "@/lib/r2/auth";
+import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
+
+const RATE_LIMIT = { limit: 20, windowMs: 60 * 1000 }; // 20 presigns/min/user
 
 // image/<ext> allow-list -- keep in sync with the client-side check in
 // lib/r2/upload.js so users get a fast, friendly error before we ever hit
@@ -55,6 +58,14 @@ export async function POST(req) {
   const { userId, error: authError } = await getAuthedUserId(req);
   if (authError || !userId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const limited = rateLimit(`presign:${userId}`, RATE_LIMIT);
+  if (!limited.allowed) {
+    return NextResponse.json(
+      { error: "Too many upload requests. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limited.retryAfterMs / 1000)) } }
+    );
   }
 
   const body = await req.json().catch(() => null);

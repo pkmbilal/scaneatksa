@@ -3,8 +3,11 @@ import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { r2Client, R2_BUCKET_NAME } from "@/lib/r2/client";
 import { getAuthedUserId } from "@/lib/r2/auth";
+import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
+
+const RATE_LIMIT = { limit: 20, windowMs: 60 * 1000 }; // 20 deletes/min/user
 
 // A key may only be deleted by the account it belongs to -- mirrors the
 // namespacing resolveKey() applies in app/api/uploads/presign/route.js.
@@ -27,6 +30,14 @@ export async function POST(req) {
   const { userId, error: authError } = await getAuthedUserId(req);
   if (authError || !userId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const limited = rateLimit(`delete:${userId}`, RATE_LIMIT);
+  if (!limited.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limited.retryAfterMs / 1000)) } }
+    );
   }
 
   const body = await req.json().catch(() => null);
