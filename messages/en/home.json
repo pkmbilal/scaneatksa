@@ -1,33 +1,16 @@
 {
   "hero": {
-    "badge": "Smart QR menus for modern restaurants",
-    "title": "Professional QR Menu & Ordering System for",
+    "badge": "The complete platform to run your restaurant",
+    "title": "The Operations Platform for",
     "highlight": "Restaurants, Cafes & Food Brands",
-    "description": "Let customers scan, browse your menu, and place orders instantly. No app downloads. No printed menu hassle. Just a faster, cleaner, more modern restaurant experience.",
+    "description": "From table scan to kitchen ticket to daily sales, ScanEat runs the whole flow. Customers order in seconds, your team sees every order live, and you see the numbers behind it.",
     "primaryCta": "Start Free Trial",
     "secondaryCta": "Explore Restaurants",
-    "points": ["No app required", "Launch in minutes", "WhatsApp-friendly workflow"],
-    "dashboard": {
-      "panelLabel": "Restaurant Dashboard",
-      "panelTitle": "ScanEat Control Panel",
-      "tablesActiveLabel": "Tables Active",
-      "tablesActiveDelta": "+8 today",
-      "ordersReceivedLabel": "Orders Received",
-      "ordersReceivedNote": "Live via WhatsApp",
-      "menuPreviewTitle": "Sample Menu Preview",
-      "mobileFriendly": "Mobile Friendly",
-      "items": [
-        { "name": "Chicken Burger", "description": "Popular item with cheese" },
-        { "name": "Pasta Alfredo", "description": "Creamy white sauce pasta" },
-        { "name": "Fresh Mojito", "description": "Mint, lemon, sparkling" }
-      ],
-      "noPrintedMenus": "No printed menus needed",
-      "contactlessNote": "Clean, fast, contactless ordering"
-    }
+    "points": ["No app required", "Live kitchen & staff dashboards", "Launch in minutes"]
   },
   "trustStrip": {
     "eyebrow": "Built for modern hospitality",
-    "title": "Everything your restaurant needs to go digital with QR menus",
+    "title": "Everything your restaurant needs to run service digitally",
     "stats": [
       { "value": "0", "label": "Setup Fee" },
       { "value": "5 min", "label": "To Launch" },
@@ -50,14 +33,14 @@
       },
       {
         "title": "3. Order Instantly",
-        "description": "Orders are sent directly through WhatsApp for quick, familiar, low-friction ordering."
+        "description": "Orders are sent directly through WhatsApp for quick, familiar, low-friction ordering — and appear instantly on your kitchen and staff dashboards."
       }
     ]
   },
   "features": {
-    "eyebrow": "Core features",
-    "title": "Everything needed for a modern QR menu system",
-    "description": "Built to help restaurants launch faster, update menus easily, and serve customers better.",
+    "eyebrow": "Menu & ordering layer",
+    "title": "A modern menu and ordering experience for your guests",
+    "description": "The customer-facing layer of ScanEat — quick to launch, easy to keep updated, and built for how people actually order.",
     "items": [
       {
         "title": "QR Code Per Table",
@@ -107,12 +90,46 @@
       "title": "What owners care about",
       "subtitle": "Restaurant success snapshot",
       "stats": [
-        { "value": "Instant", "text": "Menu access through QR scan" },
-        { "value": "Easy", "text": "Manage items and pricing anytime" },
-        { "value": "Direct", "text": "WhatsApp-based order flow" },
+        { "value": "Live", "text": "Orders visible to kitchen and waiter instantly" },
+        { "value": "Easy", "text": "Manage items, pricing, and staff anytime" },
+        { "value": "Clear", "text": "Daily revenue and top-seller insights" },
         { "value": "Modern", "text": "Professional digital experience" }
       ]
     }
+  },
+  "operations": {
+    "eyebrow": "Built for real operations",
+    "title": "Run your whole restaurant, live",
+    "description": "Beyond the menu, ScanEat connects your kitchen, waiters, and owners in real time — plus the numbers to see how service is actually going.",
+    "items": [
+      {
+        "title": "Kitchen Order Queue",
+        "description": "Every order lands on the kitchen screen the moment it's placed — no missed tickets, no relaying orders by hand."
+      },
+      {
+        "title": "Waiter Coordination",
+        "description": "Waiters see table status and order-ready alerts live, so service stays fast even during a rush."
+      },
+      {
+        "title": "Owner Command Center",
+        "description": "One dashboard for menu, staff, and live order activity across your whole restaurant."
+      },
+      {
+        "title": "Role-Based Access",
+        "description": "Owners, kitchen, waiters, and admins each get a focused view built for their job."
+      }
+    ],
+    "panel": {
+      "title": "Know your numbers",
+      "subtitle": "Owner analytics, built in",
+      "stats": [
+        { "value": "Revenue", "text": "Daily and trend-over-time revenue tracking" },
+        { "value": "Orders", "text": "Order volume and average order value" },
+        { "value": "Top Items", "text": "See which dishes are actually selling" },
+        { "value": "Channels", "text": "Breakdown by dine-in, pickup, and delivery" }
+      ]
+    },
+    "note": "Customers can also rate their visit, and your menu photos stay sharp and optimized automatically."
   },
   "featuredRestaurants": {
     "eyebrow": "Featured restaurants",
@@ -147,12 +164,20 @@
       {
         "question": "Is this suitable for small restaurants and cafes?",
         "answer": "Yes. ScanEat is ideal for cafes, restaurants, bakeries, and small food businesses that want a simple digital menu workflow."
+      },
+      {
+        "question": "Does my staff get their own dashboards?",
+        "answer": "Yes. Kitchen, waiters, owners, and admins each get a role-based dashboard so everyone sees exactly what's relevant to their job, live."
+      },
+      {
+        "question": "How does the free trial work?",
+        "answer": "Every restaurant gets a 30-day free trial with full access. After the trial, billing is handled directly with our team — we don't yet support self-serve online payment."
       }
     ]
   },
   "finalCta": {
     "title": "Ready to launch your restaurant QR menu?",
-    "description": "Start free, create your menu, generate QR codes, and give your customers a faster dining experience in just a few minutes.",
+    "description": "Start free, create your menu, generate QR codes, and start running orders through a live kitchen and staff dashboard — all in just a few minutes.",
     "primaryCta": "Get Started Free",
     "secondaryCta": "Browse Restaurants"
   },

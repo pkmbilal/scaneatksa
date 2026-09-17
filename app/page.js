@@ -6,6 +6,7 @@ import HeroSection from "@/components/home/HeroSection";
 import TrustStrip from "@/components/home/TrustStrip";
 import HowItWorksSection from "@/components/home/HowItWorksSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
+import OperationsSection from "@/components/home/OperationsSection";
 import BenefitsSection from "@/components/home/BenefitsSection";
 import FeaturedRestaurantsSection from "@/components/home/FeaturedRestaurantsSection";
 import FAQSection from "@/components/home/FAQSection";
@@ -21,9 +22,9 @@ import {
 
 const siteUrl = "https://scaneatksa.com"; // change to your actual domain
 const siteName = "ScanEat";
-const pageTitle = "ScanEat | QR Menu & WhatsApp Ordering for Restaurants";
+const pageTitle = "ScanEat | Restaurant Operations Platform with QR Ordering";
 const pageDescription =
-  "Create digital QR menus for restaurants, cafes, and food businesses. Let customers scan, browse, and order instantly via WhatsApp.";
+  "Run your restaurant end to end with ScanEat: digital QR menus, WhatsApp ordering, live kitchen and waiter dashboards, and owner analytics for restaurants, cafes, and food businesses.";
 const ogImage = `${siteUrl}/og-home.jpg`; // create this image later
 
 /** @type {import("next").Metadata} */
@@ -44,6 +45,10 @@ export const metadata = {
     "ScanEat",
     "Saudi restaurant QR menu",
     "restaurant digital ordering",
+    "restaurant management system",
+    "kitchen display system",
+    "restaurant analytics",
+    "restaurant operations platform",
   ],
   alternates: {
     canonical: "/",
@@ -60,7 +65,7 @@ export const metadata = {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: "ScanEat QR menu and WhatsApp ordering platform",
+        alt: "ScanEat restaurant operations platform with QR menus and live dashboards",
       },
     ],
   },
@@ -122,7 +127,7 @@ export default async function HomePage() {
     operatingSystem: "Web",
     url: siteUrl,
     description:
-      "A web-based QR menu and restaurant ordering platform that helps restaurants create digital menus and receive orders via WhatsApp.",
+      "A web-based restaurant operations platform: digital QR menus, WhatsApp ordering, live kitchen and waiter dashboards, and owner analytics.",
     offers: {
       "@type": "Offer",
       price: "0",
@@ -183,6 +188,7 @@ export default async function HomePage() {
         <TrustStrip restaurantCount={restaurantCount} />
         <HowItWorksSection />
         <FeaturesSection />
+        <OperationsSection />
         <BenefitsSection />
         <FeaturedRestaurantsSection
           data={featuredRestaurantsData}
