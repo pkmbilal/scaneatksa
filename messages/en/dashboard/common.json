@@ -40,6 +40,16 @@
     "changePassword": "Change Password",
     "signOut": "Sign out"
   },
+  "imageUpload": {
+    "choose": "Choose image",
+    "change": "Change image",
+    "uploading": "Uploading…",
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "invalidType": "Please choose a JPEG, PNG, WebP, or GIF image.",
+    "tooLarge": "Image must be smaller than 5MB.",
+    "uploadFailed": "Upload failed. Please try again."
+  },
   "editProfile": {
     "loading": "Loading your profile…",
     "backToDashboard": "Back to Dashboard",
@@ -53,6 +63,8 @@
     "detailsDescription": "These details help restaurants contact you if needed.",
     "emailLabel": "Email Address",
     "emailHint": "Email cannot be changed.",
+    "avatarLabel": "Profile Photo",
+    "avatarHint": "JPEG, PNG, WebP, or GIF. Max 5MB.",
     "fullNameLabel": "Full Name",
     "fullNamePlaceholder": "Enter your full name",
     "phoneLabel": "Phone Number",
