@@ -69,6 +69,21 @@ export default function Navbar() {
     pathname?.startsWith("/dashboard/kitchen") ||
     pathname?.startsWith("/dashboard/waiter");
 
+  // Only the home page gets a transparent header floating over its photo
+  // hero; every other route keeps the normal solid sticky bar.
+  const isHome = pathname === "/";
+  const [isScrolled, setIsScrolled] = useState(false);
+  const isTransparent = isHome && !isScrolled;
+
+  useEffect(() => {
+    if (!isHome) return;
+
+    const handleScroll = () => setIsScrolled(window.scrollY > 40);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isHome]);
+
   useEffect(() => {
     // ✅ if navbar is hidden, don't do auth/profile loading
     if (hideNavbar) return;
@@ -142,48 +157,52 @@ export default function Navbar() {
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  const navLinkClass = isTransparent
+    ? "text-md font-semibold text-white/90 hover:text-white transition-colors"
+    : "text-md font-semibold hover:text-primary transition-colors";
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header
+      className={`${isHome ? `fixed inset-x-0 ${isTransparent ? "top-4" : "top-0"}` : "sticky top-0"} z-50 w-full transition-all duration-300 ${
+        isTransparent
+          ? "bg-transparent border-b border-transparent"
+          : "border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      }`}
+    >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 gap-6">
         {/* Logo */}
         <Link
           href="/"
         >
-          <Image src="/logo.svg" alt="ScanEat Logo" width={180} height={50}/>
+          <Image
+            src="/logo.svg"
+            alt="ScanEat Logo"
+            width={180}
+            height={50}
+            className={`transition-[filter] duration-300 ${isTransparent ? "brightness-0 invert" : ""}`}
+          />
         </Link>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex justify-between items-center gap-6">
           <div className="flex items-center gap-6">
             <p>
-              <Link
-                href="/about"
-                className="text-md font-semibold hover:text-primary transition-colors"
-              >
+              <Link href="/about" className={navLinkClass}>
                 {t("nav.about")}
               </Link>
             </p>
             <p>
-              <Link
-                href="/#how-it-works"
-                className="text-md font-semibold hover:text-primary transition-colors"
-              >
+              <Link href="/#how-it-works" className={navLinkClass}>
                 {t("nav.howItWorks")}
               </Link>
             </p>
             <p>
-              <Link
-                href="/restaurants"
-                className="text-md font-semibold hover:text-primary transition-colors"
-              >
+              <Link href="/restaurants" className={navLinkClass}>
                 {t("nav.restaurants")}
               </Link>
             </p>
             <p>
-              <Link
-                href="/contact"
-                className="text-md font-semibold hover:text-primary transition-colors"
-              >
+              <Link href="/contact" className={navLinkClass}>
                 {t("nav.contact")}
               </Link>
             </p>
@@ -192,7 +211,7 @@ export default function Navbar() {
 
         {/* Desktop Right */}
         <div className="hidden md:flex items-center gap-3">
-          <LanguageSwitcher />
+          <LanguageSwitcher light={isTransparent} />
 
           {user && profile ? (
             <DropdownMenu >
