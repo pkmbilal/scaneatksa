@@ -31,7 +31,7 @@ export default async function HowItWorksSection() {
 
             return (
               <div key={step.title} className="relative flex flex-col items-center text-center">
-                <span className="pointer-events-none absolute -top-6 select-none text-7xl font-black text-slate-200/70">
+                <span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 select-none text-7xl font-black text-slate-200/70">
                   0{index + 1}
                 </span>
 
