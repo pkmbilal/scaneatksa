@@ -8,7 +8,7 @@ export default async function HeroSection({ data }) {
   const points = t.raw("points");
 
   return (
-    <section className="relative isolate flex min-h-[560px] items-center overflow-hidden border-b border-slate-100 py-24 md:min-h-[720px] md:py-32">
+    <section className="relative isolate flex min-h-dvh items-center overflow-hidden border-b border-slate-100 py-24 md:py-32">
       <Image src="/Hero_BG.webp" alt="" fill priority sizes="100vw" className="object-cover" />
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950/92 via-slate-950/70 to-slate-950/20" />
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent md:hidden" />
