@@ -1,5 +1,6 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { ChefHat, Bell, LayoutDashboard, ShieldCheck, Wallet } from "lucide-react";
+import { ChefHat, Bell, LayoutDashboard, ShieldCheck, Wallet, TrendingUp } from "lucide-react";
 
 // Index-matched to `operations.items` in messages/*/home.json — keep the two in sync.
 const icons = [ChefHat, Bell, LayoutDashboard, ShieldCheck];
@@ -41,25 +42,53 @@ export default async function OperationsSection() {
           })}
         </div>
 
-        <div className="mt-6 rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-white shadow-xl">
-          <div className="mb-8 flex items-center gap-3">
-            <div className="rounded-2xl bg-white/10 p-3">
-              <Wallet className="h-7 w-7 text-emerald-400" />
+        <div className="relative mt-6 min-h-[420px] overflow-hidden rounded-3xl border border-slate-200 shadow-xl md:min-h-[380px]">
+          <Image
+            src="/about-ops.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-slate-900/70 to-emerald-950/50" />
+
+          <div className="relative z-10 p-8 text-white md:p-10">
+            <div className="mb-8 flex items-center gap-3">
+              <div className="rounded-2xl bg-white/10 p-3">
+                <Wallet className="h-7 w-7 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-300">{t("panel.subtitle")}</p>
+                <h3 className="text-2xl font-bold">{t("panel.title")}</h3>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-slate-300">{t("panel.subtitle")}</p>
-              <h3 className="text-2xl font-bold">{t("panel.title")}</h3>
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {panelStats.map((stat) => (
+                <div
+                  key={stat.value}
+                  className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-md"
+                >
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="mt-2 text-slate-300">{stat.text}</p>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {panelStats.map((stat) => (
-              <div key={stat.value} className="rounded-2xl bg-white/5 p-5">
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="mt-2 text-slate-300">{stat.text}</p>
+          {panelStats?.[0] && (
+            <div className="absolute -bottom-6 -right-4 z-20 hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-xl lg:block">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
+                  <TrendingUp className="h-5 w-5 text-[#00c951]" />
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-slate-900">{panelStats[0].value}</div>
+                  <p className="text-xs text-slate-500">{panelStats[0].text}</p>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
 
         <p className="mt-6 text-center text-sm text-slate-500">{t("note")}</p>

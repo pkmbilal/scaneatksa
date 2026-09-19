@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { CircleHelp } from "lucide-react";
+import { Plus } from "lucide-react";
 
 export default async function FAQSection() {
   const t = await getTranslations("home.faq");
@@ -17,20 +17,23 @@ export default async function FAQSection() {
           </h2>
         </div>
 
-        <div className="space-y-4">
-          {items.map((item) => (
-            <div
+        <div className="grid gap-4 md:grid-cols-2">
+          {items.map((item, index) => (
+            <details
               key={item.question}
-              className="rounded-2xl border border-slate-200 bg-slate-50 p-6"
+              open={index === 0}
+              className={`group rounded-2xl border border-slate-200 bg-slate-50 open:border-emerald-200 open:bg-white open:shadow-md ${
+                index === items.length - 1 ? "md:col-span-2" : ""
+              }`}
             >
-              <div className="flex items-start gap-3">
-                <CircleHelp className="mt-1 h-5 w-5 shrink-0 text-[#00c951]" />
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">{item.question}</h3>
-                  <p className="mt-2 leading-7 text-slate-600">{item.answer}</p>
-                </div>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-6 font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">
+                {item.question}
+                <Plus className="h-5 w-5 shrink-0 text-[#00c951] transition-transform duration-300 group-open:rotate-45" />
+              </summary>
+              <div className="px-6 pb-6 leading-7 text-slate-600 group-open:animate-in group-open:fade-in group-open:slide-in-from-top-1">
+                {item.answer}
               </div>
-            </div>
+            </details>
           ))}
         </div>
       </div>

@@ -21,13 +21,15 @@ export default async function BenefitsSection() {
             </h2>
             <p className="mt-5 text-lg leading-8 text-slate-600">{t("description")}</p>
 
-            <div className="mt-8 space-y-5">
+            <div className="relative mt-8 space-y-6">
+              <div className="absolute bottom-12 left-6 top-12 w-px bg-slate-200" />
+
               {items.map((item, index) => {
                 const Icon = icons[index];
 
                 return (
-                  <div key={item.title} className="flex gap-4 rounded-2xl bg-slate-50 p-5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
+                  <div key={item.title} className="relative flex gap-4">
+                    <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-emerald-100 bg-white">
                       <Icon className="h-6 w-6 text-[#00c951]" />
                     </div>
                     <div>
@@ -40,8 +42,10 @@ export default async function BenefitsSection() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-white shadow-xl">
-            <div className="mb-8 flex items-center gap-3">
+          <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-b from-slate-900 via-slate-900 to-black p-8 text-white shadow-xl">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-emerald-500/25 blur-3xl" />
+
+            <div className="relative mb-8 flex items-center gap-3">
               <div className="rounded-2xl bg-white/10 p-3">
                 <Pizza className="h-7 w-7 text-emerald-400" />
               </div>
@@ -51,11 +55,27 @@ export default async function BenefitsSection() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              {panelStats.map((stat) => (
-                <div key={stat.value} className="rounded-2xl bg-white/5 p-5">
-                  <div className="text-3xl font-bold">{stat.value}</div>
-                  <p className="mt-2 text-slate-300">{stat.text}</p>
+            <div className="relative divide-y divide-white/10">
+              {panelStats.map((stat, index) => (
+                <div
+                  key={stat.value}
+                  className={
+                    index === 0
+                      ? "pb-4"
+                      : "flex items-center justify-between py-4"
+                  }
+                >
+                  {index === 0 ? (
+                    <>
+                      <div className="text-4xl font-bold">{stat.value}</div>
+                      <p className="mt-2 text-slate-300">{stat.text}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-slate-300">{stat.text}</p>
+                      <div className="text-xl font-bold">{stat.value}</div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

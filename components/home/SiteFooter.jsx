@@ -6,7 +6,8 @@ export default async function SiteFooter({ data }) {
   const t = await getTranslations("home.footer");
 
   return (
-    <footer className="border-t border-slate-200 bg-white pt-14 pb-8">
+    <footer className="border-t border-slate-200 bg-gradient-to-b from-white to-slate-50 pt-14 pb-8">
+      <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
       <div className="mx-auto max-w-7xl px-4">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
