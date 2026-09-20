@@ -216,7 +216,7 @@ export default function Navbar() {
           {user && profile ? (
             <DropdownMenu >
               <DropdownMenuTrigger asChild className="cursor-pointer">
-                <Button variant="ghost" className="h-10 gap-2 px-2">
+                <Button variant="ghost" className="group h-10 gap-2 px-2">
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="bg-gradient-to-br from-orange-400 to-red-500 text-white">
                       {getInitials()}
@@ -224,7 +224,7 @@ export default function Navbar() {
                   </Avatar>
 
                   <div className="flex flex-col items-start leading-tight">
-                    <span className="text-sm font-medium">
+                    <span className={`text-sm font-medium ${isTransparent ? "text-white group-hover:text-black" : "text-foreground"}`}>
                       {profile.full_name || t("defaultUserName")}
                     </span>
                     <Badge
