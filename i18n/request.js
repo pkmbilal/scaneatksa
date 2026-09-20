@@ -17,6 +17,7 @@ const NAMESPACES = [
   'home',
   'about',
   'contact',
+  'howItWorks',
   'privacyPolicy',
   'restaurants',
   'menu',

@@ -1,0 +1,97 @@
+{
+  "metadata": {
+    "title": "How ScanEat Works | QR Menus & WhatsApp Ordering",
+    "description": "See exactly how ScanEat works: how diners scan, browse, and order, and how restaurant owners set up menus, manage live orders, and track performance."
+  },
+  "hero": {
+    "badge": "How it works",
+    "title": "One platform, two simple journeys",
+    "description": "ScanEat connects diners and restaurant teams in real time — from a QR code scan on the table to a ticket in the kitchen to the numbers on your dashboard. Here's exactly how it works, step by step.",
+    "dinerCta": "See the diner journey",
+    "ownerCta": "See the restaurant journey"
+  },
+  "diner": {
+    "eyebrow": "For diners",
+    "title": "From scan to served, without an app",
+    "description": "No downloads, no account required. Guests go from scanning a table QR code to placing an order in under a minute.",
+    "steps": [
+      {
+        "title": "1. Scan the table QR or find a restaurant",
+        "description": "Point your phone camera at the table's QR code, or browse the ScanEat restaurant directory. Either way, the menu opens instantly in your browser — no app to download."
+      },
+      {
+        "title": "2. Browse the digital menu",
+        "description": "Scroll a clean, mobile-first menu with photos, prices, categories, and veg/non-veg tags. Search for a dish or filter by category in seconds."
+      },
+      {
+        "title": "3. Add to cart and choose how you'll order",
+        "description": "Add items to your cart, adjust quantities, and pick dine-in, pickup, or delivery depending on what the restaurant offers."
+      },
+      {
+        "title": "4. Checkout — sent straight to the restaurant",
+        "description": "Confirm your order and it's sent directly to the restaurant, ready to hand off over WhatsApp for a fast, familiar confirmation."
+      },
+      {
+        "title": "5. Track your order live, then rate your visit",
+        "description": "Watch your order move from received to preparing to ready in real time, then rate the restaurant and your favorite dishes afterward."
+      }
+    ]
+  },
+  "owner": {
+    "eyebrow": "For restaurants",
+    "title": "From sign-up to sold out, all in one dashboard",
+    "description": "Everything a restaurant needs to run digital ordering — menu, QR codes, live orders, and analytics — in one role-based platform for owners, kitchen, and waiters.",
+    "steps": [
+      {
+        "title": "1. Sign up and set up your restaurant",
+        "description": "Create your account, get a 30-day free trial, and set up your restaurant profile — branding, cuisine, and contact details — in minutes."
+      },
+      {
+        "title": "2. Build your digital menu",
+        "description": "Add categories and items with photos, prices, and descriptions. Toggle availability anytime — no reprinting, no waiting."
+      },
+      {
+        "title": "3. Generate and print your table QR codes",
+        "description": "Bulk-generate branded QR codes for every table, ready to print and place, each one linking straight to your live menu."
+      },
+      {
+        "title": "4. Manage live orders across your team",
+        "description": "Orders land on the kitchen screen the moment they're placed, move to the waiter screen when ready, and trigger an automatic WhatsApp update to the customer — all synced in real time."
+      },
+      {
+        "title": "5. Track performance and grow",
+        "description": "See revenue, order volume, average order value, and your top-selling items on one analytics dashboard, and manage staff, roles, and billing from the same place."
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Common questions about how ScanEat works",
+    "items": [
+      {
+        "question": "Do customers need to download an app?",
+        "answer": "No. Diners scan a QR code or visit a link and the menu opens directly in their phone's browser."
+      },
+      {
+        "question": "How do orders reach the kitchen?",
+        "answer": "The moment an order is placed, it appears instantly on the kitchen screen, then moves to the waiter screen when it's ready — no relaying orders by hand."
+      },
+      {
+        "question": "How does the customer get notified about their order?",
+        "answer": "Orders are confirmed and updated over WhatsApp, and logged-in customers can also track status live from their own dashboard."
+      },
+      {
+        "question": "Can each table have its own QR code?",
+        "answer": "Yes. You can generate a unique QR code per table so orders are tied to the right table automatically."
+      },
+      {
+        "question": "What does it cost to get started?",
+        "answer": "Every restaurant gets a 30-day free trial with full access. After that, billing is handled directly with our team."
+      },
+      {
+        "question": "Do kitchen and waiter staff get their own screens?",
+        "answer": "Yes. Owners, kitchen, and waiters each get a focused, role-based dashboard built for their part of the workflow."
+      }
+    ]
+  }
+}

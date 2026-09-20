@@ -192,7 +192,7 @@ export default function Navbar() {
               </Link>
             </p>
             <p>
-              <Link href="/#how-it-works" className={navLinkClass}>
+              <Link href="/how-it-works" className={navLinkClass}>
                 {t("nav.howItWorks")}
               </Link>
             </p>
@@ -355,9 +355,9 @@ export default function Navbar() {
 
                   <li>
                     <Link
-                      href="/#how-it-works"
+                      href="/how-it-works"
                       onClick={() => setMobileOpen(false)}
-                      className="menu-item menu-item-inactive"
+                      className={`menu-item ${isActive("/how-it-works") ? "menu-item-active" : "menu-item-inactive"}`}
                     >
                       <Gauge className="size-5" />
                       {t("nav.howItWorks")}
