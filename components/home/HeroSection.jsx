@@ -8,10 +8,10 @@ export default async function HeroSection({ data }) {
   const points = t.raw("points");
 
   return (
-    <section className="relative isolate flex min-h-dvh items-center overflow-hidden border-b border-slate-100 py-24 md:py-32">
+    <section className="relative isolate flex min-h-dvh items-center overflow-hidden py-24 md:py-32">
       <Image src="/Hero_BG.webp" alt="" fill priority sizes="100vw" className="object-cover" />
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950/92 via-slate-950/70 to-slate-950/20" />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent md:hidden" />
+      <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-slate-950/60 via-slate-950/10 to-transparent" />
 
       <div className="relative mx-auto w-full max-w-7xl px-4">
         {/* Pinned to the physical left (not logical start): the photo's open, uncluttered

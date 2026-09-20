@@ -9,7 +9,7 @@ export default async function TrustStrip({ restaurantCount }) {
 
   return (
     <section className="relative bg-white py-8">
-      <div className="relative z-10 mx-auto max-w-6xl rounded-3xl border border-slate-100 bg-white px-6 py-8 shadow-xl md:px-10">
+      <div className="relative z-10 mx-auto -mt-10 max-w-6xl rounded-3xl border border-slate-100 bg-white px-6 py-8 shadow-2xl md:-mt-24 md:px-10">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
