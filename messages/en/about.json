@@ -1,1 +1,72 @@
-{}
+{
+  "hero": {
+    "eyebrow": "About ScanEat",
+    "title": "Built for restaurants running modern, real-time service",
+    "description": "ScanEat replaces slow, outdated ordering flows with a connected digital experience — from a guest's first QR scan to live kitchen tickets, waiter coordination, and the numbers behind each day.",
+    "highlights": [
+      "QR-powered digital menus",
+      "WhatsApp ordering built in",
+      "Live kitchen & waiter dashboards",
+      "Owner analytics, in real time"
+    ],
+    "highlightCaption": "Designed to make restaurant ordering feel faster and cleaner."
+  },
+  "positioning": {
+    "eyebrow": "Positioning",
+    "title": "Restaurant technology should feel invisible when it works well",
+    "description": "We believe the best hospitality tools are the ones that reduce waiting, remove unnecessary steps, and fit naturally into the rhythm of service. ScanEat is designed around that principle: less friction for guests, less complexity for operators, and a cleaner digital layer for the restaurant experience."
+  },
+  "story": {
+    "eyebrow": "Our story",
+    "title": "A simpler approach to digital dining",
+    "paragraphs": [
+      "Many restaurant tools are built like back-office software first and guest experiences second. That usually leads to cluttered interfaces, slow mobile flows, and products that feel harder than the problem they were supposed to solve.",
+      "ScanEat was created as a more focused alternative. The goal was not to overload restaurants with features, but to build a product that improves one of the most visible parts of service: how guests access menus, make decisions, and place orders.",
+      "The result is a platform centered on clarity, speed, and operational practicality — designed to support modern hospitality without disrupting it."
+    ]
+  },
+  "operations": {
+    "eyebrow": "Designed for operations",
+    "title": "Practical enough for daily service, polished enough for modern brands",
+    "description": "ScanEat is not just about replacing printed menus. It connects the guest's order to the kitchen, the waiter, and the owner in real time — while keeping every role's dashboard focused and simple.",
+    "items": [
+      "Live kitchen order queue — no missed tickets, no relaying orders by hand",
+      "Real-time waiter coordination, even during a rush",
+      "One owner command center for menu, staff, and live order activity",
+      "Role-based dashboards for owners, kitchen, waiters, and admins"
+    ]
+  },
+  "principles": {
+    "eyebrow": "Principles",
+    "title": "What defines the way we build",
+    "items": [
+      {
+        "title": "Operational simplicity",
+        "text": "Restaurants need systems that reduce friction during service, not create more of it."
+      },
+      {
+        "title": "Fast mobile experiences",
+        "text": "Guest interactions should feel instant, intuitive, and natural on any device."
+      },
+      {
+        "title": "Practical product design",
+        "text": "Every feature should solve a real workflow problem for staff, managers, or guests."
+      }
+    ]
+  },
+  "productView": {
+    "eyebrow": "Product view",
+    "title": "Technology that supports hospitality, not distracts from it",
+    "description": "Our aim is to create software that feels calm, efficient, and credible. That means strong typography, focused interfaces, reliable performance, and product decisions grounded in how restaurants actually operate."
+  },
+  "mission": {
+    "eyebrow": "Our mission",
+    "title": "To help restaurants run better service — from guest order to kitchen to daily numbers",
+    "description": "ScanEat exists to reduce operational friction across the whole service flow, not just at the menu. We're building for restaurants that care about speed, clarity, and the quality of the experience they present — from the first scan to the kitchen ticket to the numbers behind the day.",
+    "cta": "Explore the platform"
+  },
+  "teamBanner": {
+    "eyebrow": "ScanEat",
+    "title": "A hospitality-first product with a more serious digital standard"
+  }
+}
