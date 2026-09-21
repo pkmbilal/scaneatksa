@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Star } from "lucide-react";
@@ -6,11 +7,14 @@ export default async function FinalCTASection({ data }) {
   const t = await getTranslations("home.finalCta");
 
   return (
-    <section className="bg-[#00c951] py-20 text-white">
-      <div className="mx-auto max-w-4xl px-4 text-center">
+    <section className="relative overflow-hidden py-20 text-white">
+      <Image src="/about-team.webp" alt="" fill sizes="100vw" className="object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#00c951]/80 via-emerald-800/70 to-slate-950/75" />
+
+      <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
         <div className="mb-4 flex justify-center">
-          <div className="rounded-2xl bg-white/10 p-4">
-            <Star className="h-8 w-8" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 backdrop-blur-sm">
+            <Star className="h-5 w-5" />
           </div>
         </div>
 

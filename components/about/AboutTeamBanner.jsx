@@ -1,6 +1,9 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
-export default function AboutTeamBanner() {
+export default async function AboutTeamBanner() {
+  const t = await getTranslations("about.teamBanner");
+
   return (
     <section className="mx-auto max-w-7xl px-6 pb-20 md:px-8">
       <div className="group relative overflow-hidden rounded-[2rem] border">
@@ -14,11 +17,11 @@ export default function AboutTeamBanner() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/20 to-transparent" />
         <div className="absolute inset-0 flex items-end p-8 md:p-12">
           <div className="max-w-2xl text-white">
-            <p className="text-xs uppercase tracking-[0.2em] text-white/75">
-              ScanEat
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
+              {t("eyebrow")}
             </p>
             <h3 className="mt-3 text-2xl font-semibold tracking-tight md:text-3xl">
-              A hospitality-first product with a more serious digital standard
+              {t("title")}
             </h3>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import {
   ScanLine,
@@ -15,7 +16,7 @@ export default async function FeaturesSection() {
   const items = t.raw("items");
 
   return (
-    <section className="bg-slate-50 py-20">
+    <section className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-4">
         <div className="mx-auto mb-14 max-w-3xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
@@ -25,6 +26,17 @@ export default async function FeaturesSection() {
             {t("title")}
           </h2>
           <p className="mt-4 text-lg text-slate-600">{t("description")}</p>
+        </div>
+
+        <div className="relative mb-12 h-56 w-full overflow-hidden rounded-3xl border border-slate-200 md:h-72">
+          <Image
+            src="/about-product.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/0 to-transparent" />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

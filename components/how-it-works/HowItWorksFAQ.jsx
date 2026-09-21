@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { Plus } from "lucide-react";
 
-export default async function FAQSection() {
-  const t = await getTranslations("home.faq");
+export default async function HowItWorksFAQ() {
+  const t = await getTranslations("howItWorks.faq");
   const items = t.raw("items");
 
   return (
@@ -21,9 +21,10 @@ export default async function FAQSection() {
           {items.map((item, index) => (
             <details
               key={item.question}
-              open={index === 0}
               className={`group rounded-2xl border border-slate-200 bg-slate-50 open:border-emerald-200 open:bg-white open:shadow-md ${
-                index === items.length - 1 ? "md:col-span-2" : ""
+                index === items.length - 1 && items.length % 2 === 1
+                  ? "md:col-span-2"
+                  : ""
               }`}
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-6 font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">
