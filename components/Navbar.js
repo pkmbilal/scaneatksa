@@ -67,7 +67,8 @@ export default function Navbar() {
     pathname?.startsWith("/dashboard/owner") ||
     pathname?.startsWith("/dashboard/customer") ||
     pathname?.startsWith("/dashboard/kitchen") ||
-    pathname?.startsWith("/dashboard/waiter");
+    pathname?.startsWith("/dashboard/waiter") ||
+    pathname?.startsWith("/dashboard/change-password");
 
   // Only the home page gets a transparent header floating over its photo
   // hero; every other route keeps the normal solid sticky bar.

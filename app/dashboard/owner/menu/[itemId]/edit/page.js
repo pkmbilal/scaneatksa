@@ -243,7 +243,7 @@ export default function EditMenuItemPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   {t("editMenuItemPage.priceLabel")}
@@ -337,7 +337,7 @@ export default function EditMenuItemPage() {
               </div>
             )}
 
-            <div className="flex gap-4 pt-4">
+            <div className="flex flex-col gap-4 pt-4 sm:flex-row">
               <button
                 type="submit"
                 disabled={saving}
@@ -348,7 +348,7 @@ export default function EditMenuItemPage() {
 
               <Link
                 href="/dashboard/owner"
-                className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold transition-colors text-center dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
+                className="sm:px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold transition-colors text-center dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
               >
                 {t("editMenuItemPage.cancel")}
               </Link>

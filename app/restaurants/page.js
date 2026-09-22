@@ -120,7 +120,7 @@ export default async function RestaurantsPage({ searchParams }) {
   }
 
   return (
-    <section className="pt-4 pb-4 md:py-10 bg-gray-50 h-screen">
+    <section className="pt-4 pb-4 md:py-10 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-4 md:mb-8">
           <h2 className="text-2xl text-center md:text-5xl font-bold text-gray-900 md:mb-3">{t('page.title')}</h2>

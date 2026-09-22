@@ -111,7 +111,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute end-3 top-3.5 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="absolute end-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-gray-500 hover:text-gray-700 focus:outline-none"
                   aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -203,7 +203,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute end-3 top-3.5 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="absolute end-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-gray-500 hover:text-gray-700 focus:outline-none"
                   aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}

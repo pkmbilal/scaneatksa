@@ -132,11 +132,12 @@ export default function ChangePasswordPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t("newPasswordPlaceholder")}
                     disabled={success}
+                    className="h-11 rounded-xl pe-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute end-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -156,11 +157,12 @@ export default function ChangePasswordPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder={t("confirmPasswordPlaceholder")}
                     disabled={success}
+                    className="h-11 rounded-xl pe-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((v) => !v)}
-                    className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute end-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground"
                   >
                     {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>

@@ -553,7 +553,7 @@ export default function CartPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 rounded-full"
+                            className="h-11 w-11 rounded-full"
                             onClick={() => handleDec(item)}
                             aria-label={t("items.decreaseAria")}
                           >
@@ -567,7 +567,7 @@ export default function CartPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 rounded-full"
+                            className="h-11 w-11 rounded-full"
                             onClick={() => handleInc(item)}
                             aria-label={t("items.increaseAria")}
                           >

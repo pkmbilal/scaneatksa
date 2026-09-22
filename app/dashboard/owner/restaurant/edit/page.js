@@ -417,7 +417,7 @@ export default function EditRestaurantPage() {
             )}
 
             {/* Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex flex-col gap-4 pt-4 sm:flex-row">
               <button
                 type="submit"
                 disabled={saving}
@@ -429,7 +429,7 @@ export default function EditRestaurantPage() {
               <button
                 type="button"
                 onClick={() => router.push('/dashboard/owner')}
-                className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold transition-colors dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
+                className="sm:px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold transition-colors dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
               >
                 {t('editRestaurantPage.cancel')}
               </button>
