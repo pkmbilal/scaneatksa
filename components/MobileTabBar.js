@@ -17,7 +17,10 @@ import {
   Headset,
   Sun,
   Moon,
+  Languages,
+  ChevronRight,
   UserRoundPen,
+  KeyRound,
   ShieldUser,
   LogOut,
 } from "lucide-react";
@@ -26,8 +29,8 @@ import { getSessionUser, getUserProfile, signOut } from "@/lib/auth/client";
 import { useCart } from "@/app/CartContext";
 import { cn } from "@/lib/utils";
 
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import {
   Sheet,
@@ -52,6 +55,7 @@ export default function MobileTabBar() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,7 +97,7 @@ export default function MobileTabBar() {
     if (profile?.role === "owner") return "/dashboard/owner";
     return "/dashboard/customer";
   };
-  const dashboardHref = user && profile ? getDashboardLink() : "/auth/login";
+  const dashboardHref = getDashboardLink();
 
   const getInitials = () => {
     if (profile?.full_name) {
@@ -111,18 +115,46 @@ export default function MobileTabBar() {
     await signOut();
     setUser(null);
     setProfile(null);
-    setMoreOpen(false);
+    setAccountOpen(false);
     router.push("/");
+  };
+
+  const handleAccountTap = () => {
+    if (user && profile) setAccountOpen(true);
+    else router.push("/auth/login");
   };
 
   const isActive = (href) =>
     href === "/" ? pathname === "/" : pathname === href || pathname?.startsWith(href + "/");
 
+  const accountActive = pathname?.startsWith("/dashboard/customer") || accountOpen;
+
+  const roleLabels = {
+    admin: t("roleLabels.admin"),
+    owner: t("roleLabels.owner"),
+    customer: t("roleLabels.customer"),
+    kitchen: t("roleLabels.kitchen"),
+    waiter: t("roleLabels.waiter"),
+  };
+
   const tabs = [
     { href: "/", label: t("nav.home"), icon: House, active: isActive("/") },
     { href: "/restaurants", label: t("nav.restaurants"), icon: UtensilsCrossed, active: isActive("/restaurants") },
     { href: "/cart", label: t("nav.cart"), icon: ShoppingCart, active: isActive("/cart"), badge: totalItems },
-    { href: dashboardHref, label: t("nav.account"), icon: UserRound, active: pathname?.startsWith("/dashboard/customer") },
+  ];
+
+  const moreLinks = [
+    { href: "/about", label: t("nav.about"), icon: Info },
+    { href: "/how-it-works", label: t("nav.howItWorks"), icon: Gauge },
+    { href: "/contact", label: t("nav.contact"), icon: Headset },
+  ];
+
+  const accountLinks = [
+    { href: "/dashboard/customer/edit-profile", label: t("userMenu.editProfile"), icon: UserRoundPen },
+    { href: "/dashboard/change-password", label: t("userMenu.changePassword"), icon: KeyRound },
+    ...(profile?.role === "customer"
+      ? [{ href: "/dashboard/customer/request-restaurant", label: t("userMenu.requestOwnerAccess"), icon: ShieldUser }]
+      : []),
   ];
 
   const tabButtonClass = "flex flex-col items-center justify-center gap-1 py-2";
@@ -154,6 +186,13 @@ export default function MobileTabBar() {
             </Link>
           ))}
 
+          <button type="button" onClick={handleAccountTap} className={tabButtonClass}>
+            <motion.span whileTap={{ scale: 0.88 }} className={iconWrapClass(accountActive)}>
+              <UserRound className="h-5 w-5" />
+            </motion.span>
+            <span className={labelClass(accountActive)}>{t("nav.account")}</span>
+          </button>
+
           <button type="button" onClick={() => setMoreOpen(true)} className={tabButtonClass}>
             <motion.span whileTap={{ scale: 0.88 }} className={iconWrapClass(moreOpen)}>
               <Menu className="h-5 w-5" />
@@ -166,123 +205,160 @@ export default function MobileTabBar() {
       {/* Spacer so fixed-position content doesn't sit under the bar */}
       <div className="h-[64px] md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }} />
 
+      {/* More sheet -- app-level info only (About/How It Works/Contact +
+          language/theme). Login-agnostic: signed-out visitors never see this
+          because tapping Account sends them straight to /auth/login. */}
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl md:hidden">
+        <SheetContent
+          side="bottom"
+          className="max-h-[85vh] overflow-y-auto rounded-t-3xl border-none shadow-[0_-16px_40px_-12px_rgba(0,0,0,0.18)] md:hidden dark:shadow-[0_-16px_40px_-12px_rgba(0,0,0,0.6)]"
+        >
           <SheetHeader className="sr-only">
             <SheetTitle>{t("nav.more")}</SheetTitle>
           </SheetHeader>
 
+          <div className="mx-auto mt-3 h-1.5 w-10 shrink-0 rounded-full bg-muted-foreground/25" />
+
           <div
-            className="px-4 pt-2"
+            className="px-4 pt-1"
             style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}
           >
-            <ul className="flex flex-col gap-1">
-              <li>
-                <Link
-                  href="/about"
-                  onClick={() => setMoreOpen(false)}
-                  className={`menu-item ${isActive("/about") ? "menu-item-active" : "menu-item-inactive"}`}
-                >
-                  <Info className="size-5" />
-                  {t("nav.about")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/how-it-works"
-                  onClick={() => setMoreOpen(false)}
-                  className={`menu-item ${isActive("/how-it-works") ? "menu-item-active" : "menu-item-inactive"}`}
-                >
-                  <Gauge className="size-5" />
-                  {t("nav.howItWorks")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  onClick={() => setMoreOpen(false)}
-                  className={`menu-item ${isActive("/contact") ? "menu-item-active" : "menu-item-inactive"}`}
-                >
-                  <Headset className="size-5" />
-                  {t("nav.contact")}
-                </Link>
-              </li>
+            <h2 className="px-3 pb-2 mb-1 border-b text-theme-sm font-medium">{t("nav.navigation")}</h2>
+            <ul className="flex flex-col">
+              {moreLinks.map(({ href, label, icon: Icon }) => {
+                const active = isActive(href);
+                return (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      onClick={() => setMoreOpen(false)}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-muted/60 active:bg-muted"
+                    >
+                      <span
+                        className={cn(
+                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
+                          active ? "bg-primary text-white" : "bg-primary/10 text-primary"
+                        )}
+                      >
+                        <Icon className="size-5" />
+                      </span>
+                      <span className="flex-1 text-sm font-medium">{label}</span>
+                      <ChevronRight className="size-4 text-muted-foreground/50 rtl:-scale-x-100" />
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
 
-            <div className="mt-4 flex items-center gap-3 border-t pt-4">
-              <LanguageSwitcher variant="icon" />
-              <button
-                type="button"
-                onClick={() => setTheme(isDark ? "light" : "dark")}
-                className="relative flex h-11 w-11 items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
-                aria-label={t("toggleDarkMode")}
-              >
-                {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
-              </button>
+            <h2 className="mt-4 px-3 pb-2 mb-1 border-b text-theme-sm font-medium">{t("nav.preferences")}</h2>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Languages className="size-5" />
+                </span>
+                <span className="flex-1 text-sm font-medium">{t("settings.language")}</span>
+                <LanguageSwitcher variant="icon" />
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  {isDark ? <Moon className="size-5" /> : <Sun className="size-5" />}
+                </span>
+                <span className="flex-1 text-sm font-medium">{t("settings.appearance")}</span>
+                <button
+                  type="button"
+                  onClick={() => setTheme(isDark ? "light" : "dark")}
+                  className="relative flex h-11 w-11 items-center justify-center rounded-full border text-muted-foreground transition-colors hover:bg-accent"
+                  aria-label={t("toggleDarkMode")}
+                >
+                  {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
+                </button>
+              </div>
             </div>
+          </div>
+        </SheetContent>
+      </Sheet>
 
-            <div className="mt-4 border-t pt-4">
-              {user && profile ? (
-                <>
-                  <div className="flex items-center gap-3 rounded-xl border p-3">
-                    <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarFallback className="bg-brand-50 text-brand-600 font-semibold dark:bg-brand-500/15 dark:text-brand-400">
-                        {getInitials()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">{profile.full_name || t("defaultUserName")}</p>
-                      <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-                    </div>
-                  </div>
+      {/* Account sheet -- only reachable while signed in (guests are routed
+          straight to /auth/login by handleAccountTap). */}
+      <Sheet open={accountOpen} onOpenChange={setAccountOpen}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[85vh] overflow-y-auto rounded-t-3xl border-none shadow-[0_-16px_40px_-12px_rgba(0,0,0,0.18)] md:hidden dark:shadow-[0_-16px_40px_-12px_rgba(0,0,0,0.6)]"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>{t("nav.account")}</SheetTitle>
+          </SheetHeader>
 
-                  <ul className="mt-3 flex flex-col gap-1">
-                    <li>
-                      <Link
-                        href="/dashboard/customer/edit-profile"
-                        onClick={() => setMoreOpen(false)}
-                        className={`menu-item ${isActive("/dashboard/customer/edit-profile") ? "menu-item-active" : "menu-item-inactive"}`}
-                      >
-                        <UserRoundPen className="size-5" />
-                        {t("userMenu.editProfile")}
-                      </Link>
-                    </li>
-                    {profile.role === "customer" && (
-                      <li>
-                        <Link
-                          href="/dashboard/customer/request-restaurant"
-                          onClick={() => setMoreOpen(false)}
-                          className={`menu-item ${isActive("/dashboard/customer/request-restaurant") ? "menu-item-active" : "menu-item-inactive"}`}
-                        >
-                          <ShieldUser className="size-5" />
-                          {t("userMenu.requestOwnerAccess")}
-                        </Link>
-                      </li>
-                    )}
-                    <li>
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="menu-item menu-item-inactive w-full cursor-pointer"
-                      >
-                        <LogOut className="size-5 rtl:-scale-x-100" />
-                        {t("userMenu.logout")}
-                      </button>
-                    </li>
-                  </ul>
-                </>
-              ) : (
-                <div className="rounded-2xl border p-4">
-                  <p className="text-sm font-semibold">{t("guest.welcomeTitle")}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{t("guest.welcomeSubtitle")}</p>
-                  <Button className="mt-3 w-full rounded-xl bg-primary hover:bg-green-700" asChild>
-                    <Link href="/auth/login" onClick={() => setMoreOpen(false)}>
-                      {t("guest.loginSignup")}
-                    </Link>
-                  </Button>
+          <div className="mx-auto mt-3 h-1.5 w-10 shrink-0 rounded-full bg-muted-foreground/25" />
+
+          <div
+            className="px-4 pt-1"
+            style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}
+          >
+            <Link
+              href={dashboardHref}
+              onClick={() => setAccountOpen(false)}
+              className="flex items-center gap-3 rounded-xl bg-muted/60 px-3 py-3 transition-colors hover:bg-muted active:bg-muted"
+            >
+              <Avatar className="h-10 w-10 shrink-0">
+                <AvatarFallback className="bg-brand-50 text-brand-600 font-semibold dark:bg-brand-500/15 dark:text-brand-400">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="truncate text-sm font-semibold">{profile?.full_name || t("defaultUserName")}</p>
+                  {profile?.role && (
+                    <Badge className="h-4 shrink-0 bg-primary px-1.5 text-[10px] text-white">
+                      {roleLabels[profile.role] || profile.role}
+                    </Badge>
+                  )}
                 </div>
-              )}
-            </div>
+                <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+              </div>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground/50 rtl:-scale-x-100" />
+            </Link>
+
+            <h2 className="mt-4 px-3 pb-2 mb-1 border-b text-theme-sm font-medium">{t("nav.account")}</h2>
+            <ul className="flex flex-col">
+              {accountLinks.map(({ href, label, icon: Icon }) => {
+                const active = isActive(href);
+                return (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-muted/60 active:bg-muted"
+                    >
+                      <span
+                        className={cn(
+                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
+                          active ? "bg-primary text-white" : "bg-primary/10 text-primary"
+                        )}
+                      >
+                        <Icon className="size-5" />
+                      </span>
+                      <span className="flex-1 text-sm font-medium">{label}</span>
+                      <ChevronRight className="size-4 text-muted-foreground/50 rtl:-scale-x-100" />
+                    </Link>
+                  </li>
+                );
+              })}
+
+              <li>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors hover:bg-destructive/5 active:bg-destructive/10"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+                    <LogOut className="size-5 rtl:-scale-x-100" />
+                  </span>
+                  <span className="flex-1 text-sm font-medium text-destructive">{t("userMenu.logout")}</span>
+                </button>
+              </li>
+            </ul>
           </div>
         </SheetContent>
       </Sheet>

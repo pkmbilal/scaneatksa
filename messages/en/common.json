@@ -7,7 +7,13 @@
     "home": "Home",
     "cart": "Cart",
     "account": "Account",
-    "more": "More"
+    "more": "More",
+    "navigation": "Navigation",
+    "preferences": "Preferences"
+  },
+  "settings": {
+    "language": "Language",
+    "appearance": "Appearance"
   },
   "brand": {
     "tagline": "QR Menu"
@@ -16,6 +22,7 @@
     "dashboard": "Dashboard",
     "requestOwnerAccess": "Request Owner Access",
     "editProfile": "Edit Profile",
+    "changePassword": "Change Password",
     "logout": "Logout"
   },
   "guest": {

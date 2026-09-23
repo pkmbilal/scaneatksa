@@ -7,7 +7,13 @@
     "home": "الرئيسية",
     "cart": "السلة",
     "account": "حسابي",
-    "more": "المزيد"
+    "more": "المزيد",
+    "navigation": "التنقل",
+    "preferences": "التفضيلات"
+  },
+  "settings": {
+    "language": "اللغة",
+    "appearance": "المظهر"
   },
   "brand": {
     "tagline": "قائمة عبر QR"
@@ -16,6 +22,7 @@
     "dashboard": "لوحة التحكم",
     "requestOwnerAccess": "طلب صلاحية مالك",
     "editProfile": "تعديل الملف الشخصي",
+    "changePassword": "تغيير كلمة المرور",
     "logout": "تسجيل الخروج"
   },
   "guest": {

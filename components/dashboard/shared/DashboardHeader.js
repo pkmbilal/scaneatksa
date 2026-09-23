@@ -15,9 +15,8 @@ import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, Search, Sun, Moon, PanelLeftOpen, PanelRightOpen } from 'lucide-react'
+import { Menu, Search, Sun, Moon } from 'lucide-react'
 import { useDashboardSidebar } from '@/context/DashboardSidebarContext'
-import { useLanguage } from '@/context/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import NotificationDropdown from './NotificationDropdown'
 import UserDropdown from './UserDropdown'
@@ -33,8 +32,7 @@ export default function DashboardHeader({
 }) {
   const t = useTranslations('dashboard.common')
   const resolvedHomeLabel = homeLabel ?? t('dashboardLabel')
-  const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useDashboardSidebar()
-  const { isRTL } = useLanguage()
+  const { toggleSidebar } = useDashboardSidebar()
   const { setTheme, resolvedTheme } = useTheme()
   const inputRef = useRef(null)
 
@@ -48,14 +46,6 @@ export default function DashboardHeader({
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
-
-  const handleToggle = () => {
-    if (window.innerWidth >= 1024) {
-      toggleSidebar()
-    } else {
-      toggleMobileSidebar()
-    }
-  }
 
   const isDark = resolvedTheme === 'dark'
 
@@ -72,13 +62,15 @@ export default function DashboardHeader({
           <button
             type="button"
             className="hidden items-center justify-center text-gray-500 border-gray-200 rounded-lg dark:border-gray-800 lg:flex lg:h-11 lg:w-11 lg:border dark:text-gray-400"
-            onClick={handleToggle}
+            onClick={toggleSidebar}
             aria-label={t('header.toggleSidebar')}
           >
             <Menu className="size-5" />
           </button>
 
-          {/* Mobile-only: notifications + slide-panel trigger */}
+          {/* Mobile-only: notifications + account menu (same UserDropdown as
+              desktop — primary nav on mobile comes from MobileTabBar instead
+              of a drawer here). */}
           <div className="flex items-center gap-2 lg:hidden">
             {notifications && (
               <NotificationDropdown
@@ -91,20 +83,13 @@ export default function DashboardHeader({
               />
             )}
 
-            <button
-              type="button"
-              onClick={handleToggle}
-              className="relative flex items-center justify-center w-10 h-10 text-white transition-colors rounded-full shadow-theme-xs bg-gradient-to-br from-primary to-green-600 hover:opacity-90"
-              aria-label={t('header.toggleSidebar')}
-            >
-              {isMobileOpen ? (
-                <X className="size-5" />
-              ) : isRTL ? (
-                <PanelRightOpen className="size-5" />
-              ) : (
-                <PanelLeftOpen className="size-5" />
-              )}
-            </button>
+            <UserDropdown
+              user={user}
+              profile={profile}
+              homeHref={homeHref}
+              homeLabel={resolvedHomeLabel}
+              editProfileHref={editProfileHref}
+            />
           </div>
 
           <div className="hidden lg:block">
