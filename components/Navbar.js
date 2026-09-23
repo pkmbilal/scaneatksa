@@ -42,6 +42,9 @@ import {
   Moon,
   PanelLeftOpen,
   PanelRightOpen,
+  Info,
+  UtensilsCrossed,
+  ShoppingCart,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -73,6 +76,10 @@ export default function Navbar() {
   // Only the home page gets a transparent header floating over its photo
   // hero; every other route keeps the normal solid sticky bar.
   const isHome = pathname === "/";
+  // The QR menu page is the one exception to "no top nav on mobile" -- it's
+  // the only route whose mobile hamburger (language/theme/account access)
+  // still lives inside this header, so it must stay visible there.
+  const isMenuPage = pathname?.startsWith("/menu/");
   const [isScrolled, setIsScrolled] = useState(false);
   const isTransparent = isHome && !isScrolled;
 
@@ -162,13 +169,30 @@ export default function Navbar() {
     ? "text-md font-semibold text-white/90 hover:text-white transition-colors"
     : "text-md font-semibold hover:text-primary transition-colors";
 
+  // Mobile-only page pill shown at the end of the bar (balances the logo,
+  // which otherwise sits alone since the full nav/account controls are
+  // desktop-only). No entry for the QR menu page -- it already fills that
+  // spot with its own hamburger trigger.
+  const pageBadge =
+    pathname === "/about"
+      ? { label: t("nav.about"), icon: Info }
+      : pathname === "/how-it-works"
+        ? { label: t("nav.howItWorks"), icon: Gauge }
+        : pathname === "/restaurants"
+          ? { label: t("nav.restaurants"), icon: UtensilsCrossed }
+          : pathname === "/contact"
+            ? { label: t("nav.contact"), icon: Headset }
+            : pathname === "/cart"
+              ? { label: t("nav.cart"), icon: ShoppingCart }
+              : null;
+
   return (
     <header
-      className={`${isHome ? `fixed inset-x-0 ${isTransparent ? "top-4" : "top-0"}` : "sticky top-0"} z-50 w-full transition-all duration-300 ${
-        isTransparent
-          ? "bg-transparent border-b border-transparent"
-          : "border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-      }`}
+      className={`relative z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${
+        isHome ? "hidden md:block" : ""
+      } ${
+        isHome ? `md:fixed md:inset-x-0 ${isTransparent ? "md:top-4" : "md:top-0"}` : "md:sticky md:top-0"
+      } ${isTransparent ? "md:bg-transparent md:border-transparent md:backdrop-blur-none" : ""}`}
     >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 gap-6">
         {/* Logo */}
@@ -183,6 +207,14 @@ export default function Navbar() {
             className={`rounded-full transition-shadow duration-300 ${isTransparent ? "shadow-md" : ""}`}
           />
         </Link>
+
+        {/* Mobile-only page pill */}
+        {pageBadge && (
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-muted/60 px-3.5 py-2 text-sm font-medium text-foreground md:hidden">
+            <pageBadge.icon className="size-4 text-primary" />
+            <span className="truncate">{pageBadge.label}</span>
+          </span>
+        )}
 
         {/* Desktop Nav */}
         <div className="hidden md:flex justify-between items-center gap-6">
@@ -295,7 +327,7 @@ export default function Navbar() {
         {/* Mobile — only the QR menu page still uses this drawer; every other
             route now gets its primary nav from the bottom MobileTabBar, whose
             "More" tab covers these same links/actions. */}
-        {pathname?.startsWith("/menu/") && (
+        {isMenuPage && (
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
