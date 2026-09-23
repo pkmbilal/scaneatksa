@@ -113,7 +113,7 @@ export default function OrderQueue({ role, restaurantName, orders, loading, onAc
                   type="button"
                   onClick={() => handleAction(o, action.to)}
                   disabled={actingId === o.id}
-                  className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600 disabled:opacity-50"
+                  className="min-h-11 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600 disabled:opacity-50"
                 >
                   {actingId === o.id ? t("queue.updating") : labelKey ? t(labelKey) : action.label}
                 </button>

@@ -627,7 +627,7 @@ export default function CartPage() {
                       <Button
                         type="button"
                         variant={channel === "pickup" ? "default" : "outline"}
-                        className="flex-1"
+                        className="h-11 flex-1"
                         onClick={() => setChannel("pickup")}
                         disabled={!restaurant?.pickup_available}
                       >
@@ -636,7 +636,7 @@ export default function CartPage() {
                       <Button
                         type="button"
                         variant={channel === "delivery" ? "default" : "outline"}
-                        className="flex-1"
+                        className="h-11 flex-1"
                         onClick={() => setChannel("delivery")}
                         disabled={!restaurant?.delivery_available}
                       >
@@ -659,6 +659,7 @@ export default function CartPage() {
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
                       placeholder={t("summary.phonePlaceholder")}
+                      className="h-11"
                     />
                   </div>
 
@@ -668,6 +669,7 @@ export default function CartPage() {
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder={t("summary.namePlaceholder")}
+                      className="h-11"
                     />
                   </div>
 
@@ -724,7 +726,7 @@ export default function CartPage() {
                 <div className="grid gap-2">
                   <Button
                     size="lg"
-                    className="w-full cursor-pointer"
+                    className="h-12 w-full cursor-pointer"
                     onClick={handlePlaceOrder}
                     disabled={placing || !cartItems?.length}
                   >

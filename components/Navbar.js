@@ -34,10 +34,8 @@ import {
   UserRoundPen,
   LogOut,
   ShieldUser,
-  Pizza,
   Gauge,
   Headset,
-  House,
   Sun,
   Moon,
   PanelLeftOpen,
@@ -46,6 +44,7 @@ import {
   UtensilsCrossed,
   ShoppingCart,
   KeyRound,
+  ChevronRight,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -372,50 +371,37 @@ export default function Navbar() {
 
               {/* Scrollable nav links */}
               <div className="flex-1 overflow-y-auto px-5 no-scrollbar">
-                <ul className="flex flex-col gap-1">
-                  <li>
-                    <Link
-                      href="/about"
-                      onClick={() => setMobileOpen(false)}
-                      className={`menu-item ${isActive("/about") ? "menu-item-active" : "menu-item-inactive"}`}
-                    >
-                      <House className="size-5" />
-                      {t("nav.about")}
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/restaurants"
-                      onClick={() => setMobileOpen(false)}
-                      className={`menu-item ${isActive("/restaurants") ? "menu-item-active" : "menu-item-inactive"}`}
-                    >
-                      <Pizza className="size-5" />
-                      {t("nav.restaurants")}
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/how-it-works"
-                      onClick={() => setMobileOpen(false)}
-                      className={`menu-item ${isActive("/how-it-works") ? "menu-item-active" : "menu-item-inactive"}`}
-                    >
-                      <Gauge className="size-5" />
-                      {t("nav.howItWorks")}
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/contact"
-                      onClick={() => setMobileOpen(false)}
-                      className={`menu-item ${isActive("/contact") ? "menu-item-active" : "menu-item-inactive"}`}
-                    >
-                      <Headset className="size-5" />
-                      {t("nav.contact")}
-                    </Link>
-                  </li>
+                <h2 className="mb-1 border-b border-gray-200 px-3 pb-2 text-theme-sm font-medium text-gray-900 dark:border-gray-800 dark:text-white">
+                  {t("nav.navigation")}
+                </h2>
+                <ul className="flex flex-col">
+                  {[
+                    { href: "/about", label: t("nav.about"), icon: Info },
+                    { href: "/restaurants", label: t("nav.restaurants"), icon: UtensilsCrossed },
+                    { href: "/how-it-works", label: t("nav.howItWorks"), icon: Gauge },
+                    { href: "/contact", label: t("nav.contact"), icon: Headset },
+                  ].map(({ href, label, icon: Icon }) => {
+                    const active = isActive(href);
+                    return (
+                      <li key={href}>
+                        <Link
+                          href={href}
+                          onClick={() => setMobileOpen(false)}
+                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
+                        >
+                          <span
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                              active ? "bg-primary text-white" : "bg-primary/10 text-primary"
+                            }`}
+                          >
+                            <Icon className="size-5" />
+                          </span>
+                          <span className="flex-1 text-sm font-medium text-gray-900 dark:text-white">{label}</span>
+                          <ChevronRight className="size-4 text-gray-400 rtl:-scale-x-100" />
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
 
@@ -437,7 +423,7 @@ export default function Navbar() {
 
                 {user && profile ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-3 dark:border-gray-800">
+                    <div className="flex items-center gap-3 rounded-xl bg-gray-100 p-3 dark:bg-white/5">
                       <Avatar className="h-10 w-10 shrink-0">
                         <AvatarFallback className="bg-brand-50 text-brand-600 font-semibold dark:bg-brand-500/15 dark:text-brand-400">
                           {getInitials()}
@@ -454,56 +440,54 @@ export default function Navbar() {
                       </div>
                     </div>
 
-                    <ul className="flex flex-col gap-1 mt-3">
-                      <li>
-                        <Link
-                          href={getDashboardLink()}
-                          onClick={() => setMobileOpen(false)}
-                          className={`menu-item ${isActive("/dashboard") ? "menu-item-active" : "menu-item-inactive"}`}
-                        >
-                          <LayoutDashboard className="size-5" />
-                          {t("userMenu.dashboard")}
-                        </Link>
-                      </li>
-
-                      <li>
-                        <Link
-                          href="/dashboard/customer/edit-profile"
-                          onClick={() => setMobileOpen(false)}
-                          className={`menu-item ${isActive("/dashboard/customer/edit-profile") ? "menu-item-active" : "menu-item-inactive"}`}
-                        >
-                          <UserRoundPen className="size-5" />
-                          {t("userMenu.editProfile")}
-                        </Link>
-                      </li>
-
-                      {profile.role === "customer" && (
-                        <li>
-                          <Link
-                            href="/dashboard/request-restaurant"
-                            onClick={() => setMobileOpen(false)}
-                            className={`menu-item ${isActive("/dashboard/request-restaurant") ? "menu-item-active" : "menu-item-inactive"}`}
-                          >
-                            <ShieldUser className="size-5" />
-                            {t("userMenu.requestOwnerAccess")}
-                          </Link>
-                        </li>
-                      )}
+                    <ul className="mt-3 flex flex-col">
+                      {[
+                        { href: getDashboardLink(), label: t("userMenu.dashboard"), icon: LayoutDashboard },
+                        { href: "/dashboard/customer/edit-profile", label: t("userMenu.editProfile"), icon: UserRoundPen },
+                        ...(profile.role === "customer"
+                          ? [{ href: "/dashboard/customer/request-restaurant", label: t("userMenu.requestOwnerAccess"), icon: ShieldUser }]
+                          : []),
+                      ].map(({ href, label, icon: Icon }) => {
+                        const active = isActive(href);
+                        return (
+                          <li key={href}>
+                            <Link
+                              href={href}
+                              onClick={() => setMobileOpen(false)}
+                              className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
+                            >
+                              <span
+                                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                                  active ? "bg-primary text-white" : "bg-primary/10 text-primary"
+                                }`}
+                              >
+                                <Icon className="size-5" />
+                              </span>
+                              <span className="flex-1 text-sm font-medium text-gray-900 dark:text-white">{label}</span>
+                              <ChevronRight className="size-4 text-gray-400 rtl:-scale-x-100" />
+                            </Link>
+                          </li>
+                        );
+                      })}
 
                       <li>
                         <button
                           type="button"
                           onClick={handleLogout}
-                          className="menu-item menu-item-inactive w-full cursor-pointer"
+                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors hover:bg-red-50 dark:hover:bg-red-500/10"
                         >
-                          <LogOut className="size-5 rtl:-scale-x-100" />
-                          {t("userMenu.logout")}
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-600 dark:text-red-400">
+                            <LogOut className="size-5 rtl:-scale-x-100" />
+                          </span>
+                          <span className="flex-1 text-sm font-medium text-red-600 dark:text-red-400">
+                            {t("userMenu.logout")}
+                          </span>
                         </button>
                       </li>
                     </ul>
                   </>
                 ) : (
-                  <div className="rounded-2xl border border-gray-200 p-4 dark:border-gray-800">
+                  <div className="rounded-2xl bg-gray-100 p-4 dark:bg-white/5">
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       {t("guest.welcomeTitle")}
                     </p>
