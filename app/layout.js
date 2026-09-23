@@ -45,10 +45,22 @@ const fontVars = [
 export const metadata = {
   title: 'QR Menu System',
   description: 'Digital menu for restaurants',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ScanEat',
+  },
+  icons: {
+    apple: '/icon-only-logo.svg',
+  },
 }
 
 export const viewport = {
   viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+  ],
 }
 
 export default async function RootLayout({ children }) {

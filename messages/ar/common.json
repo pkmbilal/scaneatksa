@@ -3,7 +3,10 @@
     "about": "من نحن",
     "howItWorks": "كيف يعمل",
     "restaurants": "المطاعم",
-    "contact": "تواصل معنا"
+    "contact": "تواصل معنا",
+    "home": "الرئيسية",
+    "cart": "السلة",
+    "account": "حسابي"
   },
   "brand": {
     "tagline": "قائمة عبر QR"

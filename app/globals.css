@@ -111,6 +111,26 @@ section[id] {
   scroll-margin-top: 80px;
 }
 
+/* ---------------------------------------------------------------------- */
+/* Native-app touch feel: no rubber-band bounce revealing browser chrome, */
+/* no blue tap-highlight flash, and no double-tap-to-zoom delay on        */
+/* interactive elements.                                                  */
+/* ---------------------------------------------------------------------- */
+html,
+body {
+  overscroll-behavior-y: contain;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);

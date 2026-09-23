@@ -197,7 +197,7 @@ export default async function MenuPage({ params, searchParams }) {
           <FavoriteButton restaurantId={restaurant.id} />
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-12 md:py-16 lg:py-20">
+        <div className="relative mx-auto max-w-6xl px-4 py-8 md:py-16 lg:py-20">
           <div className="max-w-3xl">
             <h1 className="font-display text-3xl font-semibold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
               {restaurant.name}
@@ -300,7 +300,7 @@ export default async function MenuPage({ params, searchParams }) {
       </div>
 
       {/* MAIN */}
-      <div className="mx-auto max-w-6xl px-4 py-8 md:py-10">
+      <div className="mx-auto max-w-6xl px-4 py-5 md:py-10">
         <MenuClient
           items={menuItems}
           categories={orderedCategories}
@@ -312,7 +312,7 @@ export default async function MenuPage({ params, searchParams }) {
         <MashrabiyaFret variant="band" />
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-10 md:py-12">
+      <div className="mx-auto max-w-6xl px-4 py-6 md:py-12">
         <RestaurantReviewsSection
           reviews={reviewsError ? [] : reviews}
           ratingSummary={ratingSummary}

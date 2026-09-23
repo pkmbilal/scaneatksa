@@ -3,7 +3,10 @@
     "about": "About",
     "howItWorks": "How It Works",
     "restaurants": "Restaurants",
-    "contact": "Contact"
+    "contact": "Contact",
+    "home": "Home",
+    "cart": "Cart",
+    "account": "Account"
   },
   "brand": {
     "tagline": "QR Menu"
