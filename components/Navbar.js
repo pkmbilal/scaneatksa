@@ -45,6 +45,7 @@ import {
   Info,
   UtensilsCrossed,
   ShoppingCart,
+  KeyRound,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -70,12 +71,15 @@ export default function Navbar() {
     pathname?.startsWith("/dashboard/owner") ||
     pathname?.startsWith("/dashboard/customer") ||
     pathname?.startsWith("/dashboard/kitchen") ||
-    pathname?.startsWith("/dashboard/waiter") ||
-    pathname?.startsWith("/dashboard/change-password");
+    pathname?.startsWith("/dashboard/waiter");
 
   // Only the home page gets a transparent header floating over its photo
   // hero; every other route keeps the normal solid sticky bar.
   const isHome = pathname === "/";
+  // Change-password is a dashboard-adjacent utility page: it gets this bar's
+  // logo+page-pill on mobile (matching every other page), but never on
+  // desktop, where it already has its own "Back to Dashboard" link.
+  const isChangePassword = pathname?.startsWith("/dashboard/change-password");
   // The QR menu page is the one exception to "no top nav on mobile" -- it's
   // the only route whose mobile hamburger (language/theme/account access)
   // still lives inside this header, so it must stay visible there.
@@ -184,12 +188,14 @@ export default function Navbar() {
             ? { label: t("nav.contact"), icon: Headset }
             : pathname === "/cart"
               ? { label: t("nav.cart"), icon: ShoppingCart }
-              : null;
+              : isChangePassword
+                ? { label: t("userMenu.changePassword"), icon: KeyRound }
+                : null;
 
   return (
     <header
       className={`relative z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${
-        isHome ? "hidden md:block" : ""
+        isHome ? "hidden md:block" : isChangePassword ? "md:hidden" : ""
       } ${
         isHome ? `md:fixed md:inset-x-0 ${isTransparent ? "md:top-4" : "md:top-0"}` : "md:sticky md:top-0"
       } ${isTransparent ? "md:bg-transparent md:border-transparent md:backdrop-blur-none" : ""}`}

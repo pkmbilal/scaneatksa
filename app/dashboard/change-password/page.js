@@ -75,7 +75,7 @@ export default function ChangePasswordPage() {
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition"
+            className="hidden items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition md:inline-flex"
           >
             <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
             {t("backToDashboard")}

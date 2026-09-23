@@ -87,7 +87,6 @@ export default function MobileTabBar() {
     pathname?.startsWith("/dashboard/owner") ||
     pathname?.startsWith("/dashboard/kitchen") ||
     pathname?.startsWith("/dashboard/waiter") ||
-    pathname?.startsWith("/dashboard/change-password") ||
     pathname?.startsWith("/menu/");
 
   if (hideTabBar) return null;
