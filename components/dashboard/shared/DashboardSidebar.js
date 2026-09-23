@@ -47,11 +47,13 @@ export default function DashboardSidebar({
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className={`py-8 flex ${!showFullLogo ? 'lg:justify-center' : 'justify-start'}`}>
-        {showFullLogo ? (
-          <Image src="/logo.svg" alt="ScanEat Logo" width={140} height={38} priority />
-        ) : (
-          <Image src="/icon-only-logo.svg" alt="ScanEat Logo" width={32} height={32} priority />
-        )}
+        <Image
+          src="/scaneat-logo.png"
+          alt="ScanEat Logo"
+          width={showFullLogo ? 64 : 40}
+          height={showFullLogo ? 64 : 40}
+          priority
+        />
       </div>
 
       <div className="flex flex-1 flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">

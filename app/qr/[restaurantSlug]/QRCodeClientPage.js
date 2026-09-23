@@ -232,7 +232,7 @@ export default function QRCodeClientPage({ restaurantSlug }) {
       const img = new window.Image()
       img.onload = resolve
       img.onerror = resolve
-      img.src = '/logo.png'
+      img.src = '/scaneat-logo.png'
     })
   }
 

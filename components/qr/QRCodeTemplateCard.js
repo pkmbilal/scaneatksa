@@ -27,10 +27,10 @@ const QRCodeTemplateCard = forwardRef(function QRCodeTemplateCard(
           {/* Header */}
           <div className="w-full flex items-center justify-center pt-1 mb-3">
             <NextImage
-              src="/logo.svg"
+              src="/scaneat-logo.png"
               alt={t('logoAlt')}
-              width={180}
-              height={50}
+              width={90}
+              height={90}
               priority
             />
           </div>

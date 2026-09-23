@@ -9,9 +9,9 @@ export default function manifest() {
     theme_color: '#00c951',
     icons: [
       {
-        src: '/icon-only-logo.svg',
-        sizes: 'any',
-        type: 'image/svg+xml',
+        src: '/scaneat-logo.png',
+        sizes: '1024x1024',
+        type: 'image/png',
         purpose: 'any',
       },
     ],

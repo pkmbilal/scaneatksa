@@ -304,7 +304,7 @@ export default function CartPage() {
 
   if (!cartReady) {
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-muted/30 flex items-center justify-center">
+      <div className="min-h-[calc(100vh-80px)] bg-muted/30 flex items-center justify-center">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           {t("loading")}
@@ -323,7 +323,7 @@ export default function CartPage() {
           : t("confirmation.wherePickup");
 
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-muted/30">
+      <div className="min-h-[calc(100vh-80px)] bg-muted/30">
         <div className="mx-auto max-w-xl px-4 py-10">
           <Card className="overflow-hidden">
             <CardHeader className="space-y-1">
@@ -395,7 +395,7 @@ export default function CartPage() {
 
   if (!cartItems?.length) {
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-muted/30">
+      <div className="min-h-[calc(100vh-80px)] bg-muted/30">
         <div className="mx-auto max-w-3xl px-4 py-10">
           <Card className="overflow-hidden">
             <CardHeader className="space-y-1">

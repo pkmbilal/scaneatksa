@@ -131,6 +131,7 @@ export default function CustomerDashboardPage() {
               homeHref="/dashboard/customer"
               homeLabel={t('page.homeLabel')}
               editProfileHref="/dashboard/customer/edit-profile"
+              showMobileAccountMenu={false}
               notifications={{
                 items: orderAlerts.items,
                 unreadCount: orderAlerts.unreadCount,

@@ -50,9 +50,6 @@ export const metadata = {
     statusBarStyle: 'default',
     title: 'ScanEat',
   },
-  icons: {
-    apple: '/icon-only-logo.svg',
-  },
 }
 
 export const viewport = {

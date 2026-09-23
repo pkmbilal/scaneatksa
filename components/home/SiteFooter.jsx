@@ -12,7 +12,7 @@ export default async function SiteFooter({ data }) {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
             <div className="mb-4 flex items-center gap-3">
-              <Image src="/logo.svg" alt="ScanEat Logo" width={180} height={50}/>
+              <Image src="/scaneat-logo.png" alt="ScanEat Logo" width={72} height={72}/>
             </div>
 
             <p className="max-w-md leading-7 text-slate-600">{t("description")}</p>

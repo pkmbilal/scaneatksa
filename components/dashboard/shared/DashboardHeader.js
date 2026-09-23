@@ -29,6 +29,7 @@ export default function DashboardHeader({
   editProfileHref,
   notifications,
   extraActions,
+  showMobileAccountMenu = true,
 }) {
   const t = useTranslations('dashboard.common')
   const resolvedHomeLabel = homeLabel ?? t('dashboardLabel')
@@ -55,7 +56,7 @@ export default function DashboardHeader({
         <div className="flex items-center justify-between w-full gap-2 px-4 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
           {/* Logo — mobile only; the expanded/hovered sidebar already shows it on lg+ */}
           <Link href="/" className="flex items-center lg:hidden">
-            <Image src="/icon-only-logo.svg" alt="ScanEat" width={32} height={32} priority />
+            <Image src="/scaneat-logo.png" alt="ScanEat" width={44} height={44} priority />
           </Link>
 
           {/* Desktop sidebar collapse/expand toggle */}
@@ -69,8 +70,9 @@ export default function DashboardHeader({
           </button>
 
           {/* Mobile-only: notifications + account menu (same UserDropdown as
-              desktop — primary nav on mobile comes from MobileTabBar instead
-              of a drawer here). */}
+              desktop). The customer dashboard hides this via
+              `showMobileAccountMenu={false}` since its Account tab in
+              MobileTabBar already covers the same menu from the bottom bar. */}
           <div className="flex items-center gap-2 lg:hidden">
             {notifications && (
               <NotificationDropdown
@@ -83,13 +85,15 @@ export default function DashboardHeader({
               />
             )}
 
-            <UserDropdown
-              user={user}
-              profile={profile}
-              homeHref={homeHref}
-              homeLabel={resolvedHomeLabel}
-              editProfileHref={editProfileHref}
-            />
+            {showMobileAccountMenu && (
+              <UserDropdown
+                user={user}
+                profile={profile}
+                homeHref={homeHref}
+                homeLabel={resolvedHomeLabel}
+                editProfileHref={editProfileHref}
+              />
+            )}
           </div>
 
           <div className="hidden lg:block">

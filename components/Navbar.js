@@ -170,17 +170,17 @@ export default function Navbar() {
           : "border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 gap-6">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 gap-6">
         {/* Logo */}
         <Link
           href="/"
         >
           <Image
-            src="/logo.svg"
+            src="/scaneat-logo.png"
             alt="ScanEat Logo"
-            width={180}
-            height={50}
-            className={`transition-[filter] duration-300 ${isTransparent ? "brightness-0 invert" : ""}`}
+            width={64}
+            height={64}
+            className={`rounded-full transition-shadow duration-300 ${isTransparent ? "shadow-md" : ""}`}
           />
         </Link>
 
@@ -328,7 +328,7 @@ export default function Navbar() {
               {/* Logo header */}
               <div className="px-5 py-8">
                 <Link href="/" onClick={() => setMobileOpen(false)}>
-                  <Image src="/logo.svg" alt="ScanEat Logo" width={140} height={38} priority />
+                  <Image src="/scaneat-logo.png" alt="ScanEat Logo" width={72} height={72} priority />
                 </Link>
               </div>
 
