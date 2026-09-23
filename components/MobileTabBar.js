@@ -11,7 +11,7 @@ import {
   UtensilsCrossed,
   ShoppingCart,
   UserRound,
-  Menu,
+  MoreHorizontal,
   Info,
   Gauge,
   Headset,
@@ -159,15 +159,15 @@ export default function MobileTabBar() {
   const tabButtonClass = "flex flex-col items-center justify-center gap-1 py-2";
   const iconWrapClass = (active) =>
     cn(
-      "relative flex h-9 w-9 items-center justify-center rounded-full",
-      active ? "text-primary" : "text-muted-foreground"
+      "relative flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+      active ? "bg-primary/10 text-primary" : "text-muted-foreground"
     );
   const labelClass = (active) => cn("text-[11px] font-medium", active ? "text-primary" : "text-muted-foreground");
 
   return (
     <>
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border-t bg-background/95 shadow-[0_-8px_24px_-8px_rgba(0,0,0,0.12)] backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden dark:shadow-[0_-8px_24px_-8px_rgba(0,0,0,0.5)]"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="grid grid-cols-5">
@@ -176,7 +176,7 @@ export default function MobileTabBar() {
               <motion.span whileTap={{ scale: 0.88 }} className={iconWrapClass(active)}>
                 <Icon className="h-5 w-5" />
                 {!!badge && (
-                  <span className="absolute -top-1 -end-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-white">
+                  <span className="absolute -top-1 -end-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-white ring-2 ring-background">
                     {badge}
                   </span>
                 )}
@@ -194,7 +194,7 @@ export default function MobileTabBar() {
 
           <button type="button" onClick={() => setMoreOpen(true)} className={tabButtonClass}>
             <motion.span whileTap={{ scale: 0.88 }} className={iconWrapClass(moreOpen)}>
-              <Menu className="h-5 w-5" />
+              <MoreHorizontal className="h-5 w-5" />
             </motion.span>
             <span className={labelClass(moreOpen)}>{t("nav.more")}</span>
           </button>
