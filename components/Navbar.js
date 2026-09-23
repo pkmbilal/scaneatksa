@@ -292,7 +292,10 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile */}
+        {/* Mobile — only the QR menu page still uses this drawer; every other
+            route now gets its primary nav from the bottom MobileTabBar, whose
+            "More" tab covers these same links/actions. */}
+        {pathname?.startsWith("/menu/") && (
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
@@ -487,6 +490,7 @@ export default function Navbar() {
             </SheetContent>
           </Sheet>
         </div>
+        )}
       </div>
     </header>
   );
