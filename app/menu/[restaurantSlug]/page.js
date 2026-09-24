@@ -1,7 +1,9 @@
-import Link from "next/link";
+import { cache } from "react";
+import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { cityLabel } from "@/lib/saudiCities";
+import { absoluteUrl, jsonLdProps, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 import MenuClient from "@/components/MenuClient";
 import CartButton from "@/components/CartButton";
@@ -52,18 +54,10 @@ function PriceBars({ level, label }) {
   );
 }
 
-export default async function MenuPage({ params, searchParams }) {
-  const supabase = supabaseServer();
-  const t = await getTranslations("menu");
-
-  // ✅ Next 16: params/searchParams may be Promises
-  const p = await Promise.resolve(params);
-  const sp = await Promise.resolve(searchParams ?? {});
-
-  const restaurantSlug = decodeURIComponent(String(p?.restaurantSlug ?? "")).trim();
-  const tableCode = (sp?.t ?? "").toString();
-
-  const { data: restaurant, error: restaurantError } = await supabase
+// Shared by generateMetadata and the page so the restaurant is fetched once
+// per request. The anon client's RLS hides unpublished/expired restaurants.
+const getRestaurant = cache(async (restaurantSlug) => {
+  const { data, error } = await supabaseServer()
     .from("restaurants")
     .select(
       `
@@ -76,21 +70,61 @@ export default async function MenuPage({ params, searchParams }) {
     .eq("slug", restaurantSlug)
     .maybeSingle();
 
-  if (restaurantError) console.error("restaurants error:", restaurantError);
+  if (error) console.error("restaurants error:", error);
+  return data && data.is_active !== false ? data : null;
+});
 
-  if (!restaurant || restaurant.is_active === false) {
-    return (
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold">{t("notFound.title")}</h1>
-        <p className="text-muted-foreground mt-2">
-          {t("notFound.subtitle")}
-        </p>
-        <Link href="/restaurants" className="underline mt-4 inline-block">
-          {t("notFound.backLink")}
-        </Link>
-      </div>
-    );
+async function slugFromParams(params) {
+  const p = await Promise.resolve(params);
+  return decodeURIComponent(String(p?.restaurantSlug ?? "")).trim();
+}
+
+export async function generateMetadata({ params }) {
+  const t = await getTranslations("menu.metadata");
+  const restaurantSlug = await slugFromParams(params);
+  const restaurant = await getRestaurant(restaurantSlug);
+
+  if (!restaurant) {
+    return { title: t("notFoundTitle"), robots: { index: false } };
   }
+
+  const locale = await getLocale();
+  const city = cityLabel(restaurant.city, locale);
+  const cuisines = (restaurant.restaurant_cuisines || [])
+    .map((rc) => rc?.cuisine?.name)
+    .filter(Boolean);
+  const place = city ? (locale === "ar" ? ` في ${city}` : ` in ${city}`) : "";
+  const cuisineText = cuisines.length
+    ? (locale === "ar" ? ` - ${cuisines.join("، ")}` : ` - ${cuisines.join(", ")}`)
+    : "";
+
+  const title = t("title", { name: restaurant.name, place });
+  const description = t("description", { name: restaurant.name, place, cuisines: cuisineText });
+  // Canonical drops ?t=<table> so table-QR scans don't create duplicate URLs.
+  const url = `/menu/${encodeURIComponent(restaurant.slug)}`;
+  const images = [{ url: restaurant.image_url || DEFAULT_OG_IMAGE, alt: restaurant.name }];
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url, type: "website", images },
+    twitter: { title, description, images: images.map((i) => i.url) },
+  };
+}
+
+export default async function MenuPage({ params, searchParams }) {
+  const supabase = supabaseServer();
+  const t = await getTranslations("menu");
+
+  // ✅ Next 16: params/searchParams may be Promises
+  const sp = await Promise.resolve(searchParams ?? {});
+
+  const restaurantSlug = await slugFromParams(params);
+  const tableCode = (sp?.t ?? "").toString();
+
+  const restaurant = await getRestaurant(restaurantSlug);
+  if (!restaurant) notFound();
 
   const { data: items, error: itemsError } = await supabase
     .from("menu_items")
@@ -173,8 +207,72 @@ export default async function MenuPage({ params, searchParams }) {
     (a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name)
   );
 
+  const restaurantUrl = absoluteUrl(`/menu/${encodeURIComponent(restaurant.slug)}`);
+  const restaurantSchema = {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "@id": `${restaurantUrl}#restaurant`,
+    name: restaurant.name,
+    url: restaurantUrl,
+    hasMenu: `${restaurantUrl}#menu`,
+    ...(restaurant.image_url && { image: restaurant.image_url }),
+    ...(restaurant.phone && { telephone: restaurant.phone }),
+    ...(cuisinePills.length && { servesCuisine: cuisinePills }),
+    ...(priceTier && { priceRange: "$".repeat(priceTier) }),
+    ...((restaurant.address || cityName) && {
+      address: {
+        "@type": "PostalAddress",
+        ...(restaurant.address && { streetAddress: restaurant.address }),
+        ...(cityName && { addressLocality: cityName }),
+        addressCountry: "SA",
+      },
+    }),
+    ...(ratingSummary?.review_count > 0 && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: Number(ratingSummary.avg_rating).toFixed(1),
+        reviewCount: ratingSummary.review_count,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    }),
+  };
+
+  const menuSchema = {
+    "@context": "https://schema.org",
+    "@type": "Menu",
+    "@id": `${restaurantUrl}#menu`,
+    name: restaurant.name,
+    url: restaurantUrl,
+    hasMenuSection: orderedCategories.map((cat) => ({
+      "@type": "MenuSection",
+      name: cat.name,
+      hasMenuItem: menuItems
+        .filter((item) => (item?.categories?.name || uncategorized) === cat.name)
+        .map((item) => ({
+          "@type": "MenuItem",
+          name: item.name,
+          ...(item.description && { description: item.description }),
+          ...(item.image_url && { image: item.image_url }),
+          ...(item.is_veg && { suitableForDiet: "https://schema.org/VegetarianDiet" }),
+          ...(item.price != null && {
+            offers: {
+              "@type": "Offer",
+              price: Number(item.price).toFixed(2),
+              priceCurrency: "SAR",
+              availability: item.is_sold_out
+                ? "https://schema.org/OutOfStock"
+                : "https://schema.org/InStock",
+            },
+          }),
+        })),
+    })),
+  };
+
   return (
     <div className="menu-theme min-h-screen bg-[color:var(--m-limestone)] text-[color:var(--m-ink)]">
+      <script id="schema-restaurant" {...jsonLdProps(restaurantSchema)} />
+      <script id="schema-menu" {...jsonLdProps(menuSchema)} />
       <TableCodePersist restaurantSlug={restaurantSlug} />
 
       {/* HERO -- deep-emerald panel. When a cover photo exists it shows

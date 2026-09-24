@@ -1,6 +1,6 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
-import Script from "next/script";
+import { SITE_URL, SITE_NAME, jsonLdProps } from "@/lib/seo";
 
 import HeroSection from "@/components/home/HeroSection";
 import TrustStrip from "@/components/home/TrustStrip";
@@ -18,19 +18,19 @@ import {
   featuredRestaurantsData,
   finalCtaData,
   footerData,
+  contactData,
 } from "@/lib/siteData";
 
-const siteUrl = "https://scaneatksa.com"; // change to your actual domain
-const siteName = "ScanEat";
+const siteUrl = SITE_URL;
+const siteName = SITE_NAME;
 const pageTitle = "ScanEat | Restaurant Operations Platform with QR Ordering";
 const pageDescription =
   "Run your restaurant end to end with ScanEat: digital QR menus, WhatsApp ordering, live kitchen and waiter dashboards, and owner analytics for restaurants, cafes, and food businesses.";
-const ogImage = `${siteUrl}/og-home.jpg`; // create this image later
+const ogImage = `${siteUrl}/og-home.jpg`;
 
 /** @type {import("next").Metadata} */
 export const metadata = {
-  metadataBase: new URL(siteUrl),
-  title: pageTitle,
+  title: { absolute: pageTitle },
   description: pageDescription,
   keywords: [
     "QR menu",
@@ -112,11 +112,16 @@ export default async function HomePage() {
     url: siteUrl,
     logo: `${siteUrl}/scaneat-logo.png`,
     description: pageDescription,
-    sameAs: [
-      // add your real social URLs later
-      // "https://www.instagram.com/yourbrand",
-      // "https://www.linkedin.com/company/yourbrand"
-    ],
+    areaServed: { "@type": "Country", name: "Saudi Arabia" },
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: contactData.phone,
+      contactType: "sales",
+      areaServed: "SA",
+      availableLanguage: ["en", "ar"],
+    },
+    // TODO: add real social profile URLs (Instagram, LinkedIn, X) here.
+    sameAs: [],
   };
 
   const softwareSchema = {
@@ -128,10 +133,14 @@ export default async function HomePage() {
     url: siteUrl,
     description:
       "A web-based restaurant operations platform: digital QR menus, WhatsApp ordering, live kitchen and waiter dashboards, and owner analytics.",
+    // Free 30-day trial, then paid -- don't advertise price "0" as the
+    // product price. Add a real Offer with the SAR plan price once public.
     offers: {
       "@type": "Offer",
+      name: "30-day free trial",
       price: "0",
       priceCurrency: "SAR",
+      description: "Free 30-day trial, then a paid monthly subscription.",
     },
     brand: {
       "@type": "Brand",
@@ -162,26 +171,10 @@ export default async function HomePage() {
 
   return (
     <>
-      <Script
-        id="schema-organization"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-      />
-      <Script
-        id="schema-software"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
-      />
-      <Script
-        id="schema-website"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-      />
-      <Script
-        id="schema-faq"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      <script id="schema-organization" {...jsonLdProps(organizationSchema)} />
+      <script id="schema-software" {...jsonLdProps(softwareSchema)} />
+      <script id="schema-website" {...jsonLdProps(websiteSchema)} />
+      <script id="schema-faq" {...jsonLdProps(faqSchema)} />
 
       <div className="min-h-screen bg-white text-slate-900">
         <HeroSection data={heroData} />

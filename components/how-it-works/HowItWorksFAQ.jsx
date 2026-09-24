@@ -6,7 +6,7 @@ export default async function HowItWorksFAQ() {
   const items = t.raw("items");
 
   return (
-    <section className="bg-white py-20">
+    <section id="faq" className="bg-white py-20">
       <div className="mx-auto max-w-5xl px-4">
         <div className="mx-auto mb-14 max-w-3xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">

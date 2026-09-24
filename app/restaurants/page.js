@@ -1,7 +1,45 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import { SAUDI_CITIES, cityLabel } from "@/lib/saudiCities";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { supabaseServer } from "@/lib/supabase/server";
 import RestaurantCard from '@/components/restaurant/RestaurantCard'
 import RestaurantsFilters from '@/components/restaurant/RestaurantsFilters'
+
+// Filtered/search views are near-duplicates of the main listing, so only the
+// bare listing and single-city views are indexable; everything else is
+// noindex,follow so Google still reaches the restaurant links.
+export async function generateMetadata({ searchParams }) {
+  const t = await getTranslations("restaurants.metadata");
+  const params = await Promise.resolve(searchParams ?? {});
+
+  const city = (params?.city ?? "").toString();
+  const otherFilters = ["q", "cuisine", "veg"].some((k) => params?.[k]);
+  const typeFilter = params?.type && params.type !== "restaurants";
+  const knownCity = SAUDI_CITIES.some((c) => c.slug === city);
+  const cityName = knownCity ? cityLabel(city, await getLocale()) : "";
+
+  if (cityName && !otherFilters && !typeFilter) {
+    const title = t("cityTitle", { city: cityName });
+    const description = t("cityDescription", { city: cityName });
+    const url = `/restaurants?city=${encodeURIComponent(city)}`;
+    return {
+      title,
+      description,
+      alternates: { canonical: url },
+      openGraph: { title, description, url, images: [DEFAULT_OG_IMAGE] },
+    };
+  }
+
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates: { canonical: "/restaurants" },
+    openGraph: { title: t("title"), description: t("description"), url: "/restaurants", images: [DEFAULT_OG_IMAGE] },
+    ...(city || otherFilters || typeFilter
+      ? { robots: { index: false, follow: true } }
+      : {}),
+  };
+}
 
 export default async function RestaurantsPage({ searchParams }) {
   const supabase = supabaseServer();

@@ -1,4 +1,4 @@
-const siteUrl = "https://scaneatksa.com";
+import { SITE_URL } from "@/lib/seo";
 
 export default function robots() {
   return {
@@ -6,14 +6,9 @@ export default function robots() {
       {
         userAgent: "*",
         allow: "/",
-        disallow: [
-          "/dashboard/",
-          "/auth/",
-          "/api/",
-        ],
+        disallow: ["/dashboard/", "/auth/", "/api/", "/cart", "/qr/"],
       },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

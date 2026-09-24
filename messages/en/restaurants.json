@@ -1,4 +1,10 @@
 {
+  "metadata": {
+    "title": "Restaurants & Cafes in Saudi Arabia with Digital Menus",
+    "description": "Browse restaurants and cafes across Saudi Arabia on ScanEat. Search by city, cuisine, or dish, view the digital menu, and order for dine-in, pickup, or delivery.",
+    "cityTitle": "Restaurants in {city} with Digital Menus",
+    "cityDescription": "Browse restaurants and cafes in {city} on ScanEat. View digital menus with prices and photos, and order for dine-in, pickup, or delivery."
+  },
   "page": {
     "title": "Restaurants",
     "subtitle": "Search by restaurant, city, cuisine, or food item"
