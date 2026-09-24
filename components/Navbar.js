@@ -168,6 +168,11 @@ export default function Navbar() {
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  // Stronger hover/keyboard highlight for the account menu items than the
+  // near-white default `focus:bg-accent`.
+  const menuItemClass =
+    "focus:bg-primary/10 focus:text-primary font-medium transition-colors";
+
   const navLinkClass = isTransparent
     ? "text-md font-semibold text-white/90 hover:text-white transition-colors"
     : "text-md font-semibold hover:text-primary transition-colors";
@@ -252,9 +257,16 @@ export default function Navbar() {
           <LanguageSwitcher light={isTransparent} />
 
           {user && profile ? (
-            <DropdownMenu >
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild className="cursor-pointer">
-                <Button variant="ghost" className="group h-10 gap-2 px-2">
+                <Button
+                  variant="ghost"
+                  className={`group h-10 gap-2 px-2 ${
+                    isTransparent
+                      ? "hover:bg-white/15 data-[state=open]:bg-white/15"
+                      : "hover:bg-muted/60 data-[state=open]:bg-muted/60"
+                  }`}
+                >
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="bg-gradient-to-br from-orange-400 to-red-500 text-white">
                       {getInitials()}
@@ -262,7 +274,7 @@ export default function Navbar() {
                   </Avatar>
 
                   <div className="flex flex-col items-start leading-tight">
-                    <span className={`text-sm font-medium ${isTransparent ? "text-white group-hover:text-black" : "text-foreground"}`}>
+                    <span className={`text-sm font-medium ${isTransparent ? "text-white" : "text-foreground"}`}>
                       {profile.full_name || t("defaultUserName")}
                     </span>
                     <Badge
@@ -276,7 +288,7 @@ export default function Navbar() {
               </DropdownMenuTrigger>
 
               <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className={menuItemClass}>
                   <Link href={getDashboardLink()} className="cursor-pointer">
                     <span className="me-1">
                       <LayoutDashboard color="#00c951" size={20} />
@@ -286,7 +298,7 @@ export default function Navbar() {
                 </DropdownMenuItem>
 
                 {profile.role === "customer" && (
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className={menuItemClass}>
                     <Link
                       href="/dashboard/customer/request-restaurant"
                       className="cursor-pointer"
@@ -299,7 +311,7 @@ export default function Navbar() {
                   </DropdownMenuItem>
                 )}
 
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className={menuItemClass}>
                   <Link
                     href="/dashboard/customer/edit-profile"
                     className="cursor-pointer"
@@ -313,7 +325,7 @@ export default function Navbar() {
 
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="cursor-pointer"
+                  className={`cursor-pointer ${menuItemClass}`}
                 >
                   <span className="me-2">
                     <LogOut color="#00c951" size={20} className="rtl:-scale-x-100" />

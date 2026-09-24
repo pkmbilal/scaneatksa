@@ -39,5 +39,11 @@
     "waiter": "Waiter"
   },
   "openMenu": "Open menu",
-  "toggleDarkMode": "Toggle dark mode"
+  "toggleDarkMode": "Toggle dark mode",
+  "install": {
+    "title": "Install ScanEat",
+    "description": "Add it to your home screen for the full app experience.",
+    "installButton": "Install",
+    "dismissButton": "Dismiss"
+  }
 }

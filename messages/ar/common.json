@@ -39,5 +39,11 @@
     "waiter": "النادل"
   },
   "openMenu": "فتح القائمة",
-  "toggleDarkMode": "تبديل الوضع الداكن"
+  "toggleDarkMode": "تبديل الوضع الداكن",
+  "install": {
+    "title": "ثبّت ScanEat",
+    "description": "أضفه إلى شاشتك الرئيسية للحصول على تجربة تطبيق كاملة.",
+    "installButton": "تثبيت",
+    "dismissButton": "إغلاق"
+  }
 }
