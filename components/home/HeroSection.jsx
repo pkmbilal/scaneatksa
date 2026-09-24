@@ -18,6 +18,17 @@ export default async function HeroSection({ data }) {
             area is on that side and its overlay isn't mirrored for RTL, unlike most of this
             page — mirroring would flip the readable "Scaneat" QR-stand artwork backwards. */}
         <div className="mr-auto max-w-xl">
+          <Link href="/" className="mb-6 inline-block md:hidden">
+            <Image
+              src="/scaneat-logo.png"
+              alt="ScanEat Logo"
+              width={92}
+              height={92}
+              className="rounded-full shadow-md"
+              priority
+            />
+          </Link>
+
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
             <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
             {t("badge")}

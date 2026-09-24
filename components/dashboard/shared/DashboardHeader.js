@@ -15,9 +15,8 @@ import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, Search, Sun, Moon, PanelLeftOpen, PanelRightOpen } from 'lucide-react'
+import { Menu, Search, Sun, Moon } from 'lucide-react'
 import { useDashboardSidebar } from '@/context/DashboardSidebarContext'
-import { useLanguage } from '@/context/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import NotificationDropdown from './NotificationDropdown'
 import UserDropdown from './UserDropdown'
@@ -30,11 +29,11 @@ export default function DashboardHeader({
   editProfileHref,
   notifications,
   extraActions,
+  showMobileAccountMenu = true,
 }) {
   const t = useTranslations('dashboard.common')
   const resolvedHomeLabel = homeLabel ?? t('dashboardLabel')
-  const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useDashboardSidebar()
-  const { isRTL } = useLanguage()
+  const { toggleSidebar } = useDashboardSidebar()
   const { setTheme, resolvedTheme } = useTheme()
   const inputRef = useRef(null)
 
@@ -49,14 +48,6 @@ export default function DashboardHeader({
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  const handleToggle = () => {
-    if (window.innerWidth >= 1024) {
-      toggleSidebar()
-    } else {
-      toggleMobileSidebar()
-    }
-  }
-
   const isDark = resolvedTheme === 'dark'
 
   return (
@@ -65,20 +56,23 @@ export default function DashboardHeader({
         <div className="flex items-center justify-between w-full gap-2 px-4 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
           {/* Logo — mobile only; the expanded/hovered sidebar already shows it on lg+ */}
           <Link href="/" className="flex items-center lg:hidden">
-            <Image src="/icon-only-logo.svg" alt="ScanEat" width={32} height={32} priority />
+            <Image src="/scaneat-logo.png" alt="ScanEat" width={44} height={44} priority />
           </Link>
 
           {/* Desktop sidebar collapse/expand toggle */}
           <button
             type="button"
             className="hidden items-center justify-center text-gray-500 border-gray-200 rounded-lg dark:border-gray-800 lg:flex lg:h-11 lg:w-11 lg:border dark:text-gray-400"
-            onClick={handleToggle}
+            onClick={toggleSidebar}
             aria-label={t('header.toggleSidebar')}
           >
             <Menu className="size-5" />
           </button>
 
-          {/* Mobile-only: notifications + slide-panel trigger */}
+          {/* Mobile-only: notifications + account menu (same UserDropdown as
+              desktop). The customer dashboard hides this via
+              `showMobileAccountMenu={false}` since its Account tab in
+              MobileTabBar already covers the same menu from the bottom bar. */}
           <div className="flex items-center gap-2 lg:hidden">
             {notifications && (
               <NotificationDropdown
@@ -91,20 +85,15 @@ export default function DashboardHeader({
               />
             )}
 
-            <button
-              type="button"
-              onClick={handleToggle}
-              className="relative flex items-center justify-center w-10 h-10 text-white transition-colors rounded-full shadow-theme-xs bg-gradient-to-br from-primary to-green-600 hover:opacity-90"
-              aria-label={t('header.toggleSidebar')}
-            >
-              {isMobileOpen ? (
-                <X className="size-5" />
-              ) : isRTL ? (
-                <PanelRightOpen className="size-5" />
-              ) : (
-                <PanelLeftOpen className="size-5" />
-              )}
-            </button>
+            {showMobileAccountMenu && (
+              <UserDropdown
+                user={user}
+                profile={profile}
+                homeHref={homeHref}
+                homeLabel={resolvedHomeLabel}
+                editProfileHref={editProfileHref}
+              />
+            )}
           </div>
 
           <div className="hidden lg:block">

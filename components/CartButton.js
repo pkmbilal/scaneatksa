@@ -23,7 +23,7 @@ export default function CartButton({ restaurant, tableCode }) {
       {/* MOBILE */}
       <div className="m-cart-bar md:hidden fixed inset-x-0 bottom-0 z-50 border-t backdrop-blur">
         <div className="mx-auto max-w-6xl px-4 py-3">
-          <Button asChild className="m-cart-primary w-full h-12 rounded-xl">
+          <Button asChild className="m-cart-primary w-full h-12 rounded-xl transition-transform active:scale-[0.98]">
             <Link href={href} className="flex items-center justify-center gap-2">
               <ShoppingCart className="h-5 w-5" />
               <span className="font-semibold">View Cart</span>

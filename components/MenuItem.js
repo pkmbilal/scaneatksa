@@ -79,7 +79,7 @@ export default function MenuItem({ item, restaurant, index = 0 }) {
         size="icon"
         variant="ghost"
         className={cn(
-          "rounded-full text-[color:var(--m-ink)] hover:bg-[color:var(--m-emerald)]/10",
+          "rounded-full text-[color:var(--m-ink)] transition-transform active:scale-90 hover:bg-[color:var(--m-emerald)]/10",
           small ? "h-6 w-6" : "h-8 w-8"
         )}
         onClick={handleDecrement}
@@ -99,7 +99,7 @@ export default function MenuItem({ item, restaurant, index = 0 }) {
         size="icon"
         variant="ghost"
         className={cn(
-          "rounded-full text-[color:var(--m-ink)] hover:bg-[color:var(--m-emerald)]/10",
+          "rounded-full text-[color:var(--m-ink)] transition-transform active:scale-90 hover:bg-[color:var(--m-emerald)]/10",
           small ? "h-6 w-6" : "h-8 w-8"
         )}
         onClick={handleIncrement}
@@ -116,7 +116,7 @@ export default function MenuItem({ item, restaurant, index = 0 }) {
       onClick={handleAddToCart}
       disabled={soldOut}
       className={cn(
-        "rounded-full bg-[color:var(--m-go)] font-semibold text-white shadow-sm transition hover:brightness-95",
+        "rounded-full bg-[color:var(--m-go)] font-semibold text-white shadow-sm transition hover:brightness-95 active:scale-95",
         small ? "h-7 px-3 text-xs" : "h-9 px-4"
       )}
     >

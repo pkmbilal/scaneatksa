@@ -110,7 +110,7 @@ export default async function HomePage() {
     "@type": "Organization",
     name: siteName,
     url: siteUrl,
-    logo: `${siteUrl}/logo.png`,
+    logo: `${siteUrl}/scaneat-logo.png`,
     description: pageDescription,
     sameAs: [
       // add your real social URLs later

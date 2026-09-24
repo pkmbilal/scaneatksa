@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { signUp } from '@/lib/auth/client'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
-import { Pizza, MailCheck } from 'lucide-react'
+import { Pizza, MailCheck, Eye, EyeOff } from 'lucide-react'
 
 // shadcn
 import {
@@ -38,6 +38,8 @@ export default function SignupPage() {
 
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // ✅ dialog state
   const [otpDialogOpen, setOtpDialogOpen] = useState(false)
@@ -194,16 +196,25 @@ export default function SignupPage() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {t('signup.passwordLabel')}
               </label>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                placeholder={t('signup.passwordPlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  placeholder={t('signup.passwordPlaceholder')}
+                  className="w-full px-4 py-3 pe-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute end-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {/* Confirm Password */}
@@ -211,16 +222,25 @@ export default function SignupPage() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {t('signup.confirmPasswordLabel')}
               </label>
-              <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  setFormData({ ...formData, confirmPassword: e.target.value })
-                }
-                placeholder={t('signup.confirmPasswordPlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    setFormData({ ...formData, confirmPassword: e.target.value })
+                  }
+                  placeholder={t('signup.confirmPasswordPlaceholder')}
+                  className="w-full px-4 py-3 pe-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  className="absolute end-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-gray-500 hover:text-gray-700"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {/* Error Message */}
@@ -307,16 +327,25 @@ export default function SignupPage() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {t('signup.passwordLabel')}
               </label>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                placeholder={t('signup.passwordPlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  placeholder={t('signup.passwordPlaceholder')}
+                  className="w-full px-4 py-3 pe-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute end-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {/* Confirm Password */}
@@ -324,16 +353,25 @@ export default function SignupPage() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {t('signup.confirmPasswordLabel')}
               </label>
-              <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  setFormData({ ...formData, confirmPassword: e.target.value })
-                }
-                placeholder={t('signup.confirmPasswordPlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    setFormData({ ...formData, confirmPassword: e.target.value })
+                  }
+                  placeholder={t('signup.confirmPasswordPlaceholder')}
+                  className="w-full px-4 py-3 pe-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  className="absolute end-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-gray-500 hover:text-gray-700"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {/* Error Message */}

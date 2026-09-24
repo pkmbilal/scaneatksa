@@ -12,7 +12,7 @@ import { CHANNEL_META } from "@/lib/orderStatus";
 const CHANNEL_BAR_FILL = {
   dine_in: "bg-brand-500",
   delivery: "bg-orange-500",
-  pickup: "bg-success-500",
+  pickup: "bg-blue-500",
 };
 
 export default function ChannelBreakdownChart({ data }) {

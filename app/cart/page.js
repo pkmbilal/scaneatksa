@@ -304,7 +304,7 @@ export default function CartPage() {
 
   if (!cartReady) {
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-muted/30 flex items-center justify-center">
+      <div className="min-h-[calc(100vh-80px)] bg-muted/30 flex items-center justify-center">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           {t("loading")}
@@ -323,7 +323,7 @@ export default function CartPage() {
           : t("confirmation.wherePickup");
 
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-muted/30">
+      <div className="min-h-[calc(100vh-80px)] bg-muted/30">
         <div className="mx-auto max-w-xl px-4 py-10">
           <Card className="overflow-hidden">
             <CardHeader className="space-y-1">
@@ -395,7 +395,7 @@ export default function CartPage() {
 
   if (!cartItems?.length) {
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-muted/30">
+      <div className="min-h-[calc(100vh-80px)] bg-muted/30">
         <div className="mx-auto max-w-3xl px-4 py-10">
           <Card className="overflow-hidden">
             <CardHeader className="space-y-1">
@@ -553,7 +553,7 @@ export default function CartPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 rounded-full"
+                            className="h-11 w-11 rounded-full transition-transform active:scale-90"
                             onClick={() => handleDec(item)}
                             aria-label={t("items.decreaseAria")}
                           >
@@ -567,7 +567,7 @@ export default function CartPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 rounded-full"
+                            className="h-11 w-11 rounded-full transition-transform active:scale-90"
                             onClick={() => handleInc(item)}
                             aria-label={t("items.increaseAria")}
                           >
@@ -627,7 +627,7 @@ export default function CartPage() {
                       <Button
                         type="button"
                         variant={channel === "pickup" ? "default" : "outline"}
-                        className="flex-1"
+                        className="h-11 flex-1"
                         onClick={() => setChannel("pickup")}
                         disabled={!restaurant?.pickup_available}
                       >
@@ -636,7 +636,7 @@ export default function CartPage() {
                       <Button
                         type="button"
                         variant={channel === "delivery" ? "default" : "outline"}
-                        className="flex-1"
+                        className="h-11 flex-1"
                         onClick={() => setChannel("delivery")}
                         disabled={!restaurant?.delivery_available}
                       >
@@ -659,6 +659,7 @@ export default function CartPage() {
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
                       placeholder={t("summary.phonePlaceholder")}
+                      className="h-11"
                     />
                   </div>
 
@@ -668,6 +669,7 @@ export default function CartPage() {
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder={t("summary.namePlaceholder")}
+                      className="h-11"
                     />
                   </div>
 
@@ -724,7 +726,7 @@ export default function CartPage() {
                 <div className="grid gap-2">
                   <Button
                     size="lg"
-                    className="w-full cursor-pointer"
+                    className="h-12 w-full cursor-pointer"
                     onClick={handlePlaceOrder}
                     disabled={placing || !cartItems?.length}
                   >

@@ -11,6 +11,7 @@ import DashboardSidebar from '@/components/dashboard/shared/DashboardSidebar'
 import DashboardHeader from '@/components/dashboard/shared/DashboardHeader'
 import DashboardBackdrop from '@/components/dashboard/shared/DashboardBackdrop'
 import DashboardMain from '@/components/dashboard/shared/DashboardMain'
+import DashboardMobileTabs from '@/components/dashboard/shared/DashboardMobileTabs'
 import SoundToggle from '@/components/dashboard/shared/SoundToggle'
 import StatCard from '@/components/dashboard/shared/StatCard'
 import TabSectionHeader from '@/components/dashboard/shared/TabSectionHeader'
@@ -130,6 +131,7 @@ export default function CustomerDashboardPage() {
               homeHref="/dashboard/customer"
               homeLabel={t('page.homeLabel')}
               editProfileHref="/dashboard/customer/edit-profile"
+              showMobileAccountMenu={false}
               notifications={{
                 items: orderAlerts.items,
                 unreadCount: orderAlerts.unreadCount,
@@ -143,6 +145,7 @@ export default function CustomerDashboardPage() {
               }
             />
           }
+          tabs={<DashboardMobileTabs navItems={navItems} activeTab={activeTab} onSelectTab={setActiveTab} />}
         >
           {activeTab === 'overview' && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 mb-6">

@@ -111,6 +111,26 @@ section[id] {
   scroll-margin-top: 80px;
 }
 
+/* ---------------------------------------------------------------------- */
+/* Native-app touch feel: no rubber-band bounce revealing browser chrome, */
+/* no blue tap-highlight flash, and no double-tap-to-zoom delay on        */
+/* interactive elements.                                                  */
+/* ---------------------------------------------------------------------- */
+html,
+body {
+  overscroll-behavior-y: contain;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -202,18 +222,19 @@ section[id] {
 
   --color-gray-dark: #1a2231;
 
-  --color-brand-25: #f2f7ff;
-  --color-brand-50: #ecf3ff;
-  --color-brand-100: #dde9ff;
-  --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
-  --color-brand-400: #7592ff;
-  --color-brand-500: #465fff;
-  --color-brand-600: #3641f5;
-  --color-brand-700: #2a31d8;
-  --color-brand-800: #252dae;
-  --color-brand-900: #262e89;
-  --color-brand-950: #161950;
+  /* brand = the site primary (#00c951), so dashboards share its color */
+  --color-brand-25: #f3fdf7;
+  --color-brand-50: #e6faee;
+  --color-brand-100: #c8f4d9;
+  --color-brand-200: #95e9b6;
+  --color-brand-300: #5adc8d;
+  --color-brand-400: #24d16a;
+  --color-brand-500: #00c951;
+  --color-brand-600: #00a443;
+  --color-brand-700: #008037;
+  --color-brand-800: #05652e;
+  --color-brand-900: #075328;
+  --color-brand-950: #012f15;
 
   --color-success-25: #f6fef9;
   --color-success-50: #ecfdf3;

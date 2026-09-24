@@ -34,14 +34,17 @@ import {
   UserRoundPen,
   LogOut,
   ShieldUser,
-  Pizza,
   Gauge,
   Headset,
-  House,
   Sun,
   Moon,
   PanelLeftOpen,
   PanelRightOpen,
+  Info,
+  UtensilsCrossed,
+  ShoppingCart,
+  KeyRound,
+  ChevronRight,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -72,6 +75,14 @@ export default function Navbar() {
   // Only the home page gets a transparent header floating over its photo
   // hero; every other route keeps the normal solid sticky bar.
   const isHome = pathname === "/";
+  // Change-password is a dashboard-adjacent utility page: it gets this bar's
+  // logo+page-pill on mobile (matching every other page), but never on
+  // desktop, where it already has its own "Back to Dashboard" link.
+  const isChangePassword = pathname?.startsWith("/dashboard/change-password");
+  // The QR menu page is the one exception to "no top nav on mobile" -- it's
+  // the only route whose mobile hamburger (language/theme/account access)
+  // still lives inside this header, so it must stay visible there.
+  const isMenuPage = pathname?.startsWith("/menu/");
   const [isScrolled, setIsScrolled] = useState(false);
   const isTransparent = isHome && !isScrolled;
 
@@ -157,31 +168,63 @@ export default function Navbar() {
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  // Stronger hover/keyboard highlight for the account menu items than the
+  // near-white default `focus:bg-accent`.
+  const menuItemClass =
+    "focus:bg-primary/10 focus:text-primary font-medium transition-colors";
+
   const navLinkClass = isTransparent
     ? "text-md font-semibold text-white/90 hover:text-white transition-colors"
     : "text-md font-semibold hover:text-primary transition-colors";
 
+  // Mobile-only page pill shown at the end of the bar (balances the logo,
+  // which otherwise sits alone since the full nav/account controls are
+  // desktop-only). No entry for the QR menu page -- it already fills that
+  // spot with its own hamburger trigger.
+  const pageBadge =
+    pathname === "/about"
+      ? { label: t("nav.about"), icon: Info }
+      : pathname === "/how-it-works"
+        ? { label: t("nav.howItWorks"), icon: Gauge }
+        : pathname === "/restaurants"
+          ? { label: t("nav.restaurants"), icon: UtensilsCrossed }
+          : pathname === "/contact"
+            ? { label: t("nav.contact"), icon: Headset }
+            : pathname === "/cart"
+              ? { label: t("nav.cart"), icon: ShoppingCart }
+              : isChangePassword
+                ? { label: t("userMenu.changePassword"), icon: KeyRound }
+                : null;
+
   return (
     <header
-      className={`${isHome ? `fixed inset-x-0 ${isTransparent ? "top-4" : "top-0"}` : "sticky top-0"} z-50 w-full transition-all duration-300 ${
-        isTransparent
-          ? "bg-transparent border-b border-transparent"
-          : "border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-      }`}
+      className={`relative z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${
+        isHome ? "hidden md:block" : isChangePassword ? "md:hidden" : ""
+      } ${
+        isHome ? `md:fixed md:inset-x-0 ${isTransparent ? "md:top-4" : "md:top-0"}` : "md:sticky md:top-0"
+      } ${isTransparent ? "md:bg-transparent md:border-transparent md:backdrop-blur-none" : ""}`}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 gap-6">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 gap-6">
         {/* Logo */}
         <Link
           href="/"
         >
           <Image
-            src="/logo.svg"
+            src="/scaneat-logo.png"
             alt="ScanEat Logo"
-            width={180}
-            height={50}
-            className={`transition-[filter] duration-300 ${isTransparent ? "brightness-0 invert" : ""}`}
+            width={64}
+            height={64}
+            className={`rounded-full transition-shadow duration-300 ${isTransparent ? "shadow-md" : ""}`}
           />
         </Link>
+
+        {/* Mobile-only page pill */}
+        {pageBadge && (
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-muted/60 px-3.5 py-2 text-sm font-medium text-foreground md:hidden">
+            <pageBadge.icon className="size-4 text-primary" />
+            <span className="truncate">{pageBadge.label}</span>
+          </span>
+        )}
 
         {/* Desktop Nav */}
         <div className="hidden md:flex justify-between items-center gap-6">
@@ -214,9 +257,16 @@ export default function Navbar() {
           <LanguageSwitcher light={isTransparent} />
 
           {user && profile ? (
-            <DropdownMenu >
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild className="cursor-pointer">
-                <Button variant="ghost" className="group h-10 gap-2 px-2">
+                <Button
+                  variant="ghost"
+                  className={`group h-10 gap-2 px-2 ${
+                    isTransparent
+                      ? "hover:bg-white/15 data-[state=open]:bg-white/15"
+                      : "hover:bg-muted/60 data-[state=open]:bg-muted/60"
+                  }`}
+                >
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="bg-gradient-to-br from-orange-400 to-red-500 text-white">
                       {getInitials()}
@@ -224,7 +274,7 @@ export default function Navbar() {
                   </Avatar>
 
                   <div className="flex flex-col items-start leading-tight">
-                    <span className={`text-sm font-medium ${isTransparent ? "text-white group-hover:text-black" : "text-foreground"}`}>
+                    <span className={`text-sm font-medium ${isTransparent ? "text-white" : "text-foreground"}`}>
                       {profile.full_name || t("defaultUserName")}
                     </span>
                     <Badge
@@ -238,7 +288,7 @@ export default function Navbar() {
               </DropdownMenuTrigger>
 
               <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className={menuItemClass}>
                   <Link href={getDashboardLink()} className="cursor-pointer">
                     <span className="me-1">
                       <LayoutDashboard color="#00c951" size={20} />
@@ -248,7 +298,7 @@ export default function Navbar() {
                 </DropdownMenuItem>
 
                 {profile.role === "customer" && (
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className={menuItemClass}>
                     <Link
                       href="/dashboard/customer/request-restaurant"
                       className="cursor-pointer"
@@ -261,7 +311,7 @@ export default function Navbar() {
                   </DropdownMenuItem>
                 )}
 
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className={menuItemClass}>
                   <Link
                     href="/dashboard/customer/edit-profile"
                     className="cursor-pointer"
@@ -275,7 +325,7 @@ export default function Navbar() {
 
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="cursor-pointer"
+                  className={`cursor-pointer ${menuItemClass}`}
                 >
                   <span className="me-2">
                     <LogOut color="#00c951" size={20} className="rtl:-scale-x-100" />
@@ -291,7 +341,10 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile */}
+        {/* Mobile — only the QR menu page still uses this drawer; every other
+            route now gets its primary nav from the bottom MobileTabBar, whose
+            "More" tab covers these same links/actions. */}
+        {isMenuPage && (
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
@@ -324,56 +377,43 @@ export default function Navbar() {
               {/* Logo header */}
               <div className="px-5 py-8">
                 <Link href="/" onClick={() => setMobileOpen(false)}>
-                  <Image src="/logo.svg" alt="ScanEat Logo" width={140} height={38} priority />
+                  <Image src="/scaneat-logo.png" alt="ScanEat Logo" width={72} height={72} priority />
                 </Link>
               </div>
 
               {/* Scrollable nav links */}
               <div className="flex-1 overflow-y-auto px-5 no-scrollbar">
-                <ul className="flex flex-col gap-1">
-                  <li>
-                    <Link
-                      href="/about"
-                      onClick={() => setMobileOpen(false)}
-                      className={`menu-item ${isActive("/about") ? "menu-item-active" : "menu-item-inactive"}`}
-                    >
-                      <House className="size-5" />
-                      {t("nav.about")}
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/restaurants"
-                      onClick={() => setMobileOpen(false)}
-                      className={`menu-item ${isActive("/restaurants") ? "menu-item-active" : "menu-item-inactive"}`}
-                    >
-                      <Pizza className="size-5" />
-                      {t("nav.restaurants")}
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/how-it-works"
-                      onClick={() => setMobileOpen(false)}
-                      className={`menu-item ${isActive("/how-it-works") ? "menu-item-active" : "menu-item-inactive"}`}
-                    >
-                      <Gauge className="size-5" />
-                      {t("nav.howItWorks")}
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/contact"
-                      onClick={() => setMobileOpen(false)}
-                      className={`menu-item ${isActive("/contact") ? "menu-item-active" : "menu-item-inactive"}`}
-                    >
-                      <Headset className="size-5" />
-                      {t("nav.contact")}
-                    </Link>
-                  </li>
+                <h2 className="mb-1 border-b border-gray-200 px-3 pb-2 text-theme-sm font-medium text-gray-900 dark:border-gray-800 dark:text-white">
+                  {t("nav.navigation")}
+                </h2>
+                <ul className="flex flex-col">
+                  {[
+                    { href: "/about", label: t("nav.about"), icon: Info },
+                    { href: "/restaurants", label: t("nav.restaurants"), icon: UtensilsCrossed },
+                    { href: "/how-it-works", label: t("nav.howItWorks"), icon: Gauge },
+                    { href: "/contact", label: t("nav.contact"), icon: Headset },
+                  ].map(({ href, label, icon: Icon }) => {
+                    const active = isActive(href);
+                    return (
+                      <li key={href}>
+                        <Link
+                          href={href}
+                          onClick={() => setMobileOpen(false)}
+                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
+                        >
+                          <span
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                              active ? "bg-primary text-white" : "bg-primary/10 text-primary"
+                            }`}
+                          >
+                            <Icon className="size-5" />
+                          </span>
+                          <span className="flex-1 text-sm font-medium text-gray-900 dark:text-white">{label}</span>
+                          <ChevronRight className="size-4 text-gray-400 rtl:-scale-x-100" />
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
 
@@ -395,7 +435,7 @@ export default function Navbar() {
 
                 {user && profile ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-3 dark:border-gray-800">
+                    <div className="flex items-center gap-3 rounded-xl bg-gray-100 p-3 dark:bg-white/5">
                       <Avatar className="h-10 w-10 shrink-0">
                         <AvatarFallback className="bg-brand-50 text-brand-600 font-semibold dark:bg-brand-500/15 dark:text-brand-400">
                           {getInitials()}
@@ -412,56 +452,54 @@ export default function Navbar() {
                       </div>
                     </div>
 
-                    <ul className="flex flex-col gap-1 mt-3">
-                      <li>
-                        <Link
-                          href={getDashboardLink()}
-                          onClick={() => setMobileOpen(false)}
-                          className={`menu-item ${isActive("/dashboard") ? "menu-item-active" : "menu-item-inactive"}`}
-                        >
-                          <LayoutDashboard className="size-5" />
-                          {t("userMenu.dashboard")}
-                        </Link>
-                      </li>
-
-                      <li>
-                        <Link
-                          href="/dashboard/customer/edit-profile"
-                          onClick={() => setMobileOpen(false)}
-                          className={`menu-item ${isActive("/dashboard/customer/edit-profile") ? "menu-item-active" : "menu-item-inactive"}`}
-                        >
-                          <UserRoundPen className="size-5" />
-                          {t("userMenu.editProfile")}
-                        </Link>
-                      </li>
-
-                      {profile.role === "customer" && (
-                        <li>
-                          <Link
-                            href="/dashboard/request-restaurant"
-                            onClick={() => setMobileOpen(false)}
-                            className={`menu-item ${isActive("/dashboard/request-restaurant") ? "menu-item-active" : "menu-item-inactive"}`}
-                          >
-                            <ShieldUser className="size-5" />
-                            {t("userMenu.requestOwnerAccess")}
-                          </Link>
-                        </li>
-                      )}
+                    <ul className="mt-3 flex flex-col">
+                      {[
+                        { href: getDashboardLink(), label: t("userMenu.dashboard"), icon: LayoutDashboard },
+                        { href: "/dashboard/customer/edit-profile", label: t("userMenu.editProfile"), icon: UserRoundPen },
+                        ...(profile.role === "customer"
+                          ? [{ href: "/dashboard/customer/request-restaurant", label: t("userMenu.requestOwnerAccess"), icon: ShieldUser }]
+                          : []),
+                      ].map(({ href, label, icon: Icon }) => {
+                        const active = isActive(href);
+                        return (
+                          <li key={href}>
+                            <Link
+                              href={href}
+                              onClick={() => setMobileOpen(false)}
+                              className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
+                            >
+                              <span
+                                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                                  active ? "bg-primary text-white" : "bg-primary/10 text-primary"
+                                }`}
+                              >
+                                <Icon className="size-5" />
+                              </span>
+                              <span className="flex-1 text-sm font-medium text-gray-900 dark:text-white">{label}</span>
+                              <ChevronRight className="size-4 text-gray-400 rtl:-scale-x-100" />
+                            </Link>
+                          </li>
+                        );
+                      })}
 
                       <li>
                         <button
                           type="button"
                           onClick={handleLogout}
-                          className="menu-item menu-item-inactive w-full cursor-pointer"
+                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors hover:bg-red-50 dark:hover:bg-red-500/10"
                         >
-                          <LogOut className="size-5 rtl:-scale-x-100" />
-                          {t("userMenu.logout")}
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-600 dark:text-red-400">
+                            <LogOut className="size-5 rtl:-scale-x-100" />
+                          </span>
+                          <span className="flex-1 text-sm font-medium text-red-600 dark:text-red-400">
+                            {t("userMenu.logout")}
+                          </span>
                         </button>
                       </li>
                     </ul>
                   </>
                 ) : (
-                  <div className="rounded-2xl border border-gray-200 p-4 dark:border-gray-800">
+                  <div className="rounded-2xl bg-gray-100 p-4 dark:bg-white/5">
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       {t("guest.welcomeTitle")}
                     </p>
@@ -486,6 +524,7 @@ export default function Navbar() {
             </SheetContent>
           </Sheet>
         </div>
+        )}
       </div>
     </header>
   );
