@@ -1,0 +1,31 @@
+# ScanEat
+
+> ScanEat is a web-based restaurant operations platform for restaurants, cafes and food businesses in Saudi Arabia. It provides QR digital menus, WhatsApp ordering, live kitchen and waiter dashboards, and owner analytics, in English and Arabic.
+
+Key facts:
+
+- Diners do not install an app: they scan a table QR code (or open a restaurant link) and the menu opens in the phone browser.
+- Orders appear instantly on the kitchen screen, then move to the waiter screen when ready. Customers get order confirmations and updates over WhatsApp.
+- Owners, kitchen staff and waiters each get a role-based dashboard. Owners can edit items, prices, photos and availability at any time and generate a unique QR code per table.
+- Supports dine-in, pickup and delivery orders.
+- Every restaurant gets a 30-day free trial with full access; after the trial, billing is arranged directly with the ScanEat team (no self-serve online payment yet).
+- Available in English and Arabic (Arabic pages live under /ar).
+
+## Pages
+
+- [Home](https://www.scaneatksa.com/): product overview and FAQ
+- [How it works](https://www.scaneatksa.com/how-it-works): the diner journey and the restaurant-owner journey step by step, with FAQ
+- [About](https://www.scaneatksa.com/about): who ScanEat is built for and how it is built
+- [Restaurants](https://www.scaneatksa.com/restaurants): directory of restaurants and cafes on ScanEat, searchable by city, cuisine and dish
+- [Contact](https://www.scaneatksa.com/contact): onboarding and sales contact, including WhatsApp
+
+## Arabic
+
+- [الصفحة الرئيسية](https://www.scaneatksa.com/ar)
+- [كيف يعمل](https://www.scaneatksa.com/ar/how-it-works)
+- [المطاعم](https://www.scaneatksa.com/ar/restaurants)
+
+## Optional
+
+- [Privacy policy](https://www.scaneatksa.com/privacy-policy)
+- [Sitemap](https://www.scaneatksa.com/sitemap.xml)

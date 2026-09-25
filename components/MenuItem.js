@@ -136,144 +136,78 @@ export default function MenuItem({ item, restaurant, index = 0 }) {
       </span>
     );
 
+  const actions = (small) =>
+    soldOut
+      ? soldOutTag(!small)
+      : inCartCount > 0
+        ? stepper(small)
+        : addButton(small);
+
+  // One card for every breakpoint: horizontal on phones, stacked from `sm`.
+  // (Two separate mobile/desktop cards would duplicate every dish name as an
+  // <h3> in the served HTML.)
   return (
-    <>
-      {/* MOBILE */}
-      <div className="m-rise sm:hidden" style={riseStyle}>
-        <div
-          className={cn(
-            "m-card m-card-hover relative overflow-hidden rounded-2xl",
-            soldOut && "opacity-60"
-          )}
-        >
-          <div className="flex min-h-32">
-            <div className="relative h-32 w-32 shrink-0 overflow-hidden bg-[color:var(--m-limestone)]">
-              {item.image_url ? (
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-[color:var(--m-ink-soft)]">
-                  <ShoppingCart className="h-8 w-8" />
-                </div>
-              )}
-            </div>
-
-            <div className="flex min-w-0 flex-1 flex-col p-3.5">
-              <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-[color:var(--m-ink-soft)]">
-                {eyebrowMark}
-                {categoryName}
-              </span>
-              <div className="mt-0.5 flex items-start justify-between gap-2">
-                <h3 className="font-display text-sm font-semibold leading-tight text-[color:var(--m-ink)] line-clamp-2">
-                  {item.name}
-                </h3>
-                {dietMark}
-              </div>
-
-              {item.rating?.review_count > 0 && (
-                <div className="mt-1">
-                  <StarRating
-                    value={item.rating.avg_rating}
-                    reviewCount={item.rating.review_count}
-                    showValue
-                    size="sm"
-                    className="text-[color:var(--m-ink-soft)]"
-                  />
-                </div>
-              )}
-
-              {item.description && (
-                <p className="mt-1 text-xs leading-relaxed text-[color:var(--m-ink-soft)] line-clamp-2">
-                  {item.description}
-                </p>
-              )}
-
-              <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-                <span className="text-sm font-semibold tabular-nums text-[color:var(--m-ink)]">
-                  {price}
-                </span>
-                {soldOut
-                  ? soldOutTag(false)
-                  : inCartCount > 0
-                    ? stepper(true)
-                    : addButton(true)}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* DESKTOP / TABLET */}
-      <div className="m-rise hidden sm:block" style={riseStyle}>
-        <div
-          className={cn(
-            "m-card m-card-hover relative flex h-full flex-col overflow-hidden rounded-2xl",
-            soldOut && "opacity-60"
-          )}
-        >
+    <div className="m-rise h-full" style={riseStyle}>
+      <div
+        className={cn(
+          "m-card m-card-hover relative flex h-full min-h-32 overflow-hidden rounded-2xl sm:min-h-0 sm:flex-col",
+          soldOut && "opacity-60"
+        )}
+      >
+        <div className="relative h-32 w-32 shrink-0 overflow-hidden bg-[color:var(--m-limestone)] sm:aspect-[4/3] sm:h-auto sm:w-full">
           {item.image_url ? (
-            <div className="relative aspect-[4/3] w-full overflow-hidden bg-[color:var(--m-limestone)]">
-              <img
-                src={item.image_url}
-                alt={item.name}
-                loading="lazy"
-                className="h-full w-full object-cover"
+            <img
+              src={item.image_url}
+              alt={item.name}
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-[color:var(--m-ink-soft)]">
+              <ShoppingCart className="h-8 w-8 sm:h-10 sm:w-10" />
+            </div>
+          )}
+        </div>
+
+        <div className="flex min-w-0 flex-1 flex-col p-3.5 sm:p-4">
+          <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-[color:var(--m-ink-soft)] sm:text-[11px]">
+            {eyebrowMark}
+            {categoryName}
+          </span>
+          <div className="mt-0.5 flex items-start justify-between gap-2 sm:mt-1">
+            <h3 className="font-display text-sm font-semibold leading-tight text-[color:var(--m-ink)] line-clamp-2 sm:text-lg sm:line-clamp-none">
+              {item.name}
+            </h3>
+            {dietMark}
+          </div>
+
+          {item.rating?.review_count > 0 && (
+            <div className="mt-1 sm:mt-1.5">
+              <StarRating
+                value={item.rating.avg_rating}
+                reviewCount={item.rating.review_count}
+                showValue
+                size="sm"
+                className="text-[color:var(--m-ink-soft)]"
               />
             </div>
-          ) : (
-            <div className="flex aspect-[4/3] w-full items-center justify-center bg-[color:var(--m-limestone)] text-[color:var(--m-ink-soft)]">
-              <ShoppingCart className="h-10 w-10" />
-            </div>
           )}
 
-          <div className="flex flex-1 flex-col p-4">
-            <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-[color:var(--m-ink-soft)]">
-              {eyebrowMark}
-              {categoryName}
+          {item.description && (
+            <p className="mt-1 text-xs leading-relaxed text-[color:var(--m-ink-soft)] line-clamp-2 sm:mt-2 sm:text-sm">
+              {item.description}
+            </p>
+          )}
+
+          <div className="mt-auto flex items-center justify-between gap-2 pt-2 sm:mt-4">
+            <span className="text-sm font-semibold tabular-nums text-[color:var(--m-ink)] sm:text-lg">
+              {price}
             </span>
-
-            <div className="mt-1 flex items-start justify-between gap-2">
-              <h3 className="font-display text-lg font-semibold leading-tight text-[color:var(--m-ink)]">
-                {item.name}
-              </h3>
-              {dietMark}
-            </div>
-
-            {item.rating?.review_count > 0 && (
-              <div className="mt-1.5">
-                <StarRating
-                  value={item.rating.avg_rating}
-                  reviewCount={item.rating.review_count}
-                  showValue
-                  size="sm"
-                  className="text-[color:var(--m-ink-soft)]"
-                />
-              </div>
-            )}
-
-            {item.description && (
-              <p className="mt-2 text-sm leading-relaxed text-[color:var(--m-ink-soft)] line-clamp-2">
-                {item.description}
-              </p>
-            )}
-
-            <div className="mt-4 flex items-center justify-between gap-2 pt-2">
-              <span className="text-lg font-semibold tabular-nums text-[color:var(--m-ink)]">
-                {price}
-              </span>
-              {soldOut
-                ? soldOutTag(true)
-                : inCartCount > 0
-                  ? stepper(false)
-                  : addButton(false)}
-            </div>
+            <span className="sm:hidden">{actions(true)}</span>
+            <span className="hidden sm:inline-flex">{actions(false)}</span>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

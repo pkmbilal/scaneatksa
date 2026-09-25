@@ -9,7 +9,10 @@ import {
   localeHref,
   localizedAlternates,
   ogLocale,
+  e164Phone,
+  isOwnMediaUrl,
   DEFAULT_OG_IMAGE,
+  NOINDEX_RESTAURANT_SLUGS,
 } from "@/lib/seo";
 
 import MenuClient from "@/components/MenuClient";
@@ -115,6 +118,9 @@ export async function generateMetadata({ params }) {
     title,
     description,
     alternates: localizedAlternates(url, locale),
+    ...(NOINDEX_RESTAURANT_SLUGS.has(restaurant.slug) && {
+      robots: { index: false, follow: true },
+    }),
     openGraph: {
       title,
       description,
@@ -138,6 +144,9 @@ export default async function MenuPage({ params, searchParams }) {
   const tableCode = (sp?.t ?? "").toString();
 
   const restaurant = await getRestaurant(restaurantSlug);
+  // Only a real 404 if nothing above this page has started streaming: there is
+  // deliberately no loading.js on this route (or at the app root), since a
+  // Suspense fallback would flush a 200 before notFound() runs.
   if (!restaurant) notFound();
 
   const { data: items, error: itemsError } = await supabase
@@ -229,8 +238,8 @@ export default async function MenuPage({ params, searchParams }) {
     name: restaurant.name,
     url: restaurantUrl,
     hasMenu: `${restaurantUrl}#menu`,
-    ...(restaurant.image_url && { image: restaurant.image_url }),
-    ...(restaurant.phone && { telephone: restaurant.phone }),
+    ...(isOwnMediaUrl(restaurant.image_url) && { image: restaurant.image_url }),
+    ...(e164Phone(restaurant.phone) && { telephone: e164Phone(restaurant.phone) }),
     ...(cuisinePills.length && { servesCuisine: cuisinePills }),
     ...(priceTier && { priceRange: "$".repeat(priceTier) }),
     ...((restaurant.address || cityName) && {
@@ -267,7 +276,7 @@ export default async function MenuPage({ params, searchParams }) {
           "@type": "MenuItem",
           name: item.name,
           ...(item.description && { description: item.description }),
-          ...(item.image_url && { image: item.image_url }),
+          ...(isOwnMediaUrl(item.image_url) && { image: item.image_url }),
           ...(item.is_veg && { suitableForDiet: "https://schema.org/VegetarianDiet" }),
           ...(item.price != null && {
             offers: {

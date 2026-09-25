@@ -6,7 +6,10 @@ import { cityLabel } from "@/lib/saudiCities"
 import { Card, CardContent } from "@/components/ui/card"
 import { UtensilsCrossed, MapPin, Star, Clock } from "lucide-react"
 
-export default async function RestaurantCard({ restaurant }) {
+// `headingLevel` keeps the page outline valid: 2 when the card sits directly
+// under the page H1 (the /restaurants listing), 3 inside a titled section.
+export default async function RestaurantCard({ restaurant, headingLevel = 3 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h3"
   const t = await getTranslations('restaurants')
   const { id, slug, name, address, image_url } = restaurant
   const cityName = cityLabel(restaurant?.city, await getLocale())
@@ -65,9 +68,9 @@ export default async function RestaurantCard({ restaurant }) {
             <CardContent className="flex-1 p-0 sm:p-4">
               <div className="px-2 py-1 sm:p-0">
                 <div className="min-w-0">
-                  <h3 className="text-[15px] sm:text-lg font-extrabold tracking-tight leading-tight text-gray-900 truncate">
+                  <Heading className="text-[15px] sm:text-lg font-extrabold tracking-tight leading-tight text-gray-900 truncate">
                     {name}
-                  </h3>
+                  </Heading>
 
                   {/* Mobile rating/eta (plain text) */}
                   <div className="sm:hidden mt-0.5 flex items-center gap-2 text-xs text-gray-600">
