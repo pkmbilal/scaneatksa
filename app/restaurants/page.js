@@ -1,6 +1,6 @@
 import { getTranslations, getLocale } from "next-intl/server";
 import { SAUDI_CITIES, cityLabel } from "@/lib/saudiCities";
-import { DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { DEFAULT_OG_IMAGE, localeHref, localizedAlternates, ogLocale } from "@/lib/seo";
 import { supabaseServer } from "@/lib/supabase/server";
 import RestaurantCard from '@/components/restaurant/RestaurantCard'
 import RestaurantsFilters from '@/components/restaurant/RestaurantsFilters'
@@ -15,8 +15,9 @@ export async function generateMetadata({ searchParams }) {
   const city = (params?.city ?? "").toString();
   const otherFilters = ["q", "cuisine", "veg"].some((k) => params?.[k]);
   const typeFilter = params?.type && params.type !== "restaurants";
+  const locale = await getLocale();
   const knownCity = SAUDI_CITIES.some((c) => c.slug === city);
-  const cityName = knownCity ? cityLabel(city, await getLocale()) : "";
+  const cityName = knownCity ? cityLabel(city, locale) : "";
 
   if (cityName && !otherFilters && !typeFilter) {
     const title = t("cityTitle", { city: cityName });
@@ -25,16 +26,28 @@ export async function generateMetadata({ searchParams }) {
     return {
       title,
       description,
-      alternates: { canonical: url },
-      openGraph: { title, description, url, images: [DEFAULT_OG_IMAGE] },
+      alternates: localizedAlternates(url, locale),
+      openGraph: {
+        title,
+        description,
+        url: localeHref(url, locale),
+        locale: ogLocale(locale),
+        images: [DEFAULT_OG_IMAGE],
+      },
     };
   }
 
   return {
     title: t("title"),
     description: t("description"),
-    alternates: { canonical: "/restaurants" },
-    openGraph: { title: t("title"), description: t("description"), url: "/restaurants", images: [DEFAULT_OG_IMAGE] },
+    alternates: localizedAlternates("/restaurants", locale),
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      url: localeHref("/restaurants", locale),
+      locale: ogLocale(locale),
+      images: [DEFAULT_OG_IMAGE],
+    },
     ...(city || otherFilters || typeFilter
       ? { robots: { index: false, follow: true } }
       : {}),
@@ -161,7 +174,7 @@ export default async function RestaurantsPage({ searchParams }) {
     <section className="pt-4 pb-4 md:py-10 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-4 md:mb-8">
-          <h2 className="text-2xl text-center md:text-5xl font-bold text-gray-900 md:mb-3">{t('page.title')}</h2>
+          <h1 className="text-2xl text-center md:text-5xl font-bold text-gray-900 md:mb-3">{t('page.title')}</h1>
           <p className="md:text-lg text-center text-gray-600">{t('page.subtitle')}</p>
         </div>
 

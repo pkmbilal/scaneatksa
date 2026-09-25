@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 
 import HowItWorksHero from "@/components/how-it-works/HowItWorksHero";
 import JourneySection from "@/components/how-it-works/JourneySection";
@@ -6,7 +6,7 @@ import HowItWorksFAQ from "@/components/how-it-works/HowItWorksFAQ";
 import FinalCTASection from "@/components/home/FinalCTASection";
 import SiteFooter from "@/components/home/SiteFooter";
 import { finalCtaData, footerData } from "@/lib/siteData";
-import { jsonLdProps } from "@/lib/seo";
+import { DEFAULT_OG_IMAGE, jsonLdProps, localeHref, localizedAlternates, ogLocale } from "@/lib/seo";
 
 const dinerImages = [
   { src: "/how-it-works/diner-1-scan.jpg", alt: "Browsing the ScanEat restaurant directory to find a place to order from" },
@@ -25,13 +25,19 @@ const ownerImages = [
 ];
 
 export async function generateMetadata() {
+  const locale = await getLocale();
   const t = await getTranslations("howItWorks.metadata");
 
   return {
     title: { absolute: t("title") },
     description: t("description"),
-    alternates: {
-      canonical: "/how-it-works",
+    alternates: localizedAlternates("/how-it-works", locale),
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      url: localeHref("/how-it-works", locale),
+      locale: ogLocale(locale),
+      images: [DEFAULT_OG_IMAGE],
     },
     keywords: [
       "how ScanEat works",

@@ -1,14 +1,23 @@
 import SiteFooter from "@/components/home/SiteFooter";
 import { footerData } from "@/lib/siteData";
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import Link from "@/components/LocaleLink";
+import { getTranslations, getLocale } from "next-intl/server"
+import { DEFAULT_OG_IMAGE, localeHref, localizedAlternates, ogLocale } from "@/lib/seo";
 
 export async function generateMetadata() {
+  const locale = await getLocale()
   const t = await getTranslations("privacyPolicy.metadata");
 
   return {
     title: { absolute: t("title") },
-    alternates: { canonical: "/privacy-policy" },
+    alternates: localizedAlternates("/privacy-policy", locale),
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      url: localeHref("/privacy-policy", locale),
+      locale: ogLocale(locale),
+      images: [DEFAULT_OG_IMAGE],
+    },
     description: t("description"),
   };
 }

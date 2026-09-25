@@ -3,7 +3,14 @@ import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { cityLabel } from "@/lib/saudiCities";
-import { absoluteUrl, jsonLdProps, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import {
+  absoluteUrl,
+  jsonLdProps,
+  localeHref,
+  localizedAlternates,
+  ogLocale,
+  DEFAULT_OG_IMAGE,
+} from "@/lib/seo";
 
 import MenuClient from "@/components/MenuClient";
 import CartButton from "@/components/CartButton";
@@ -107,8 +114,15 @@ export async function generateMetadata({ params }) {
   return {
     title,
     description,
-    alternates: { canonical: url },
-    openGraph: { title, description, url, type: "website", images },
+    alternates: localizedAlternates(url, locale),
+    openGraph: {
+      title,
+      description,
+      url: localeHref(url, locale),
+      type: "website",
+      locale: ogLocale(locale),
+      images,
+    },
     twitter: { title, description, images: images.map((i) => i.url) },
   };
 }

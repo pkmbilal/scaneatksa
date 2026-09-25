@@ -1,5 +1,5 @@
-import { getTranslations } from "next-intl/server";
-import { DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { getTranslations, getLocale } from "next-intl/server";
+import { DEFAULT_OG_IMAGE, localeHref, localizedAlternates, ogLocale } from "@/lib/seo";
 import SiteFooter from "@/components/home/SiteFooter";
 import { footerData } from "@/lib/siteData";
 
@@ -13,13 +13,20 @@ import AboutMission from "@/components/about/AboutMission";
 import AboutTeamBanner from "@/components/about/AboutTeamBanner";
 
 export async function generateMetadata() {
+  const locale = await getLocale();
   const t = await getTranslations("about.metadata");
 
   return {
     title: { absolute: t("title") },
     description: t("description"),
-    alternates: { canonical: "/about" },
-    openGraph: { title: t("title"), description: t("description"), url: "/about", images: [DEFAULT_OG_IMAGE] },
+    alternates: localizedAlternates("/about", locale),
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      url: localeHref("/about", locale),
+      locale: ogLocale(locale),
+      images: [DEFAULT_OG_IMAGE],
+    },
   };
 }
 

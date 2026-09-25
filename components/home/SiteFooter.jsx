@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
@@ -36,9 +36,9 @@ export default async function SiteFooter({ data }) {
             <ul className="space-y-3 text-slate-600">
               {data.companyLinks.map((link) => (
                 <li key={link.key}>
-                  <a href={link.href} className="transition hover:text-emerald-600">
+                  <Link href={link.href} className="transition hover:text-emerald-600">
                     {t(`companyLinks.${link.key}`)}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

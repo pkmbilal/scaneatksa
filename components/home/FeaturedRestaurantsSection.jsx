@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { ChevronRight, Store } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import RestaurantCard from "@/components/restaurant/RestaurantCard";
