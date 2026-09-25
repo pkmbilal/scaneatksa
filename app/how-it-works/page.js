@@ -1,4 +1,3 @@
-import Script from "next/script";
 import { getTranslations } from "next-intl/server";
 
 import HowItWorksHero from "@/components/how-it-works/HowItWorksHero";
@@ -7,6 +6,7 @@ import HowItWorksFAQ from "@/components/how-it-works/HowItWorksFAQ";
 import FinalCTASection from "@/components/home/FinalCTASection";
 import SiteFooter from "@/components/home/SiteFooter";
 import { finalCtaData, footerData } from "@/lib/siteData";
+import { jsonLdProps } from "@/lib/seo";
 
 const dinerImages = [
   { src: "/how-it-works/diner-1-scan.jpg", alt: "Browsing the ScanEat restaurant directory to find a place to order from" },
@@ -28,7 +28,7 @@ export async function generateMetadata() {
   const t = await getTranslations("howItWorks.metadata");
 
   return {
-    title: t("title"),
+    title: { absolute: t("title") },
     description: t("description"),
     alternates: {
       canonical: "/how-it-works",
@@ -62,11 +62,7 @@ export default async function HowItWorksPage() {
 
   return (
     <>
-      <Script
-        id="schema-how-it-works-faq"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      <script id="schema-how-it-works-faq" {...jsonLdProps(faqSchema)} />
 
       <main className="min-h-screen bg-background text-foreground">
         <HowItWorksHero />

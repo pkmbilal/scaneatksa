@@ -10,7 +10,8 @@ export async function generateMetadata() {
   const t = await getTranslations("contact.metadata")
 
   return {
-    title: t("title"),
+    title: { absolute: t("title") },
+    alternates: { canonical: "/contact" },
     description: t("description"),
     keywords: [
       "ScanEat contact",

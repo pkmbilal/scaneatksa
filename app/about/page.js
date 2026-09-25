@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import SiteFooter from "@/components/home/SiteFooter";
 import { footerData } from "@/lib/siteData";
 
@@ -9,6 +11,17 @@ import AboutPrinciples from "@/components/about/AboutPrinciples";
 import AboutProductView from "@/components/about/AboutProductView";
 import AboutMission from "@/components/about/AboutMission";
 import AboutTeamBanner from "@/components/about/AboutTeamBanner";
+
+export async function generateMetadata() {
+  const t = await getTranslations("about.metadata");
+
+  return {
+    title: { absolute: t("title") },
+    description: t("description"),
+    alternates: { canonical: "/about" },
+    openGraph: { title: t("title"), description: t("description"), url: "/about", images: [DEFAULT_OG_IMAGE] },
+  };
+}
 
 export default function AboutPage() {
   return (

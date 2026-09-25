@@ -7,7 +7,8 @@ export async function generateMetadata() {
   const t = await getTranslations("privacyPolicy.metadata");
 
   return {
-    title: t("title"),
+    title: { absolute: t("title") },
+    alternates: { canonical: "/privacy-policy" },
     description: t("description"),
   };
 }

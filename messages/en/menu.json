@@ -1,4 +1,9 @@
 {
+  "metadata": {
+    "title": "{name} Menu{place}",
+    "description": "View the {name} menu{place} with prices and photos{cuisines}. Order online on ScanEat for dine-in, pickup, or delivery.",
+    "notFoundTitle": "Restaurant not found"
+  },
   "notFound": {
     "title": "Restaurant not found",
     "subtitle": "This restaurant may be unavailable or the link is incorrect.",
