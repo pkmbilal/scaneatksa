@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/LocaleLink";
 import { getTranslations, getLocale } from "next-intl/server"
 import FavoriteButton from "@/components/FavoriteButton"
 import { cityLabel } from "@/lib/saudiCities"

@@ -1,4 +1,9 @@
 {
+  "metadata": {
+    "title": "ScanEat | Restaurant Operations Platform with QR Ordering",
+    "description": "Run your restaurant end to end with ScanEat: digital QR menus, WhatsApp ordering, live kitchen and waiter dashboards, and owner analytics for restaurants, cafes, and food businesses.",
+    "ogAlt": "ScanEat restaurant operations platform with QR menus and live dashboards"
+  },
   "hero": {
     "badge": "The complete platform to run your restaurant",
     "title": "The Operations Platform for",

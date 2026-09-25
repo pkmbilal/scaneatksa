@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useRouter, usePathname } from "next/navigation";
+import { stripLocalePrefix } from "@/lib/seo";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { getSessionUser, getUserProfile, signOut } from "@/lib/auth/client";
@@ -57,7 +58,9 @@ export default function Navbar() {
   const [search, setSearch] = useState("");
 
   const router = useRouter();
-  const pathname = usePathname();
+  // Arabic public pages live under /ar (see lib/seo.js); compare routes
+  // without the prefix.
+  const pathname = stripLocalePrefix(usePathname() || "/");
   const { isRTL } = useLanguage();
   const { setTheme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";

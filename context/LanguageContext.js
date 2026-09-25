@@ -7,6 +7,7 @@
 
 import { createContext, useContext, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { isLocalizedPath, localeHref, stripLocalePrefix } from '@/lib/seo'
 
 const LanguageContext = createContext(undefined)
 
@@ -27,9 +28,21 @@ export function LanguageProvider({ children, locale }) {
         // localStorage unavailable (private mode, etc.) - cookie is source of truth anyway
       }
 
-      // Re-renders Server Components (root layout re-reads the cookie and picks up
-      // the new locale/messages/dir) while preserving Client Component state, e.g.
-      // cart contents or in-progress form fields.
+      // Public pages carry the locale in the URL (/ar/...), so switching means
+      // moving to the other URL. A full load is required: /about and /ar/about
+      // rewrite to the same route, so a client-side push would reuse the root
+      // layout (html lang/dir, messages). Cart and table code live in
+      // localStorage and survive it.
+      const { pathname, search, hash } = window.location
+      const basePath = stripLocalePrefix(pathname)
+      if (isLocalizedPath(basePath)) {
+        window.location.assign(localeHref(basePath, next) + search + hash)
+        return
+      }
+
+      // Everywhere else: re-render Server Components (root layout re-reads the
+      // cookie and picks up the new locale/messages/dir) while preserving Client
+      // Component state, e.g. cart contents or in-progress form fields.
       router.refresh()
     },
     [locale, router]

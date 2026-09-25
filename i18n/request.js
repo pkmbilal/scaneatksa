@@ -1,5 +1,6 @@
 import { getRequestConfig } from 'next-intl/server'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
+import { LOCALE_HEADER } from '@/lib/seo'
 
 // UI chrome only. Never load Supabase-sourced content (restaurant/menu
 // names, user profile fields, order notes, table codes) through this —
@@ -48,9 +49,11 @@ async function loadMessages(locale) {
 }
 
 export default getRequestConfig(async () => {
-  const store = await cookies()
-  const cookieLocale = store.get(LOCALE_COOKIE)?.value
-  const locale = LOCALES.includes(cookieLocale) ? cookieLocale : DEFAULT_LOCALE
+  // Public pages get their locale from the URL (/ar/... -> proxy.js sets
+  // LOCALE_HEADER); everything else falls back to the NEXT_LOCALE cookie.
+  const urlLocale = (await headers()).get(LOCALE_HEADER)
+  const cookieLocale = (await cookies()).get(LOCALE_COOKIE)?.value
+  const locale = [urlLocale, cookieLocale].find((l) => LOCALES.includes(l)) ?? DEFAULT_LOCALE
 
   return {
     locale,

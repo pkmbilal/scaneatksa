@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Search, ChevronDown } from "lucide-react";
 import { citiesForLocale, cityLabel } from "@/lib/saudiCities";
+import { localeHref } from "@/lib/seo";
 
 export default function RestaurantsFilters({ cuisines = [] }) {
   const t = useTranslations("restaurants");
@@ -43,7 +44,7 @@ export default function RestaurantsFilters({ cuisines = [] }) {
 
     params.delete("page");
 
-    const url = `/restaurants?${params.toString()}`;
+    const url = localeHref(`/restaurants?${params.toString()}`, locale);
     router.push(url);
 
     // ✅ helps when the page uses Server Components / server data fetching
@@ -51,7 +52,7 @@ export default function RestaurantsFilters({ cuisines = [] }) {
   };
 
   const clearAll = () => {
-    router.push("/restaurants");
+    router.push(localeHref("/restaurants", locale));
     router.refresh();
   };
 

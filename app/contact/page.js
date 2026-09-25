@@ -4,14 +4,23 @@ import ContactHighlights from "@/components/contact/ContactHighlights"
 import ContactInfo from "@/components/contact/ContactInfo"
 import ContactForm from "@/components/contact/ContactForm"
 import { footerData } from "@/lib/siteData"
-import { getTranslations } from "next-intl/server"
+import { getTranslations, getLocale } from "next-intl/server"
+import { DEFAULT_OG_IMAGE, localeHref, localizedAlternates, ogLocale } from "@/lib/seo"
 
 export async function generateMetadata() {
+  const locale = await getLocale()
   const t = await getTranslations("contact.metadata")
 
   return {
     title: { absolute: t("title") },
-    alternates: { canonical: "/contact" },
+    alternates: localizedAlternates("/contact", locale),
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      url: localeHref("/contact", locale),
+      locale: ogLocale(locale),
+      images: [DEFAULT_OG_IMAGE],
+    },
     description: t("description"),
     keywords: [
       "ScanEat contact",

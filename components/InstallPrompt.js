@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { stripLocalePrefix } from "@/lib/seo";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,7 +18,9 @@ const DISMISS_KEY = "scaneat:installPromptDismissed";
 // than showing anything broken.
 export default function InstallPrompt() {
   const t = useTranslations("common");
-  const pathname = usePathname();
+  // Arabic public pages live under /ar (see lib/seo.js); compare routes
+  // without the prefix.
+  const pathname = stripLocalePrefix(usePathname() || "/");
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [visible, setVisible] = useState(false);
 

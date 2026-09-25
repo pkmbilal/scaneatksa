@@ -1,6 +1,13 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import { getTranslations } from "next-intl/server";
-import { SITE_URL, SITE_NAME, jsonLdProps } from "@/lib/seo";
+import { getTranslations, getLocale } from "next-intl/server";
+import {
+  SITE_URL,
+  SITE_NAME,
+  jsonLdProps,
+  localeHref,
+  localizedAlternates,
+  ogLocale,
+} from "@/lib/seo";
 
 import HeroSection from "@/components/home/HeroSection";
 import TrustStrip from "@/components/home/TrustStrip";
@@ -23,72 +30,70 @@ import {
 
 const siteUrl = SITE_URL;
 const siteName = SITE_NAME;
-const pageTitle = "ScanEat | Restaurant Operations Platform with QR Ordering";
-const pageDescription =
-  "Run your restaurant end to end with ScanEat: digital QR menus, WhatsApp ordering, live kitchen and waiter dashboards, and owner analytics for restaurants, cafes, and food businesses.";
 const ogImage = `${siteUrl}/og-home.jpg`;
 
-/** @type {import("next").Metadata} */
-export const metadata = {
-  title: { absolute: pageTitle },
-  description: pageDescription,
-  keywords: [
-    "QR menu",
-    "digital menu",
-    "restaurant QR menu",
-    "WhatsApp ordering",
-    "restaurant ordering system",
-    "cafe QR menu",
-    "contactless menu",
-    "table QR code menu",
-    "restaurant menu software",
-    "ScanEat",
-    "Saudi restaurant QR menu",
-    "restaurant digital ordering",
-    "restaurant management system",
-    "kitchen display system",
-    "restaurant analytics",
-    "restaurant operations platform",
-  ],
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    title: pageTitle,
-    description: pageDescription,
-    url: siteUrl,
-    siteName,
-    type: "website",
-    locale: "en_US",
-    images: [
-      {
-        url: ogImage,
-        width: 1200,
-        height: 630,
-        alt: "ScanEat restaurant operations platform with QR menus and live dashboards",
-      },
+export async function generateMetadata() {
+  const locale = await getLocale();
+  const t = await getTranslations("home.metadata");
+  const title = t("title");
+  const description = t("description");
+
+  return {
+    title: { absolute: title },
+    description,
+    keywords: [
+      "QR menu",
+      "digital menu",
+      "restaurant QR menu",
+      "WhatsApp ordering",
+      "restaurant ordering system",
+      "cafe QR menu",
+      "contactless menu",
+      "table QR code menu",
+      "restaurant menu software",
+      "ScanEat",
+      "Saudi restaurant QR menu",
+      "restaurant digital ordering",
+      "restaurant management system",
+      "kitchen display system",
+      "restaurant analytics",
+      "restaurant operations platform",
+      "منيو إلكتروني",
+      "منيو QR",
+      "قائمة طعام رقمية",
+      "نظام طلبات المطاعم",
     ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: pageTitle,
-    description: pageDescription,
-    images: [ogImage],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    nocache: false,
-    googleBot: {
+    alternates: localizedAlternates("/", locale),
+    openGraph: {
+      title,
+      description,
+      url: localeHref("/", locale),
+      siteName,
+      type: "website",
+      locale: ogLocale(locale),
+      images: [{ url: ogImage, width: 1200, height: 630, alt: t("ogAlt") }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      nocache: false,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-  category: "technology",
-};
+    category: "technology",
+  };
+}
 
 export default async function HomePage() {
   const supabase = supabaseServer();
@@ -104,6 +109,7 @@ export default async function HomePage() {
 
   const t = await getTranslations("home");
   const faqItems = t.raw("faq.items");
+  const pageDescription = t("metadata.description");
 
   const organizationSchema = {
     "@context": "https://schema.org",
