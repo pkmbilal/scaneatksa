@@ -7,6 +7,7 @@
   },
   "page": {
     "title": "Restaurants",
+    "cityTitle": "Restaurants in {city}",
     "subtitle": "Search by restaurant, city, cuisine, or food item"
   },
   "empty": {

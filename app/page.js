@@ -118,16 +118,18 @@ export default async function HomePage() {
     url: siteUrl,
     logo: `${siteUrl}/scaneat-logo.png`,
     description: pageDescription,
+    email: contactData.email,
     areaServed: { "@type": "Country", name: "Saudi Arabia" },
     contactPoint: {
       "@type": "ContactPoint",
       telephone: contactData.phone,
+      email: contactData.email,
       contactType: "sales",
       areaServed: "SA",
       availableLanguage: ["en", "ar"],
     },
-    // TODO: add real social profile URLs (Instagram, LinkedIn, X) here.
-    sameAs: [],
+    // TODO: add sameAs with real social profile URLs (Instagram, LinkedIn, X)
+    // once they exist -- an empty array is worse than omitting it.
   };
 
   const softwareSchema = {

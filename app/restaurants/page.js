@@ -1,6 +1,14 @@
 import { getTranslations, getLocale } from "next-intl/server";
 import { SAUDI_CITIES, cityLabel } from "@/lib/saudiCities";
-import { DEFAULT_OG_IMAGE, localeHref, localizedAlternates, ogLocale } from "@/lib/seo";
+import {
+  DEFAULT_OG_IMAGE,
+  NOINDEX_RESTAURANT_SLUGS,
+  absoluteUrl,
+  jsonLdProps,
+  localeHref,
+  localizedAlternates,
+  ogLocale,
+} from "@/lib/seo";
 import { supabaseServer } from "@/lib/supabase/server";
 import RestaurantCard from '@/components/restaurant/RestaurantCard'
 import RestaurantsFilters from '@/components/restaurant/RestaurantsFilters'
@@ -170,11 +178,34 @@ export default async function RestaurantsPage({ searchParams }) {
     }))
   }
 
+  // Mirrors generateMetadata: only the bare listing and single-city views are
+  // indexable, so only those get an ItemList (and a city-specific H1).
+  const locale = await getLocale()
+  const knownCity = SAUDI_CITIES.some((c) => c.slug === city)
+  const isFiltered = q || cuisine || veg || type !== 'restaurants'
+  const cityName = knownCity && !isFiltered ? cityLabel(city, locale) : ''
+  const indexable = !isFiltered && (!city || knownCity)
+
+  const listed = restaurantsWithRatings.filter((r) => !NOINDEX_RESTAURANT_SLUGS.has(r.slug))
+  const itemListSchema = indexable && listed.length > 0 && {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: cityName ? t('page.cityTitle', { city: cityName }) : t('page.title'),
+    numberOfItems: listed.length,
+    itemListElement: listed.map((r, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: r.name,
+      url: absoluteUrl(localeHref(`/menu/${encodeURIComponent(r.slug)}`, locale)),
+    })),
+  }
+
   return (
     <section className="pt-4 pb-4 md:py-10 bg-gray-50 min-h-screen">
+      {itemListSchema && <script id="schema-restaurant-list" {...jsonLdProps(itemListSchema)} />}
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-4 md:mb-8">
-          <h1 className="text-2xl text-center md:text-5xl font-bold text-gray-900 md:mb-3">{t('page.title')}</h1>
+          <h1 className="text-2xl text-center md:text-5xl font-bold text-gray-900 md:mb-3">{cityName ? t('page.cityTitle', { city: cityName }) : t('page.title')}</h1>
           <p className="md:text-lg text-center text-gray-600">{t('page.subtitle')}</p>
         </div>
 
@@ -185,7 +216,7 @@ export default async function RestaurantsPage({ searchParams }) {
         {restaurantsWithRatings.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             {restaurantsWithRatings.map((restaurant) => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+              <RestaurantCard key={restaurant.id} restaurant={restaurant} headingLevel={2} />
             ))}
           </div>
         ) : (

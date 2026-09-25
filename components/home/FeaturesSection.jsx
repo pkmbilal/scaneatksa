@@ -31,7 +31,7 @@ export default async function FeaturesSection() {
         <div className="relative mb-12 h-56 w-full overflow-hidden rounded-3xl border border-slate-200 md:h-72">
           <Image
             src="/about-product.webp"
-            alt=""
+            alt={t("imageAlt")}
             fill
             sizes="100vw"
             className="object-cover"
