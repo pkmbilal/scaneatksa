@@ -3,6 +3,7 @@ import { Fraunces, Reem_Kufi, IBM_Plex_Sans, IBM_Plex_Sans_Arabic } from 'next/f
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { ThemeProvider } from 'next-themes'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import { CartProvider } from './CartContext'
 import { LanguageProvider } from '@/context/LanguageContext'
 import LayoutWithNavbar from '@/components/LayoutWithNavbar'
@@ -13,6 +14,7 @@ import {
   DEFAULT_TITLE,
   DEFAULT_DESCRIPTION,
   DEFAULT_OG_IMAGE,
+  GA_MEASUREMENT_ID,
 } from '@/lib/seo'
 
 // Bilingual type for the "Souk Modern" menu page. Applied only inside
@@ -48,6 +50,9 @@ const fontVars = [
   bodyLatin.variable,
   bodyArabic.variable,
 ].join(' ')
+
+// GA4 loads only in production builds, so `npm run dev` traffic isn't tracked.
+const loadAnalytics = process.env.NODE_ENV === 'production'
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -106,6 +111,7 @@ export default async function RootLayout({ children }) {
           </LanguageProvider>
         </NextIntlClientProvider>
       </body>
+      {loadAnalytics && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
     </html>
   )
 }
