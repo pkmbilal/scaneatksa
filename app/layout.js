@@ -92,13 +92,17 @@ export const viewport = {
 
 export default async function RootLayout({ children }) {
   const locale = await getLocale()
-  const messages = await getMessages()
+  // Client components outside /dashboard never use the dashboard.* strings
+  // (~35 KB en / ~47 KB ar), so they're left out of every page's payload
+  // here; app/dashboard/layout.js provides the full set to dashboard routes.
+  // Server components are unaffected -- getTranslations reads i18n/request.js.
+  const { dashboard, ...publicMessages } = await getMessages()
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
 
   return (
     <html lang={locale} dir={dir} className={fontVars} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={publicMessages}>
           <LanguageProvider locale={locale}>
             <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
               <CartProvider>
