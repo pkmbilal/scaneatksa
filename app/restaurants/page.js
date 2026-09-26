@@ -10,18 +10,23 @@ import {
   ogLocale,
 } from "@/lib/seo";
 import { supabaseServer } from "@/lib/supabase/server";
+import { pageQuery, pageRange, parsePage, totalPages } from "@/lib/pagination";
+import Link from "next/link";
 import RestaurantCard from '@/components/restaurant/RestaurantCard'
 import RestaurantsFilters from '@/components/restaurant/RestaurantsFilters'
 
-// Filtered/search views are near-duplicates of the main listing, so only the
-// bare listing and single-city views are indexable; everything else is
-// noindex,follow so Google still reaches the restaurant links.
+const PAGE_SIZE = 24;
+
+// Filtered/search views (and page 2+) are near-duplicates of the main
+// listing, so only the bare listing and single-city views are indexable;
+// everything else is noindex,follow so Google still reaches the restaurant
+// links.
 export async function generateMetadata({ searchParams }) {
   const t = await getTranslations("restaurants.metadata");
   const params = await Promise.resolve(searchParams ?? {});
 
   const city = (params?.city ?? "").toString();
-  const otherFilters = ["q", "cuisine", "veg"].some((k) => params?.[k]);
+  const otherFilters = ["q", "cuisine", "veg"].some((k) => params?.[k]) || parsePage(params?.page) > 1;
   const typeFilter = params?.type && params.type !== "restaurants";
   const locale = await getLocale();
   const knownCity = SAUDI_CITIES.some((c) => c.slug === city);
@@ -72,6 +77,7 @@ export default async function RestaurantsPage({ searchParams }) {
   const city = (params?.city ?? '').toString()
   const cuisine = (params?.cuisine ?? '').toString()
   const veg = (params?.veg ?? '').toString() // '1' => pure veg only (option A)
+  const page = parsePage(params?.page)
 
   // Load dropdowns (cities are a bundled static list -- see lib/saudiCities.js)
   const { data: cuisines } = await supabase
@@ -105,6 +111,7 @@ export default async function RestaurantsPage({ searchParams }) {
       .select('restaurant_id')
       .eq('is_available', true)
       .or(`name.ilike.%${safeQ}%,description.ilike.%${safeQ}%`)
+      .limit(1000) // only collects restaurant ids -- a safety cap, not paging
 
     const idsFromFood = miErr ? [] : Array.from(new Set((mi || []).map((x) => x.restaurant_id)))
 
@@ -139,7 +146,8 @@ export default async function RestaurantsPage({ searchParams }) {
       image_url,
       is_active,
       city
-    `
+    `,
+      { count: 'exact' }
     )
     .eq('is_active', true)
     .order('created_at', { ascending: false })
@@ -154,8 +162,10 @@ export default async function RestaurantsPage({ searchParams }) {
         : restaurantsQuery.in('id', constrainedRestaurantIds)
   }
 
-  const { data: restaurants, error } = await restaurantsQuery
+  const [from, to] = pageRange(page, PAGE_SIZE)
+  const { data: restaurants, count, error } = await restaurantsQuery.range(from, to)
   if (error) console.log('Restaurants fetch error:', error)
+  const pages = totalPages(count, PAGE_SIZE)
 
   // Batched average-rating/review-count lookup (restaurant_rating_summary is
   // a view over reviews, mirrors the restaurant_menu_flags batching above)
@@ -182,7 +192,7 @@ export default async function RestaurantsPage({ searchParams }) {
   // indexable, so only those get an ItemList (and a city-specific H1).
   const locale = await getLocale()
   const knownCity = SAUDI_CITIES.some((c) => c.slug === city)
-  const isFiltered = q || cuisine || veg || type !== 'restaurants'
+  const isFiltered = q || cuisine || veg || type !== 'restaurants' || page > 1
   const cityName = knownCity && !isFiltered ? cityLabel(city, locale) : ''
   const indexable = !isFiltered && (!city || knownCity)
 
@@ -225,6 +235,28 @@ export default async function RestaurantsPage({ searchParams }) {
             <p className="text-xl text-gray-700 font-semibold">{t('empty.title')}</p>
             <p className="text-sm text-gray-500 mt-2">{t('empty.subtitle')}</p>
           </div>
+        )}
+
+        {pages > 1 && (
+          <nav aria-label={t('pagination.label')} className="mt-8 flex items-center justify-center gap-4 text-sm">
+            {page > 1 ? (
+              <Link
+                href={localeHref(`/restaurants${pageQuery(params, page - 1)}`, locale)}
+                className="rounded-lg border bg-white px-4 py-2 font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                {t('pagination.previous')}
+              </Link>
+            ) : null}
+            <span className="text-gray-600">{t('pagination.pageOf', { page, total: pages })}</span>
+            {page < pages ? (
+              <Link
+                href={localeHref(`/restaurants${pageQuery(params, page + 1)}`, locale)}
+                className="rounded-lg border bg-white px-4 py-2 font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                {t('pagination.next')}
+              </Link>
+            ) : null}
+          </nav>
         )}
       </div>
     </section>

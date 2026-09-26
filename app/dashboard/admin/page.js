@@ -146,17 +146,18 @@ export default function AdminDashboard() {
     }
 
     if (requests) {
-      const requestsWithUsers = await Promise.all(
-        requests.map(async (request) => {
-          const { data: userProfile } = await supabase
-            .from('user_profiles')
-            .select('full_name, email')
-            .eq('id', request.user_id)
-            .single()
+      // One lookup for every requester's name (was one query per request).
+      // Emails live in auth.users, not user_profiles, so aren't available here.
+      const userIds = [...new Set(requests.map((r) => r.user_id).filter(Boolean))]
+      const { data: profiles } = userIds.length
+        ? await supabase.from('user_profiles').select('id, full_name').in('id', userIds)
+        : { data: [] }
+      const profileById = new Map((profiles || []).map((p) => [p.id, p]))
 
-          return { ...request, user_profiles: userProfile }
-        })
-      )
+      const requestsWithUsers = requests.map((request) => ({
+        ...request,
+        user_profiles: profileById.get(request.user_id) || null,
+      }))
 
       setAllRequests(requestsWithUsers)
       setPendingRequests(requestsWithUsers.filter((req) => req.status === 'pending'))
@@ -174,9 +175,12 @@ export default function AdminDashboard() {
   }
 
   async function loadRestaurants() {
-    const { data } = await supabase.from('restaurants').select('*').order('created_at', {
-      ascending: false,
-    })
+    // menu_items(count) embeds each restaurant's item count in this one query
+    // (RestaurantsTab used to run a count query per card).
+    const { data } = await supabase
+      .from('restaurants')
+      .select('*, menu_items(count)')
+      .order('created_at', { ascending: false })
     setAllRestaurants(data || [])
   }
 

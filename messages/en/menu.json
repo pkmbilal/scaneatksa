@@ -22,7 +22,8 @@
     "reviewsSection": {
       "title": "Reviews",
       "empty": "No reviews yet. Be the first to order and leave one!",
-      "summary": "from {count} guests"
+      "summary": "from {count} guests",
+      "showingLatest": "Showing the {shown} most recent reviews"
     }
   },
   "reviews": {

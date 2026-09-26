@@ -2,12 +2,8 @@
 
 // Restaurants list. Same data/handlers as the original page.js.
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { supabaseBrowser } from '@/lib/supabase/client'
-
-const supabase = supabaseBrowser()
 
 export default function RestaurantsTab({ allRestaurants, onToggle, onDelete }) {
   const t = useTranslations('dashboard.admin')
@@ -37,24 +33,11 @@ export default function RestaurantsTab({ allRestaurants, onToggle, onDelete }) {
 
 function RestaurantCard({ restaurant, onToggle, onDelete }) {
   const t = useTranslations('dashboard.admin')
-  const [menuItemCount, setMenuItemCount] = useState(0)
+  // Embedded by loadRestaurants as menu_items(count) -> [{ count }].
+  const menuItemCount = restaurant.menu_items?.[0]?.count ?? 0
   // Admin disable = suspension (see handleToggleRestaurant); is_active is the
   // owner's own open/closed toggle and is shown separately.
   const suspended = restaurant.subscription_status === 'suspended'
-
-  useEffect(() => {
-    loadMenuItemCount()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [restaurant.id])
-
-  async function loadMenuItemCount() {
-    const { count } = await supabase
-      .from('menu_items')
-      .select('*', { count: 'exact', head: true })
-      .eq('restaurant_id', restaurant.id)
-
-    setMenuItemCount(count || 0)
-  }
 
   return (
     <div className="rounded-2xl border border-gray-200 p-6 hover:border-gray-300 transition-colors dark:border-gray-800 dark:hover:border-gray-700">

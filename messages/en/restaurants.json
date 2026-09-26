@@ -38,5 +38,11 @@
     "noAddress": "No address provided",
     "cityNotSet": "City not set",
     "noRating": "New"
+  },
+  "pagination": {
+    "label": "Restaurant pages",
+    "previous": "← Previous",
+    "next": "Next →",
+    "pageOf": "Page {page} of {total}"
   }
 }

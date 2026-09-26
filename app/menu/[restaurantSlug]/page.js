@@ -20,7 +20,7 @@ import CartButton from "@/components/CartButton";
 import FavoriteButton from "@/components/FavoriteButton";
 import TableCodePersist from "@/components/TableCodePersist";
 import StarRating from "@/components/reviews/StarRating";
-import RestaurantReviewsSection from "@/components/reviews/RestaurantReviewsSection";
+import RestaurantReviewsSection, { REVIEWS_LIMIT } from "@/components/reviews/RestaurantReviewsSection";
 import MashrabiyaFret from "@/components/menu/MashrabiyaFret";
 import { Phone, MapPin, Truck, ShoppingBag, UtensilsCrossed, Navigation } from "lucide-react";
 
@@ -188,7 +188,9 @@ export default async function MenuPage({ params, searchParams }) {
       )
       .eq("restaurant_id", restaurant.id)
       .is("menu_item_id", null)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      // Newest only -- the rating summary above still covers every review.
+      .limit(REVIEWS_LIMIT),
     supabase
       .from("menu_item_rating_summary")
       .select("menu_item_id, avg_rating, review_count")
