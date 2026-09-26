@@ -230,6 +230,26 @@ export default function AdminDashboard() {
     })
   }
 
+  // Disable/delete go through /api/admin/users/[id]: they need the Auth admin
+  // API (ban / delete the login itself), not just a user_profiles write.
+  // Returns an error message, or null on success.
+  const callAdminUserApi = async (userId, method, body) => {
+    const { data: sess } = await supabase.auth.getSession()
+    const token = sess?.session?.access_token
+
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    })
+    if (res.ok) return null
+    const data = await res.json().catch(() => null)
+    return data?.error || t('dialogs.errorTitle')
+  }
+
   const handleToggleUserStatus = async (userId, currentStatus) => {
     const disabling = !!currentStatus
     setConfirmDialog({
@@ -237,13 +257,10 @@ export default function AdminDashboard() {
       title: disabling ? t('dialogs.disableUserTitle') : t('dialogs.enableUserTitle'),
       description: disabling ? t('dialogs.disableUserDescription') : t('dialogs.enableUserDescription'),
       action: async () => {
-        const { error } = await supabase
-          .from('user_profiles')
-          .update({ is_active: !currentStatus })
-          .eq('id', userId)
+        const error = await callAdminUserApi(userId, 'PATCH', { is_active: !currentStatus })
 
         if (error) {
-          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error, isError: true })
         } else {
           setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: disabling ? t('dialogs.userDisabled') : t('dialogs.userEnabled'), isError: false })
           loadUsers()
@@ -262,9 +279,9 @@ export default function AdminDashboard() {
       matchValue: userName || deleteKeyword,
       confirmText: t('dialogs.deleteUserConfirm'),
       action: async () => {
-        const { error } = await supabase.from('user_profiles').delete().eq('id', userId)
+        const error = await callAdminUserApi(userId, 'DELETE')
         if (error) {
-          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error, isError: true })
         } else {
           setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: t('dialogs.userDeleted'), isError: false })
           loadUsers()

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { setUserDisabled } from "@/lib/auth/admin";
 
 export const runtime = "nodejs";
 
@@ -50,15 +51,22 @@ export async function PATCH(req, context) {
       return NextResponse.json({ error: "Staff member not found" }, { status: 404 });
     }
 
+    // Also bans/unbans the auth user, so a disabled staff account can't sign
+    // in or keep refreshing a session already open on a kitchen device.
+    const { error: disableErr } = await setUserDisabled(staffId, !is_active);
+    if (disableErr) {
+      console.error("Failed to update staff status:", disableErr);
+      return NextResponse.json({ error: "Update failed" }, { status: 400 });
+    }
+
     const { data: updated, error: updErr } = await supabaseAdmin
       .from("user_profiles")
-      .update({ is_active })
-      .eq("id", staffId)
       .select("id, full_name, role, is_active, created_at")
+      .eq("id", staffId)
       .single();
 
     if (updErr || !updated) {
-      return NextResponse.json({ error: updErr?.message || "Update failed" }, { status: 400 });
+      return NextResponse.json({ error: "Update failed" }, { status: 400 });
     }
 
     return NextResponse.json({ ok: true, staff: updated });

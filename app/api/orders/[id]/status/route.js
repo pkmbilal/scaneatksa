@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getAuthedUserId } from "@/lib/r2/auth";
 import { canTransition } from "@/lib/orderStatus";
 
 export const runtime = "nodejs";
@@ -22,27 +22,25 @@ export async function PATCH(req, context) {
     }
 
     // ✅ Verify caller using access token
-    const authHeader = req.headers.get("authorization") || "";
-    const supabaseUser = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const { data: userData, error: uErr } = await supabaseUser.auth.getUser();
-    const userId = userData?.user?.id;
+    const { userId, error: uErr } = await getAuthedUserId(req);
     if (uErr || !userId) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     const { data: profile, error: pErr } = await supabaseAdmin
       .from("user_profiles")
-      .select("role, restaurant_id")
+      .select("role, restaurant_id, is_active")
       .eq("id", userId)
       .single();
 
     if (pErr || !profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 403 });
+    }
+
+    // A disabled account's access token stays valid until it expires (the
+    // Auth ban only stops refreshes), so check the flag on every mutation.
+    if (profile.is_active === false) {
+      return NextResponse.json({ error: "Account disabled" }, { status: 403 });
     }
 
     const { data: order, error: oErr } = await supabaseAdmin
