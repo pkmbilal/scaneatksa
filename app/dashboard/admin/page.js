@@ -454,27 +454,22 @@ export default function AdminDashboard() {
   }
 
   /* ---------------- Restaurant Actions ---------------- */
+  // Admin disable/enable is a suspension, not is_active: is_active is the
+  // owner's own open/closed toggle (the owner edit page writes it), so an
+  // admin block stored there could just be flipped back by the owner.
+  // subscription_status is guarded by the restaurants_guard trigger.
   const handleToggleRestaurant = async (restaurant) => {
-    const disabling = !!restaurant.is_active
+    const disabling = restaurant.subscription_status !== 'suspended'
     setConfirmDialog({
       open: true,
       title: disabling ? t('restaurantsTab.disableTitle') : t('restaurantsTab.enableTitle'),
       description: disabling
         ? t('restaurantsTab.disableDescription', { name: restaurant.name })
         : t('restaurantsTab.enableDescription', { name: restaurant.name }),
-      action: async () => {
-        const { error } = await supabase
-          .from('restaurants')
-          .update({ is_active: !restaurant.is_active })
-          .eq('id', restaurant.id)
-
-        if (error) {
-          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
-        } else {
-          setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: disabling ? t('restaurantsTab.disabledSuccess') : t('restaurantsTab.enabledSuccess'), isError: false })
-          loadRestaurants()
-        }
-      },
+      action: () =>
+        disabling
+          ? handleSubscriptionUpdate(restaurant, { subscription_status: 'suspended' }, 'suspended')
+          : handleSubscriptionUpdate(restaurant, { subscription_status: 'active' }, 'unsuspended'),
     })
   }
 

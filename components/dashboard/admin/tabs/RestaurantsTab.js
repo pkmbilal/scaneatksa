@@ -38,6 +38,9 @@ export default function RestaurantsTab({ allRestaurants, onToggle, onDelete }) {
 function RestaurantCard({ restaurant, onToggle, onDelete }) {
   const t = useTranslations('dashboard.admin')
   const [menuItemCount, setMenuItemCount] = useState(0)
+  // Admin disable = suspension (see handleToggleRestaurant); is_active is the
+  // owner's own open/closed toggle and is shown separately.
+  const suspended = restaurant.subscription_status === 'suspended'
 
   useEffect(() => {
     loadMenuItemCount()
@@ -59,13 +62,18 @@ function RestaurantCard({ restaurant, onToggle, onDelete }) {
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <h3 className="font-bold text-gray-800 dark:text-white/90 text-xl">{restaurant.name}</h3>
-            {!restaurant.is_active ? (
+            {suspended ? (
               <span className="text-xs bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400 px-2 py-1 rounded-full font-semibold">
                 {t('restaurantsTab.disabledBadge')}
               </span>
             ) : (
               <span className="text-xs bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400 px-2 py-1 rounded-full font-semibold">
                 {t('restaurantsTab.activeBadge')}
+              </span>
+            )}
+            {!restaurant.is_active && (
+              <span className="text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 px-2 py-1 rounded-full font-semibold">
+                {t('restaurantsTab.closedByOwnerBadge')}
               </span>
             )}
           </div>
@@ -148,12 +156,12 @@ function RestaurantCard({ restaurant, onToggle, onDelete }) {
         <button
           onClick={() => onToggle(restaurant)}
           className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-            restaurant.is_active
+            !suspended
               ? 'bg-warning-50 text-warning-700 hover:bg-warning-100 dark:bg-warning-500/15 dark:text-warning-400'
               : 'bg-success-50 text-success-700 hover:bg-success-100 dark:bg-success-500/15 dark:text-success-400'
           }`}
         >
-          {restaurant.is_active ? t('restaurantsTab.disableButton') : t('restaurantsTab.enableButton')}
+          {!suspended ? t('restaurantsTab.disableButton') : t('restaurantsTab.enableButton')}
         </button>
 
         <button
