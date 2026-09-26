@@ -2,7 +2,8 @@
   "metadata": {
     "title": "ScanEat | Restaurant Operations Platform with QR Ordering",
     "description": "QR menus, WhatsApp ordering, live kitchen and waiter screens, and owner analytics: ScanEat runs restaurants and cafes across Saudi Arabia end to end.",
-    "ogAlt": "ScanEat restaurant operations platform with QR menus and live dashboards"
+    "ogAlt": "ScanEat restaurant operations platform with QR menus and live dashboards",
+    "softwareDescription": "A web-based restaurant operations platform: digital QR menus, WhatsApp ordering, live kitchen and waiter dashboards, and owner analytics."
   },
   "hero": {
     "badge": "The complete platform to run your restaurant",

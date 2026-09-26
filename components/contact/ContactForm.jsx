@@ -1,11 +1,37 @@
+"use client"
+
 import Link from "next/link"
 import { MessageCircle } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { getTranslations } from "next-intl/server"
 
-export default async function ContactForm({ whatsappLink }) {
-  const t = await getTranslations("contact.form")
+// Form field name -> contact.form label key, in the order they appear in the message.
+const FIELD_LABEL_KEYS = {
+  name: "fullName",
+  phone: "phone",
+  email: "email",
+  business: "business",
+  message: "message",
+}
+
+export default function ContactForm({ whatsappLink }) {
+  const t = useTranslations("contact.form")
+
+  // There is no backend for this form: it hands the details to WhatsApp as a
+  // pre-filled message, which is where the team already answers inquiries.
+  function handleSubmit(event) {
+    event.preventDefault()
+    const data = new FormData(event.currentTarget)
+    const lines = Object.entries(FIELD_LABEL_KEYS)
+      .map(([field, labelKey]) => {
+        const value = String(data.get(field) || "").trim()
+        return value ? `${t(labelKey)}: ${value}` : null
+      })
+      .filter(Boolean)
+    const text = [t("waIntro"), "", ...lines].join("\n")
+    window.open(`${whatsappLink}?text=${encodeURIComponent(text)}`, "_blank", "noopener")
+  }
 
   return (
     <Card className="rounded-3xl border-border bg-card shadow-sm">
@@ -20,7 +46,7 @@ export default async function ContactForm({ whatsappLink }) {
           </p>
         </div>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
@@ -30,6 +56,8 @@ export default async function ContactForm({ whatsappLink }) {
                 id="name"
                 name="name"
                 type="text"
+                required
+                autoComplete="name"
                 placeholder={t("fullNamePlaceholder")}
                 className="h-11 w-full rounded-2xl border border-border bg-muted/30 px-4 text-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background"
               />
@@ -42,7 +70,8 @@ export default async function ContactForm({ whatsappLink }) {
               <input
                 id="phone"
                 name="phone"
-                type="text"
+                type="tel"
+                autoComplete="tel"
                 placeholder={t("phonePlaceholder")}
                 className="h-11 w-full rounded-2xl border border-border bg-muted/30 px-4 text-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background"
               />
@@ -57,6 +86,7 @@ export default async function ContactForm({ whatsappLink }) {
               id="email"
               name="email"
               type="email"
+              autoComplete="email"
               placeholder={t("emailPlaceholder")}
               className="h-11 w-full rounded-2xl border border-border bg-muted/30 px-4 text-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background"
             />
@@ -89,6 +119,7 @@ export default async function ContactForm({ whatsappLink }) {
               id="message"
               name="message"
               rows={5}
+              required
               placeholder={t("messagePlaceholder")}
               className="w-full rounded-2xl border border-border bg-muted/30 px-4 py-3 text-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background"
             />

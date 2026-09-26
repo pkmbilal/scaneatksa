@@ -111,15 +111,21 @@ export default async function HomePage() {
   const faqItems = t.raw("faq.items");
   const pageDescription = t("metadata.description");
 
+  // Stable node ids so WebSite/SoftwareApplication point at one ScanEat entity.
+  const organizationId = `${siteUrl}/#organization`;
+
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": organizationId,
     name: siteName,
+    alternateName: ["سكان إيت", "ScanEat KSA"],
     url: siteUrl,
     logo: `${siteUrl}/scaneat-logo.png`,
     description: pageDescription,
     email: contactData.email,
     areaServed: { "@type": "Country", name: "Saudi Arabia" },
+    address: { "@type": "PostalAddress", addressCountry: "SA" },
     contactPoint: {
       "@type": "ContactPoint",
       telephone: contactData.phone,
@@ -139,8 +145,8 @@ export default async function HomePage() {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     url: siteUrl,
-    description:
-      "A web-based restaurant operations platform: digital QR menus, WhatsApp ordering, live kitchen and waiter dashboards, and owner analytics.",
+    description: t("metadata.softwareDescription"),
+    provider: { "@id": organizationId },
     // Free 30-day trial, then paid -- don't advertise price "0" as the
     // product price. Add a real Offer with the SAR plan price once public.
     offers: {
@@ -159,9 +165,12 @@ export default async function HomePage() {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
     name: siteName,
     url: siteUrl,
     description: pageDescription,
+    inLanguage: ["en", "ar"],
+    publisher: { "@id": organizationId },
   };
 
   const faqSchema = {

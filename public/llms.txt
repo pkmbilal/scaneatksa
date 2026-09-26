@@ -17,13 +17,16 @@ Key facts:
 - [How it works](https://www.scaneatksa.com/how-it-works): the diner journey and the restaurant-owner journey step by step, with FAQ
 - [About](https://www.scaneatksa.com/about): who ScanEat is built for and how it is built
 - [Restaurants](https://www.scaneatksa.com/restaurants): directory of restaurants and cafes on ScanEat, searchable by city, cuisine and dish
-- [Contact](https://www.scaneatksa.com/contact): onboarding and sales contact, including WhatsApp
+- [Contact](https://www.scaneatksa.com/contact): onboarding and sales contact by phone, email or WhatsApp; the contact form opens a pre-filled WhatsApp message to the team
 
 ## Arabic
 
 - [الصفحة الرئيسية](https://www.scaneatksa.com/ar)
 - [كيف يعمل](https://www.scaneatksa.com/ar/how-it-works)
 - [المطاعم](https://www.scaneatksa.com/ar/restaurants)
+- [عن سكان إيت](https://www.scaneatksa.com/ar/about)
+- [تواصل معنا](https://www.scaneatksa.com/ar/contact)
+- [سياسة الخصوصية](https://www.scaneatksa.com/ar/privacy-policy)
 
 ## Optional
 

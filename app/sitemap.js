@@ -5,13 +5,16 @@ import { absoluteUrl, localeHref, NOINDEX_RESTAURANT_SLUGS } from "@/lib/seo";
 // Regenerate hourly so newly approved restaurants show up without a redeploy.
 export const revalidate = 3600;
 
+// lastModified is the date the page's content last changed. Bump it by hand when
+// you edit a page or its messages -- stamping `new Date()` on every regeneration
+// tells crawlers everything changed, and they learn to ignore the field.
 const STATIC_ROUTES = [
-  { path: "/", changeFrequency: "weekly", priority: 1 },
-  { path: "/restaurants", changeFrequency: "daily", priority: 0.9 },
-  { path: "/how-it-works", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/about", changeFrequency: "monthly", priority: 0.6 },
-  { path: "/contact", changeFrequency: "yearly", priority: 0.5 },
-  { path: "/privacy-policy", changeFrequency: "yearly", priority: 0.2 },
+  { path: "/", lastModified: "2026-09-26", changeFrequency: "weekly", priority: 1 },
+  { path: "/restaurants", lastModified: "2026-09-25", changeFrequency: "daily", priority: 0.9 },
+  { path: "/how-it-works", lastModified: "2026-09-25", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/about", lastModified: "2026-09-26", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/contact", lastModified: "2026-09-26", changeFrequency: "yearly", priority: 0.5 },
+  { path: "/privacy-policy", lastModified: "2026-09-25", changeFrequency: "yearly", priority: 0.2 },
 ];
 
 // Every public page exists in English (/path) and Arabic (/ar/path). Emit both
@@ -31,7 +34,7 @@ function localizedEntries(path, fields) {
 
 export default async function sitemap() {
   const entries = STATIC_ROUTES.flatMap(({ path, ...rest }) =>
-    localizedEntries(path, { lastModified: new Date(), ...rest })
+    localizedEntries(path, rest)
   );
 
   // Anon client: the restaurants public-read RLS policies already hide

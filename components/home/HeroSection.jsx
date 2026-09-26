@@ -35,7 +35,7 @@ export default async function HeroSection({ data }) {
           </div>
 
           <h1 className="text-4xl font-bold leading-tight tracking-tight text-white md:text-6xl">
-            {t("title")}
+            {t("title")}{" "}
             <span className="block bg-gradient-to-r from-emerald-400 to-green-300 bg-clip-text text-transparent">
               {t("highlight")}
             </span>

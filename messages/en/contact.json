@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "Contact Us | ScanEat",
+    "title": "Contact ScanEat | QR Menu Setup & Support in Saudi Arabia",
     "description": "Contact ScanEat for QR menu setup, WhatsApp ordering, onboarding support, and digital menu solutions for restaurants across Saudi Arabia."
   },
   "quickItems": [
@@ -64,6 +64,7 @@
     "messagePlaceholder": "Tell us about your restaurant, branch count, and what you need from ScanEat...",
     "send": "Send Message",
     "whatsappCta": "Contact via WhatsApp",
-    "disclaimer": "This form is UI-only for now. You can connect it with Supabase, Resend, or Formspree."
+    "disclaimer": "Sending opens WhatsApp with your details filled in — just press send.",
+    "waIntro": "Hello ScanEat, I'd like to know more about ScanEat for my restaurant."
   }
 }

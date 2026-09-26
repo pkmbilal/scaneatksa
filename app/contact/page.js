@@ -3,7 +3,7 @@ import ContactHero from "@/components/contact/ContactHero"
 import ContactHighlights from "@/components/contact/ContactHighlights"
 import ContactInfo from "@/components/contact/ContactInfo"
 import ContactForm from "@/components/contact/ContactForm"
-import { footerData } from "@/lib/siteData"
+import { contactData, footerData } from "@/lib/siteData"
 import { getTranslations, getLocale } from "next-intl/server"
 import { DEFAULT_OG_IMAGE, localeHref, localizedAlternates, ogLocale } from "@/lib/seo"
 
@@ -35,12 +35,8 @@ export async function generateMetadata() {
 export default async function ContactPage() {
   const t = await getTranslations("contact")
 
-  const phone = "+966531826230"
-  const displayPhone = "+966 531826230"
-  const whatsappNumber = "+966531826230"
-  const displayWhatsapp = "+966 531826230"
+  const { phone, displayPhone, whatsappNumber, displayWhatsapp, email } = contactData
   const whatsappLink = `https://wa.me/${whatsappNumber.replace(/\+/g, "")}`
-  const email = "hello@codesudio.com"
 
   const quickItems = t.raw("quickItems")
 
