@@ -2,7 +2,7 @@
 import { supabaseBrowser } from "@/lib/supabase/client";
 const supabase = supabaseBrowser();
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -48,6 +48,23 @@ import SoundToggle from "@/components/dashboard/shared/SoundToggle";
 import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
 import { useOrderAlerts } from "@/components/dashboard/shared/hooks/useOrderAlerts";
 import { classifyOrderEvent } from "@/lib/orderNotifications";
+import { applyOrderEvent, byCreatedDesc, upsertOrder } from "@/lib/orderRealtime";
+
+const ORDER_COLUMNS = `
+  id,
+  created_at,
+  channel,
+  status,
+  total,
+  customer_name,
+  customer_phone,
+  delivery_address,
+  notes,
+  restaurant_tables ( table_number ),
+  order_items ( id, name, price, quantity )
+`;
+// Owner's list: every status, newest first, capped like the initial load.
+const ORDERS_LIST = { compare: byCreatedDesc, limit: 200 };
 
 import SubscriptionBanner from "@/components/dashboard/owner/SubscriptionBanner";
 import OverviewTab from "@/components/dashboard/owner/tabs/OverviewTab";
@@ -115,6 +132,13 @@ export default function OwnerDashboardPage() {
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [infoDialogConfig, setInfoDialogConfig] = useState({ title: "", description: "", isError: false });
 
+  // Mirrors `orders` so the realtime handler can tell whether an order is
+  // already listed without a stale closure.
+  const ordersRef = useRef(orders);
+  useEffect(() => {
+    ordersRef.current = orders;
+  });
+
   useEffect(() => {
     loadOwnerData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -123,11 +147,13 @@ export default function OwnerDashboardPage() {
   const alerts = useOrderAlerts();
 
   // Live order updates -- new orders placed, or status changes made by
-  // kitchen/waiter -- so the owner never has to refresh to see them. The same
-  // subscription feeds the toast + chime notification layer.
+  // kitchen/waiter -- so the owner never has to refresh to see them. Status
+  // changes patch the list in place; a new order is fetched on its own (for
+  // its items/table) instead of reloading all 200. The same subscription
+  // feeds the toast + chime notification layer.
   useRestaurantOrdersRealtime(
     restaurant?.id,
-    () => loadOrders(restaurant.id, { silent: true }),
+    (payload) => applyOrderEvent(payload, { setOrders, ordersRef, fetchOrder, ...ORDERS_LIST }),
     (payload) =>
       alerts.push(
         classifyOrderEvent({
@@ -136,7 +162,8 @@ export default function OwnerDashboardPage() {
           next: payload.new,
           prev: payload.old,
         })
-      )
+      ),
+    () => loadOrders(restaurant.id, { silent: true })
   );
 
   // Analytics data/aggregation -- fetched only while the Analytics tab is
@@ -222,27 +249,18 @@ export default function OwnerDashboardPage() {
     if (!silent) setOrdersLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select(
-        `
-        id,
-        created_at,
-        channel,
-        status,
-        total,
-        customer_name,
-        customer_phone,
-        delivery_address,
-        notes,
-        restaurant_tables ( table_number ),
-        order_items ( id, name, price, quantity )
-      `
-      )
+      .select(ORDER_COLUMNS)
       .eq("restaurant_id", restaurantId)
       .order("created_at", { ascending: false })
       .limit(200);
 
     if (!error) setOrders(data || []);
     if (!silent) setOrdersLoading(false);
+  }
+
+  async function fetchOrder(orderId) {
+    const { data } = await supabase.from("orders").select(ORDER_COLUMNS).eq("id", orderId).maybeSingle();
+    return data;
   }
 
   async function updateOrderStatus(orderId, nextStatus) {
@@ -271,8 +289,9 @@ export default function OwnerDashboardPage() {
       return null;
     }
 
-    if (restaurant?.id) await loadOrders(restaurant.id);
-    return data.order;
+    // Apply our own change locally; its realtime echo is a no-op merge.
+    if (data?.order) setOrders((prev) => upsertOrder(prev, data.order, ORDERS_LIST));
+    return data?.order;
   }
 
   async function loadStaff() {
