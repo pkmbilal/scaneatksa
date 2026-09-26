@@ -132,6 +132,22 @@ export default function AdminDashboard() {
     setLoading(false)
   }
 
+  // Emails live only in auth.users (never in a publicly readable table), so
+  // admins look them up through the admin-only admin_user_emails() RPC --
+  // one call per list. Returns Map(userId -> email); empty on failure so the
+  // dashboard still loads, just without emails.
+  async function loadUserEmails(ids) {
+    const uniqueIds = [...new Set(ids.filter(Boolean))]
+    if (!uniqueIds.length) return new Map()
+
+    const { data, error } = await supabase.rpc('admin_user_emails', { p_ids: uniqueIds })
+    if (error) {
+      console.error('Error loading user emails:', error)
+      return new Map()
+    }
+    return new Map((data || []).map((u) => [u.id, u.email]))
+  }
+
   async function loadRequests() {
     const { data: requests, error } = await supabase
       .from('restaurant_requests')
@@ -146,17 +162,23 @@ export default function AdminDashboard() {
     }
 
     if (requests) {
-      // One lookup for every requester's name (was one query per request).
-      // Emails live in auth.users, not user_profiles, so aren't available here.
+      // One lookup for every requester's name and one for their emails (was
+      // one query per request).
       const userIds = [...new Set(requests.map((r) => r.user_id).filter(Boolean))]
-      const { data: profiles } = userIds.length
-        ? await supabase.from('user_profiles').select('id, full_name').in('id', userIds)
-        : { data: [] }
-      const profileById = new Map((profiles || []).map((p) => [p.id, p]))
+      const [{ data: profiles }, emailById] = await Promise.all([
+        userIds.length
+          ? supabase.from('user_profiles').select('id, full_name').in('id', userIds)
+          : Promise.resolve({ data: [] }),
+        loadUserEmails(userIds),
+      ])
+      const nameById = new Map((profiles || []).map((p) => [p.id, p.full_name]))
 
       const requestsWithUsers = requests.map((request) => ({
         ...request,
-        user_profiles: profileById.get(request.user_id) || null,
+        user_profiles: {
+          full_name: nameById.get(request.user_id) || null,
+          email: emailById.get(request.user_id) || null,
+        },
       }))
 
       setAllRequests(requestsWithUsers)
@@ -181,7 +203,13 @@ export default function AdminDashboard() {
       .from('restaurants')
       .select('*, menu_items(count)')
       .order('created_at', { ascending: false })
-    setAllRestaurants(data || [])
+
+    // owner_email is resolved here for display only (RestaurantsTab,
+    // SubscriptionsTab) -- it isn't stored on restaurants.
+    const emailById = await loadUserEmails((data || []).map((r) => r.owner_id))
+    setAllRestaurants(
+      (data || []).map((r) => ({ ...r, owner_email: emailById.get(r.owner_id) || null }))
+    )
   }
 
   async function loadSubscriptionEvents() {
@@ -319,7 +347,6 @@ export default function AdminDashboard() {
                 phone: request.phone,
                 address: request.address,
                 owner_id: request.user_id,
-                owner_email: request.user_profiles?.email,
                 is_active: true,
                 approved_at: nowIso,
                 // Every newly approved restaurant starts on a 30-day free trial.
