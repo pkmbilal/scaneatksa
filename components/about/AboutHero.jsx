@@ -25,7 +25,7 @@ export default async function AboutHero() {
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {highlights.map((item) => (
               <div
-                key={item}
+                key={item.title}
                 className="group relative overflow-hidden rounded-2xl border border-border/60 bg-white/80 px-5 py-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300 hover:shadow-xl dark:bg-background/70"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.05] via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -37,10 +37,10 @@ export default async function AboutHero() {
 
                   <div className="min-w-0">
                     <p className="text-sm font-semibold tracking-tight text-foreground md:text-[15px]">
-                      {item}
+                      {item.title}
                     </p>
                     <p className="mt-1 text-xs leading-6 text-muted-foreground">
-                      {t("highlightCaption")}
+                      {item.caption}
                     </p>
                   </div>
                 </div>

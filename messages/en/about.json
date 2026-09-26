@@ -8,12 +8,23 @@
     "title": "Built for restaurants running modern, real-time service",
     "description": "ScanEat replaces slow, outdated ordering flows with a connected digital experience — from a guest's first QR scan to live kitchen tickets, waiter coordination, and the numbers behind each day.",
     "highlights": [
-      "QR-powered digital menus",
-      "WhatsApp ordering built in",
-      "Live kitchen & waiter dashboards",
-      "Owner analytics, in real time"
-    ],
-    "highlightCaption": "Designed to make restaurant ordering feel faster and cleaner."
+      {
+        "title": "QR-powered digital menus",
+        "caption": "Guests scan the table code and the menu opens in their browser — no app."
+      },
+      {
+        "title": "WhatsApp ordering built in",
+        "caption": "Order confirmations and status updates reach customers on WhatsApp."
+      },
+      {
+        "title": "Live kitchen & waiter dashboards",
+        "caption": "New orders hit the kitchen screen instantly and move to waiters when ready."
+      },
+      {
+        "title": "Owner analytics, in real time",
+        "caption": "Revenue, order volume and top-selling items on one dashboard."
+      }
+    ]
   },
   "positioning": {
     "eyebrow": "Positioning",
