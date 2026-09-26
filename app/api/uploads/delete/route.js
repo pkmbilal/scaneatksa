@@ -32,7 +32,7 @@ export async function POST(req) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const limited = rateLimit(`delete:${userId}`, RATE_LIMIT);
+  const limited = await rateLimit(`delete:${userId}`, RATE_LIMIT);
   if (!limited.allowed) {
     return NextResponse.json(
       { error: "Too many requests. Please try again shortly." },

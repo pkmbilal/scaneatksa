@@ -2,8 +2,14 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getAuthedUserId } from "@/lib/r2/auth";
 import { normalizeSaudiWhatsAppNumber } from "@/lib/whatsapp";
+import { clientIp, rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
+
+// Ordering is anonymous, so limit per network. Generous enough for a group
+// ordering on shared restaurant Wi-Fi; stops scripted floods of a kitchen's
+// live queue.
+const RATE_LIMIT = { limit: 10, windowMs: 10 * 60 * 1000 }; // 10 orders / 10 min / IP
 
 const MAX_NAME_LENGTH = 100;
 const MAX_TEXT_LENGTH = 500; // notes, delivery address
@@ -51,6 +57,14 @@ const cleanText = (value, max) => {
 
 export async function POST(req) {
   try {
+    const limited = await rateLimit(`orders:ip:${clientIp(req)}`, RATE_LIMIT);
+    if (!limited.allowed) {
+      return NextResponse.json(
+        { error: "Too many orders from this network. Please wait a few minutes and try again." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limited.retryAfterMs / 1000)) } }
+      );
+    }
+
     const body = await req.json().catch(() => null);
     const { restaurantSlug, channel, tableCode, items, customer, notes } = body || {};
 

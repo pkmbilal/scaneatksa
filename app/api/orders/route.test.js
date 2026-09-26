@@ -6,8 +6,13 @@ vi.mock("@/lib/r2/auth", () => ({
 vi.mock("@/lib/supabaseAdmin", () => ({
   supabaseAdmin: { rpc: vi.fn() },
 }));
+vi.mock("@/lib/rateLimit", () => ({
+  rateLimit: vi.fn(),
+  clientIp: () => "203.0.113.7",
+}));
 
 const { getAuthedUserId } = await import("@/lib/r2/auth");
+const { rateLimit } = await import("@/lib/rateLimit");
 const { supabaseAdmin } = await import("@/lib/supabaseAdmin");
 const { POST } = await import("./route.js");
 
@@ -36,6 +41,18 @@ describe("POST /api/orders", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, "error").mockImplementation(() => {});
+    rateLimit.mockResolvedValue({ allowed: true });
+  });
+
+  it("rate-limits per IP before touching the database", async () => {
+    rateLimit.mockResolvedValue({ allowed: false, retryAfterMs: 90_500 });
+
+    const res = await POST(makeRequest(validBody));
+
+    expect(res.status).toBe(429);
+    expect(res.headers.get("Retry-After")).toBe("91");
+    expect(rateLimit).toHaveBeenCalledWith("orders:ip:203.0.113.7", { limit: 10, windowMs: 600_000 });
+    expect(supabaseAdmin.rpc).not.toHaveBeenCalled();
   });
 
   it("places an order through create_order and returns its id", async () => {

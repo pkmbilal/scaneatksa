@@ -60,7 +60,7 @@ export async function POST(req) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const limited = rateLimit(`presign:${userId}`, RATE_LIMIT);
+  const limited = await rateLimit(`presign:${userId}`, RATE_LIMIT);
   if (!limited.allowed) {
     return NextResponse.json(
       { error: "Too many upload requests. Please try again shortly." },
