@@ -118,9 +118,10 @@ export default function KitchenDashboardPage() {
       body: JSON.stringify({ status: nextStatus }),
     });
 
-    const data = await res.json();
-    if (res.ok && profile?.restaurant_id) await loadOrders(profile.restaurant_id);
-    return res.ok ? data.order : null;
+    const data = await res.json().catch(() => null);
+    // Refetch on failure too -- a 409 means the order changed under us.
+    if (profile?.restaurant_id) await loadOrders(profile.restaurant_id);
+    return res.ok ? data?.order : null;
   }
 
   if (loading) {

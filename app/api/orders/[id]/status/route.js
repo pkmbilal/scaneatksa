@@ -81,21 +81,35 @@ export async function PATCH(req, context) {
       );
     }
 
+    // Conditional on the status canTransition() was checked against: if
+    // another staff member changed the order in the meantime (e.g. owner
+    // cancelled while kitchen clicked "Start Preparing"), no row matches and
+    // the stale transition is rejected instead of silently overwriting.
     const { data: updated, error: updErr } = await supabaseAdmin
       .from("orders")
       .update({ status: nextStatus })
       .eq("id", orderId)
+      .eq("status", order.status)
       .select(
         "id, restaurant_id, status, channel, total, customer_name, customer_phone, delivery_address, notes"
       )
-      .single();
+      .maybeSingle();
 
-    if (updErr || !updated) {
-      return NextResponse.json({ error: updErr?.message || "Update failed" }, { status: 400 });
+    if (updErr) {
+      console.error("Order status update failed:", updErr);
+      return NextResponse.json({ error: "Update failed" }, { status: 400 });
+    }
+
+    if (!updated) {
+      return NextResponse.json(
+        { error: "This order was just updated by someone else. Refreshing…" },
+        { status: 409 }
+      );
     }
 
     return NextResponse.json({ ok: true, order: updated });
   } catch (err) {
-    return NextResponse.json({ error: err?.message || "Server error" }, { status: 500 });
+    console.error("PATCH /api/orders/[id]/status failed:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

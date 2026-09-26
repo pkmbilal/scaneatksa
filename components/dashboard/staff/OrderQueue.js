@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { STATUS_LABELS, STATUS_TINTS, CHANNEL_META, channelTint, pillClass, nextActionFor } from "@/lib/orderStatus";
 import { notifyStatusChange } from "@/lib/whatsappClient";
 
@@ -37,6 +38,12 @@ export default function OrderQueue({ role, restaurantName, orders, loading, onAc
     setActingId(order.id);
     try {
       const updated = await onAction?.(order.id, toStatus);
+      // null = the API rejected it (most often a 409: someone else changed
+      // the order first); the page has already refetched the queue.
+      if (!updated) {
+        toast.error(t("queue.actionFailed"));
+        return;
+      }
       notifyStatusChange(updated, restaurantName);
     } finally {
       setActingId(null);

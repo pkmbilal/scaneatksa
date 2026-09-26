@@ -6,6 +6,7 @@
     "notesLabel": "Notes:",
     "total": "Total: SAR {amount}",
     "updating": "Updating…",
+    "actionFailed": "Couldn't update this order — it may have just changed. The list has been refreshed.",
     "noRestaurantAssigned": "Your account isn't assigned to a restaurant yet. Ask your restaurant owner to check your staff account.",
     "channel": {
       "dineIn": "Table {table}",

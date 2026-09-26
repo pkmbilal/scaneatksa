@@ -258,7 +258,7 @@ export default function OwnerDashboardPage() {
       body: JSON.stringify({ status: nextStatus }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
     if (!res.ok) {
       setInfoDialogConfig({
         title: t("page.errors.updateOrderFailedTitle"),
@@ -266,6 +266,8 @@ export default function OwnerDashboardPage() {
         isError: true,
       });
       setInfoDialogOpen(true);
+      // A 409 means someone else changed the order first -- show its real state.
+      if (restaurant?.id) await loadOrders(restaurant.id);
       return null;
     }
 

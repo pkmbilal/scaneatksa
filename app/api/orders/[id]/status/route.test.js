@@ -17,20 +17,28 @@ function makeRequest(status) {
 }
 
 // Per-table chainable mocks for the three queries the route makes.
-function mockTables({ profile, order }) {
-  const updated = { ...order, status: "preparing" };
+// `raced: true` simulates another staff member changing the order first:
+// the conditional update (.eq("status", previous)) matches no row.
+function mockTables({ profile, order, raced = false }) {
+  const updated = raced ? null : { ...order, status: "preparing" };
+  const updateEqs = [];
   supabaseAdmin.from.mockImplementation((table) => {
     if (table === "user_profiles") {
       return { select: () => ({ eq: () => ({ single: async () => ({ data: profile, error: null }) }) }) };
     }
     if (table === "orders") {
+      const eq = (col, val) => {
+        updateEqs.push([col, val]);
+        return { eq, select: () => ({ maybeSingle: async () => ({ data: updated, error: null }) }) };
+      };
       return {
         select: () => ({ eq: () => ({ single: async () => ({ data: order, error: null }) }) }),
-        update: () => ({ eq: () => ({ select: () => ({ single: async () => ({ data: updated, error: null }) }) }) }),
+        update: () => ({ eq }),
       };
     }
     throw new Error(`unexpected table ${table}`);
   });
+  return updateEqs;
 }
 
 describe("PATCH /api/orders/[id]/status", () => {
@@ -42,12 +50,26 @@ describe("PATCH /api/orders/[id]/status", () => {
   const order = { id: "order-1", restaurant_id: "rest-1", status: "new" };
 
   it("lets active kitchen staff start an order at their restaurant", async () => {
-    mockTables({ profile: { role: "kitchen", restaurant_id: "rest-1", is_active: true }, order });
+    const updateEqs = mockTables({ profile: { role: "kitchen", restaurant_id: "rest-1", is_active: true }, order });
 
     const res = await PATCH(makeRequest("preparing"), ctx);
 
     expect(res.status).toBe(200);
     expect((await res.json()).order.status).toBe("preparing");
+    // The update is conditional on the status the transition was checked against.
+    expect(updateEqs).toEqual([
+      ["id", "order-1"],
+      ["status", "new"],
+    ]);
+  });
+
+  it("returns 409 when someone else changed the order first", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockTables({ profile: { role: "kitchen", restaurant_id: "rest-1", is_active: true }, order, raced: true });
+
+    const res = await PATCH(makeRequest("preparing"), ctx);
+
+    expect(res.status).toBe(409);
   });
 
   it("rejects a disabled staff account even with a still-valid token", async () => {
