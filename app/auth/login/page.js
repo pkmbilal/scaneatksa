@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { signIn } from "@/lib/auth/client";
+import { signIn, getDashboardPath } from "@/lib/auth/client";
 import { mapAuthError } from "@/lib/auth/errors";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -32,7 +32,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { data, error: signInError } = await signIn(email, password);
+      const { role, error: signInError } = await signIn(email, password);
 
       if (signInError) {
         const msg = (signInError.message || "").toLowerCase();
@@ -54,7 +54,9 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/dashboard");
+      // Go straight to the role dashboard; /dashboard would show its own
+      // loader before redirecting, stacking two loading screens.
+      router.replace(getDashboardPath(role));
     } catch (err) {
       setError(t("login.unexpectedError", { message: err.message }));
       setLoading(false);

@@ -6,7 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { stripLocalePrefix } from "@/lib/seo";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { getSessionUser, getUserProfile, signOut } from "@/lib/auth/client";
+import { getSessionUser, getUserProfile, signOut, getDashboardPath } from "@/lib/auth/client";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -153,11 +153,7 @@ export default function Navbar() {
     return user?.email?.[0]?.toUpperCase() || "U";
   };
 
-  const getDashboardLink = () => {
-    if (profile?.role === "admin") return "/dashboard/admin";
-    if (profile?.role === "owner") return "/dashboard/owner";
-    return "/dashboard/customer";
-  };
+  const getDashboardLink = () => getDashboardPath(profile?.role);
 
   const roleLabels = {
     admin: t("roleLabels.admin"),

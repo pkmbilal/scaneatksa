@@ -26,7 +26,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-import { getSessionUser, getUserProfile, signOut } from "@/lib/auth/client";
+import { getSessionUser, getUserProfile, getDashboardPath, signOut } from "@/lib/auth/client";
 import { useCart } from "@/app/CartContext";
 import { cn } from "@/lib/utils";
 
@@ -81,7 +81,9 @@ export default function MobileTabBar() {
     return () => {
       cancelled = true;
     };
-  }, []);
+    // Re-check on navigation (like Navbar) so a login/logout made while this
+    // bar was mounted is picked up instead of leaving stale user/profile.
+  }, [pathname]);
 
   const hideTabBar =
     pathname?.startsWith("/auth/") ||
@@ -94,12 +96,7 @@ export default function MobileTabBar() {
 
   if (hideTabBar) return null;
 
-  const getDashboardLink = () => {
-    if (profile?.role === "admin") return "/dashboard/admin";
-    if (profile?.role === "owner") return "/dashboard/owner";
-    return "/dashboard/customer";
-  };
-  const dashboardHref = getDashboardLink();
+  const dashboardHref = getDashboardPath(profile?.role);
 
   const getInitials = () => {
     if (profile?.full_name) {
