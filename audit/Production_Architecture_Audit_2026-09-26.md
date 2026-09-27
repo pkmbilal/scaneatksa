@@ -5,6 +5,11 @@
 
 **Current data volume (live):** 4 restaurants · 12 orders · 15 order_items · 27 menu_items · 23 users · 0 reviews. Nothing below is a *current* performance emergency — the security findings are, because they are exploitable today by any signed-up user.
 
+> **Status update (2026-09-27):**
+> - All P0 and P1 findings, and most P2s, have been fixed on branch `audit`. See [Remediation status](#remediation-status-2026-09-27) at the end of this report.
+> - The database changes are **already live**. The application code reaches production once `audit` is merged to `master`.
+> - The findings below are kept as the original audit record.
+
 ---
 
 ## Executive summary
@@ -450,3 +455,85 @@ Not used. Supabase Storage is not used (R2 instead).
 - Supabase backups / PITR and plan tier.
 - Vercel: env var scoping per environment, Preview deployments pointing at production DB, WAF/firewall rules, Image Optimization usage.
 - Cloudflare R2: bucket CORS, public access mode (r2.dev vs custom domain), lifecycle rules.
+
+---
+
+# Remediation status (2026-09-27)
+
+**Where the fixes live:**
+- **Code:** branch `audit` (`af67740` … `c50ef73`), not yet merged to `master`.
+- **Database:** 9 migrations in `supabase/migrations/`, already applied to the live project `zldcwfextifsbiqtvzpv`. Each file is named with the version Supabase recorded.
+
+Every database change was checked with rolled-back test transactions, run as each role (anon, customer, owner, kitchen/waiter, admin, service_role).
+
+**Deploy compatibility:** the live schema works with both the old `master` code and the new `audit` code, so merging can happen at any time.
+
+## Fixed
+
+| Finding | Fix | Where |
+|---|---|---|
+| **SEC-1** (P0) customers could set their own `restaurant_id` and read any restaurant's orders and PII | Guard trigger `user_profiles_guard`: only admins and service_role can change `role`, `restaurant_id` or `is_active`. `orders_staff_read` now requires an active kitchen/waiter account | `20260926162122_lockdown_profiles_restaurants.sql` |
+| **SEC-2** (P0) owners could edit their own subscription and approval | Guard trigger `restaurants_guard` protects `owner_id`, `slug`, `approved_at`, `subscription_*` and `trial_used`. Admin "disable restaurant" now means suspension (`subscription_status`); owners keep `is_active` as their own open/closed toggle | same migration · `app/dashboard/admin/page.js`, `components/dashboard/admin/tabs/RestaurantsTab.js` |
+| **SEC-3** (P0) self-approved restaurant inserts | `restaurants_owner_insert_own` dropped; restaurants are created only by the admin approval flow | same migration |
+| **P0 #4 / REL-1** `/api/orders`: no published/suspended check, unchecked quantities, not atomic, raw DB errors returned | `create_order()` RPC (service_role only) validates everything and inserts the order and its items in one transaction. The route is a thin wrapper with friendly error messages | `20260926163612_create_order_function.sql` · `app/api/orders/route.js` (+ tests) |
+| **P0** `next@16.1.6` critical advisories | Next 16.3.6, React 19.2.8, `npm audit fix`; 0 vulnerabilities | `package.json` / lockfile |
+| **SEC-4** (P1) fake orders, and "verified" reviews without a purchase | `orders_insert_auth` dropped. Reviews require the reviewer's own delivered/completed order. `reviews_guard` fixes `reviewer_name` from the profile and makes a review's target unchangeable | `20260926163045_orders_reviews_integrity.sql` |
+| **SEC-5 / SEC-6** (P1) disable and delete didn't revoke access | Disable also bans the account in Supabase Auth; delete removes the login. Both go through admin-only `/api/admin/users/[id]`. The order-status route rejects disabled accounts | `lib/auth/admin.js`, `app/api/admin/users/[id]/route.js`, `app/api/staff/[id]/route.js`, `app/api/orders/[id]/status/route.js` (+ tests) |
+| **REL-3** (P1) in-memory rate limiter didn't work on Vercel | Shared Postgres counter (`rate_limits` + `rate_limit_hit()`). If the limiter itself fails, requests are allowed through. `/api/orders` is limited to 10 per 10 minutes per IP | `20260926172453_rate_limits.sql` · `lib/rateLimit.js` (+ tests) |
+| **Phase 3** (P1) `orders` / `order_items` had only primary keys; 13 foreign keys had no index | 13 indexes; the advisor's "unindexed foreign keys" finding went from 13 to 0 | `20260926173057_add_missing_indexes.sql` |
+| **SEC-7** security advisor findings | View set to `security_invoker`; unapproved restaurants hidden from logged-in users; `handle_new_user()` no longer callable via the API, and `is_admin()` no longer callable by anon; `search_path` pinned; `auth.uid()` evaluated once per query | `20260926174654_advisor_hardening.sql` |
+| **REL-2 / REL-4** status race and non-atomic staff creation | Conditional update returns 409, and staff screens refresh with a toast. A staff account is deleted again if assigning it to the restaurant fails | `app/api/orders/[id]/status/route.js`, `app/api/staff/route.js` (+ tests) |
+| Realtime refetch storm (P2) | Only the changed order is updated from the live event; new orders are fetched one at a time; no double reload after your own action; full reload only on reconnect | `lib/orderRealtime.js` (+ tests), `useRestaurantOrdersRealtime`, owner/kitchen/waiter pages |
+| Unbounded public queries (P2) | `/restaurants` paginated (24 per page; page 2+ `noindex`); menu reviews capped at the newest 20; food search capped | `lib/pagination.js` (+ tests), `app/restaurants/page.js`, `app/menu/[restaurantSlug]/page.js` |
+| Every page shipped all translations (found during remediation) | Public pages no longer include dashboard text: 32 KB (en) / 44 KB (ar) less per page | `app/layout.js`, `app/dashboard/layout.js` |
+| No security headers (P3) | Enforced: `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, HSTS. **CSP is report-only for now** | `lib/securityHeaders.mjs` (+ tests), `next.config.mjs` |
+| 6 React lint errors (P3) | 0 errors. The 5 `<img>` warnings are kept on purpose, because images come from arbitrary external hosts | several components |
+
+## Bugs found during remediation (not in the original audit)
+
+- **Admin N+1 queries:** the requests list ran one query per request, and the Restaurants tab one count query per card. Both are now single queries.
+- **Admins saw every restaurant's menu-item count as 0,** because they had no read access to `menu_items`. Fixed in `20260926181540_menu_items_admin_read.sql`.
+- **`owner_email` was never saved, and filling it would have leaked owner emails.** Approval read a non-existent `user_profiles.email`. Separately, anon can read every column of published restaurants. The column was dropped; admins now fetch emails from `auth.users` through the admin-only `admin_user_emails()`. The QR page's "claim by email" path was removed. See `20260926191809_admin_user_emails_drop_owner_email.sql`.
+- **Favorites never worked.** Call sites passed the user id as the restaurant id; the live table had 0 rows ever. Fixed in `components/FavoriteButton.js` and `app/dashboard/customer/page.js`.
+
+## Incident during remediation
+
+**What happened:**
+- The Fix 8 migration (`20260926174654`) wrapped `auth.uid()` in `user_profiles_read_own`, following the Supabase performance advisor.
+- That made every non-admin `user_profiles` UPDATE fail with "infinite recursion detected in policy". The update policy's role check reads `user_profiles` again.
+- Profile edits were broken for about **one minute** (17:46:54–17:47:57 UTC) before the policy was reverted in `20260926174757_revert_user_profiles_read_own_initplan.sql`.
+
+**Lessons:**
+- Keep that one policy in its bare `auth.uid()` form and accept the advisor warning.
+- After any policy change, test the **write** paths for each role, not only reads.
+
+## Still open
+
+| Item | Needs | Notes |
+|---|---|---|
+| Merge `audit` → `master` | Owner review and merge | Until then, production runs the old application code on the new, compatible schema |
+| Enforce the CSP (switch the report-only header name in `lib/securityHeaders.mjs`) | A logged-in browser pass (owner image upload, including HEIC; kitchen realtime; QR download) with no `[Report Only]` console lines | Public pages already pass: every loaded resource was checked against the served CSP |
+| Leaked-password protection | Toggle in the Supabase dashboard (Authentication → Settings) | Advisor WARN |
+| Error monitoring (Sentry) | A Sentry project / DSN | Only `console.*` logging today |
+| Full schema baseline (`supabase db pull`) | Supabase CLI + DB password | Only migrations from 2026-09-26 onward are in the repo; 18 earlier ones exist only in the live project |
+| Static/ISR public pages | A decision once traffic grows | Needs an `app/[locale]/` restructure; deferred |
+| Admin table pagination; merging permissive RLS policies; `pg_trgm` schema | Scale | Low priority at current volume |
+
+## Architecture health after remediation
+
+These ratings apply once `audit` is merged. The database-side improvements are already in effect.
+
+| Area | Before | After |
+|---|---|---|
+| Security | **Critical** | Needs Attention (CSP not yet enforced; leaked-password protection off) |
+| Authentication | Needs Attention | Healthy |
+| Authorization | **Critical** | Healthy |
+| Database | High Risk | Needs Attention (no full schema baseline in the repo) |
+| Supabase Usage | Needs Attention | Healthy |
+| Vercel Usage | Needs Attention | Needs Attention (public pages still render dynamically) |
+| Performance | Needs Attention | Healthy |
+| Scalability | Needs Attention | Needs Attention (static/ISR deferred; admin tables unpaginated) |
+| Reliability | High Risk | Healthy |
+| Code Quality | Needs Attention | Healthy (tests 22 → 71; 0 lint errors) |
+| Deployment | High Risk | Needs Attention (unmerged branch; no monitoring; partial migration history) |
+| Cost Efficiency | Needs Attention | Needs Attention |
