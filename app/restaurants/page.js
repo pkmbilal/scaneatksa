@@ -220,7 +220,9 @@ export default async function RestaurantsPage({ searchParams }) {
         </div>
 
         <div className="mb-4 md:mb-8">
-          <RestaurantsFilters cuisines={cuisines || []} />
+          {/* Keyed on the filters so the inputs reset from the URL whenever
+              it changes (apply, clear, back/forward). */}
+          <RestaurantsFilters key={[type, q, city, cuisine, veg].join('|')} cuisines={cuisines || []} />
         </div>
 
         {restaurantsWithRatings.length > 0 ? (
