@@ -7,6 +7,9 @@ import { getTranslations } from "next-intl/server";
 import ReviewCard from "@/components/reviews/ReviewCard";
 import StarRating from "@/components/reviews/StarRating";
 
+// How many reviews app/menu/[restaurantSlug]/page.js fetches for this list.
+export const REVIEWS_LIMIT = 20;
+
 export default async function RestaurantReviewsSection({ reviews, ratingSummary }) {
   const t = await getTranslations("menu");
   const hasSummary =
@@ -41,6 +44,14 @@ export default async function RestaurantReviewsSection({ reviews, ratingSummary 
           {reviews.map((review) => (
             <ReviewCard key={review.id} review={review} tone="menu" />
           ))}
+          {/* The page fetches only the newest REVIEWS_LIMIT (review_count
+              also includes per-dish reviews, so it can't tell us whether any
+              were cut off) -- note it once the limit is actually hit. */}
+          {reviews.length >= REVIEWS_LIMIT && (
+            <p className="text-xs text-[color:var(--m-ink-soft)]">
+              {t("header.reviewsSection.showingLatest", { shown: reviews.length })}
+            </p>
+          )}
         </div>
       )}
     </section>

@@ -3,7 +3,7 @@
 import { supabaseBrowser } from "@/lib/supabase/client";
 const supabase = supabaseBrowser();
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -27,7 +27,9 @@ export default function VerifyClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState("");
+  // Pre-filled from ?email= (the page renders this inside <Suspense>, so the
+  // search params are available on the first render).
+  const [email, setEmail] = useState(() => searchParams?.get("email") || "");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
@@ -36,18 +38,11 @@ export default function VerifyClient() {
   const [successOpen, setSuccessOpen] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
-  // ✅ safe guard: searchParams can be empty on first render
-  const emailFromUrl = useMemo(() => searchParams?.get("email") || "", [searchParams]);
-
   // Hide navbar on this page (client-only)
   useEffect(() => {
     document.body.classList.add("hide-navbar");
     return () => document.body.classList.remove("hide-navbar");
   }, []);
-
-  useEffect(() => {
-    if (emailFromUrl) setEmail(emailFromUrl);
-  }, [emailFromUrl]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;

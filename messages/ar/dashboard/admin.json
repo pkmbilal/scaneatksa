@@ -138,6 +138,7 @@
     "emptyState": "لا توجد مطاعم بعد",
     "disabledBadge": "معطل",
     "activeBadge": "نشط",
+    "closedByOwnerBadge": "مغلق من المالك",
     "urlLabel": "الرابط:",
     "viewLink": "عرض ←",
     "ownerLabel": "المالك:",

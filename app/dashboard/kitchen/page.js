@@ -2,7 +2,7 @@
 import { supabaseBrowser } from "@/lib/supabase/client";
 const supabase = supabaseBrowser();
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ChefHat } from "lucide-react";
@@ -21,6 +21,11 @@ import SoundToggle from "@/components/dashboard/shared/SoundToggle";
 import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
 import { useOrderAlerts } from "@/components/dashboard/shared/hooks/useOrderAlerts";
 import { classifyOrderEvent } from "@/lib/orderNotifications";
+import { applyOrderEvent, byCreatedAsc, upsertOrder } from "@/lib/orderRealtime";
+
+const ORDER_COLUMNS = "id, created_at, channel, status, total, customer_name, customer_phone, notes";
+// Kitchen's queue: what realtime updates keep in / drop from the list.
+const QUEUE = { keep: (o) => ["new", "preparing"].includes(o.status), compare: byCreatedAsc };
 
 // Kitchen's queue is orders in `new` or `preparing` status -- kitchen starts
 // an order (`new` -> `preparing`) and then marks it ready (`preparing` ->
@@ -36,6 +41,13 @@ export default function KitchenDashboardPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Mirrors `orders` so the realtime handler can tell whether an order is
+  // already listed without a stale closure.
+  const ordersRef = useRef(orders);
+  useEffect(() => {
+    ordersRef.current = orders;
+  });
+
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -44,11 +56,12 @@ export default function KitchenDashboardPage() {
   const alerts = useOrderAlerts();
 
   // Live queue updates -- a new order landing in `new`, or one leaving it --
-  // so kitchen never has to refresh. The same subscription feeds the toast +
-  // chime notification layer.
+  // so kitchen never has to refresh. Each change patches the list in place
+  // (one single-order fetch at most) instead of reloading the whole queue.
+  // The same subscription feeds the toast + chime notification layer.
   useRestaurantOrdersRealtime(
     restaurant?.id,
-    () => loadOrders(restaurant.id, { silent: true }),
+    (payload) => applyOrderEvent(payload, { setOrders, ordersRef, fetchOrder, ...QUEUE }),
     (payload) =>
       alerts.push(
         classifyOrderEvent({
@@ -57,7 +70,8 @@ export default function KitchenDashboardPage() {
           next: payload.new,
           prev: payload.old,
         })
-      )
+      ),
+    () => loadOrders(restaurant.id, { silent: true })
   );
 
   async function loadData() {
@@ -96,13 +110,18 @@ export default function KitchenDashboardPage() {
     if (!silent) setOrdersLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select("id, created_at, channel, status, total, customer_name, customer_phone, notes")
+      .select(ORDER_COLUMNS)
       .eq("restaurant_id", restaurantId)
       .in("status", ["new", "preparing"])
       .order("created_at", { ascending: true });
 
     if (!error) setOrders(data || []);
     if (!silent) setOrdersLoading(false);
+  }
+
+  async function fetchOrder(orderId) {
+    const { data } = await supabase.from("orders").select(ORDER_COLUMNS).eq("id", orderId).maybeSingle();
+    return data;
   }
 
   async function handleAction(orderId, nextStatus) {
@@ -118,9 +137,15 @@ export default function KitchenDashboardPage() {
       body: JSON.stringify({ status: nextStatus }),
     });
 
-    const data = await res.json();
-    if (res.ok && profile?.restaurant_id) await loadOrders(profile.restaurant_id);
-    return res.ok ? data.order : null;
+    const data = await res.json().catch(() => null);
+    if (res.ok && data?.order) {
+      // Apply our own change locally; its realtime echo is a no-op merge.
+      setOrders((prev) => upsertOrder(prev, data.order, QUEUE));
+      return data.order;
+    }
+    // A 409 means the order changed under us -- reload the real queue.
+    if (profile?.restaurant_id) await loadOrders(profile.restaurant_id);
+    return null;
   }
 
   if (loading) {

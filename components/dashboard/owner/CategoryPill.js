@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Check, X } from "lucide-react";
 
@@ -10,8 +10,6 @@ export default function CategoryPill({ category, onRename, onDelete }) {
   const [name, setName] = useState(category.name);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => setName(category.name), [category.name]);
 
   const save = async () => {
     setError("");
@@ -38,7 +36,11 @@ export default function CategoryPill({ category, onRename, onDelete }) {
           <button
             type="button"
             className="rounded-full p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-200 cursor-pointer"
-            onClick={() => setEditing(true)}
+            onClick={() => {
+              // Start each edit from the current name (it may have changed since mount).
+              setName(category.name);
+              setEditing(true);
+            }}
             title={t("categoryPill.rename")}
           >
             <Pencil className="h-4 w-4" />

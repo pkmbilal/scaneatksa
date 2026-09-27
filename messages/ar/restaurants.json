@@ -38,5 +38,11 @@
     "noAddress": "لا يوجد عنوان",
     "cityNotSet": "المدينة غير محددة",
     "noRating": "جديد"
+  },
+  "pagination": {
+    "label": "صفحات المطاعم",
+    "previous": "→ السابق",
+    "next": "التالي ←",
+    "pageOf": "الصفحة {page} من {total}"
   }
 }

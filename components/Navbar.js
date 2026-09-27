@@ -101,22 +101,29 @@ export default function Navbar() {
   useEffect(() => {
     // ✅ if navbar is hidden, don't do auth/profile loading
     if (hideNavbar) return;
-    loadUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hideNavbar, pathname]);
 
-  async function loadUser() {
-    const { user: currentUser } = await getSessionUser();
+    // Ignore a load that finishes after the route changed again.
+    let cancelled = false;
 
-    if (currentUser) {
-      setUser(currentUser);
-      const { data: userProfile } = await getUserProfile(currentUser.id);
-      setProfile(userProfile);
-    } else {
-      setUser(null);
-      setProfile(null);
+    async function loadUser() {
+      const { user: currentUser } = await getSessionUser();
+      if (cancelled) return;
+
+      if (currentUser) {
+        setUser(currentUser);
+        const { data: userProfile } = await getUserProfile(currentUser.id);
+        if (!cancelled) setProfile(userProfile);
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
     }
-  }
+
+    loadUser();
+    return () => {
+      cancelled = true;
+    };
+  }, [hideNavbar, pathname]);
 
   const handleSearch = (e) => {
     if (e.key === "Enter") {

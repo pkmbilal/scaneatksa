@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Search, ChevronDown } from "lucide-react";
@@ -14,19 +14,14 @@ export default function RestaurantsFilters({ cuisines = [] }) {
   const router = useRouter();
   const sp = useSearchParams();
 
+  // Initialized from the URL. app/restaurants/page.js keys this component on
+  // the filter params, so a URL change (apply, back/forward) remounts it with
+  // fresh values instead of syncing state in an effect.
   const [type, setType] = useState(sp.get("type") || "restaurants"); // restaurants | food
   const [q, setQ] = useState(sp.get("q") || "");
   const [city, setCity] = useState(sp.get("city") || "");
   const [cuisine, setCuisine] = useState(sp.get("cuisine") || "");
   const [veg, setVeg] = useState(sp.get("veg") === "1");
-
-  useEffect(() => {
-    setType(sp.get("type") || "restaurants");
-    setQ(sp.get("q") || "");
-    setCity(sp.get("city") || "");
-    setCuisine(sp.get("cuisine") || "");
-    setVeg(sp.get("veg") === "1");
-  }, [sp]);
 
   // ✅ robust apply: can accept a base params to avoid "stale sp" issues on mobile
   const apply = (next, baseParams) => {

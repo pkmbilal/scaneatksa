@@ -37,12 +37,13 @@ export default function CustomerDashboardPage() {
   } = useCustomerDashboardData()
 
   const [activeTab, setActiveTab] = useState('overview')
+  const userId = user?.id
 
   const refreshFavorites = useCallback(async () => {
-    if (!user?.id) return
-    const { data, error } = await getUserFavorites(user.id)
+    if (!userId) return
+    const { data, error } = await getUserFavorites()
     if (!error) setFavorites(data || [])
-  }, [user?.id, setFavorites])
+  }, [userId, setFavorites])
 
   // ✅ refresh on mount + when tab focuses
   useEffect(() => {
@@ -56,24 +57,25 @@ export default function CustomerDashboardPage() {
   // ✅ listen for favorites changes from anywhere (FavoriteButton dispatches it)
   useEffect(() => {
     const onChanged = (e) => {
-      if (e?.detail?.userId && e.detail.userId !== user?.id) return
+      if (e?.detail?.userId && e.detail.userId !== userId) return
       refreshFavorites()
     }
 
     window.addEventListener('favorites:changed', onChanged)
     return () => window.removeEventListener('favorites:changed', onChanged)
-  }, [refreshFavorites, user?.id])
+  }, [refreshFavorites, userId])
 
   const handleRemoveFavorite = useCallback(
-    async (restaurantId, restaurantName) => {
-      if (!user?.id) return
+    async (restaurantId) => {
+      if (!userId) return
 
-      const { error } = await removeFromFavorites(user.id, restaurantId)
+      // Takes only the restaurant id -- the user comes from the session.
+      const { error } = await removeFromFavorites(restaurantId)
       if (!error) {
         await refreshFavorites()
       }
     },
-    [user?.id, refreshFavorites]
+    [userId, refreshFavorites]
   )
 
   if (loading) {

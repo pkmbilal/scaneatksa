@@ -2,7 +2,7 @@
 import { supabaseBrowser } from "@/lib/supabase/client";
 const supabase = supabaseBrowser();
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Bell } from "lucide-react";
@@ -21,6 +21,12 @@ import SoundToggle from "@/components/dashboard/shared/SoundToggle";
 import { useRestaurantOrdersRealtime } from "@/components/dashboard/shared/hooks/useRestaurantOrdersRealtime";
 import { useOrderAlerts } from "@/components/dashboard/shared/hooks/useOrderAlerts";
 import { classifyOrderEvent } from "@/lib/orderNotifications";
+import { applyOrderEvent, byCreatedAsc, upsertOrder } from "@/lib/orderRealtime";
+
+const ORDER_COLUMNS =
+  "id, created_at, channel, status, total, customer_name, customer_phone, delivery_address, notes, restaurant_tables ( table_number )";
+// Waiter's queue: what realtime updates keep in / drop from the list.
+const QUEUE = { keep: (o) => o.status === "ready", compare: byCreatedAsc };
 
 // Waiter's queue is orders in `ready` status only -- kitchen marks food
 // ready, and waiter's single action here hands it over (ready -> delivered).
@@ -35,6 +41,13 @@ export default function WaiterDashboardPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Mirrors `orders` so the realtime handler can tell whether an order is
+  // already listed without a stale closure.
+  const ordersRef = useRef(orders);
+  useEffect(() => {
+    ordersRef.current = orders;
+  });
+
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,12 +55,14 @@ export default function WaiterDashboardPage() {
 
   const alerts = useOrderAlerts();
 
-  // Live queue updates -- an order entering/leaving preparing/ready -- so
-  // waiter never has to refresh. The same subscription feeds the toast + chime
+  // Live queue updates -- an order entering/leaving `ready` -- so waiter
+  // never has to refresh. Each change patches the list in place (an order
+  // becoming ready is fetched on its own, for its table number) instead of
+  // reloading the whole queue. The same subscription feeds the toast + chime
   // notification layer.
   useRestaurantOrdersRealtime(
     restaurant?.id,
-    () => loadOrders(restaurant.id, { silent: true }),
+    (payload) => applyOrderEvent(payload, { setOrders, ordersRef, fetchOrder, ...QUEUE }),
     (payload) =>
       alerts.push(
         classifyOrderEvent({
@@ -56,7 +71,8 @@ export default function WaiterDashboardPage() {
           next: payload.new,
           prev: payload.old,
         })
-      )
+      ),
+    () => loadOrders(restaurant.id, { silent: true })
   );
 
   async function loadData() {
@@ -95,15 +111,18 @@ export default function WaiterDashboardPage() {
     if (!silent) setOrdersLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select(
-        "id, created_at, channel, status, total, customer_name, customer_phone, delivery_address, notes, restaurant_tables ( table_number )"
-      )
+      .select(ORDER_COLUMNS)
       .eq("restaurant_id", restaurantId)
       .eq("status", "ready")
       .order("created_at", { ascending: true });
 
     if (!error) setOrders(data || []);
     if (!silent) setOrdersLoading(false);
+  }
+
+  async function fetchOrder(orderId) {
+    const { data } = await supabase.from("orders").select(ORDER_COLUMNS).eq("id", orderId).maybeSingle();
+    return data;
   }
 
   async function handleAction(orderId, nextStatus) {
@@ -119,9 +138,15 @@ export default function WaiterDashboardPage() {
       body: JSON.stringify({ status: nextStatus }),
     });
 
-    const data = await res.json();
-    if (res.ok && profile?.restaurant_id) await loadOrders(profile.restaurant_id);
-    return res.ok ? data.order : null;
+    const data = await res.json().catch(() => null);
+    if (res.ok && data?.order) {
+      // Apply our own change locally; its realtime echo is a no-op merge.
+      setOrders((prev) => upsertOrder(prev, data.order, QUEUE));
+      return data.order;
+    }
+    // A 409 means the order changed under us -- reload the real queue.
+    if (profile?.restaurant_id) await loadOrders(profile.restaurant_id);
+    return null;
   }
 
   if (loading) {

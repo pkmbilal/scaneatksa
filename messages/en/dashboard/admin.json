@@ -138,6 +138,7 @@
     "emptyState": "No restaurants yet",
     "disabledBadge": "DISABLED",
     "activeBadge": "ACTIVE",
+    "closedByOwnerBadge": "CLOSED BY OWNER",
     "urlLabel": "URL:",
     "viewLink": "View →",
     "ownerLabel": "Owner:",

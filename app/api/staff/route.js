@@ -74,7 +74,11 @@ export async function POST(req) {
   });
 
   if (cErr || !created?.user) {
-    return NextResponse.json({ error: cErr?.message || "Could not create account" }, { status: 400 });
+    if (/already (been )?registered|already exists/i.test(cErr?.message || "")) {
+      return NextResponse.json({ error: "An account with this email already exists." }, { status: 400 });
+    }
+    console.error("Staff createUser failed:", cErr);
+    return NextResponse.json({ error: "Could not create the staff account. Please try again." }, { status: 400 });
   }
 
   // handle_new_user() trigger already inserted a user_profiles row with
@@ -87,7 +91,12 @@ export async function POST(req) {
     .single();
 
   if (upErr || !profile) {
-    return NextResponse.json({ error: upErr?.message || "Account created but profile update failed" }, { status: 400 });
+    // Roll back: otherwise a confirmed login with the owner-chosen password
+    // is left behind as a plain customer account (its profile cascades).
+    console.error("Staff profile update failed, rolling back account:", upErr);
+    const { error: delErr } = await supabaseAdmin.auth.admin.deleteUser(created.user.id);
+    if (delErr) console.error("Staff account rollback failed:", created.user.id, delErr);
+    return NextResponse.json({ error: "Could not create the staff account. Please try again." }, { status: 400 });
   }
 
   return NextResponse.json({ ok: true, staff: profile });

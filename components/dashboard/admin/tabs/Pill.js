@@ -3,7 +3,7 @@
 // Editable pill: name + inline rename / enable-disable toggle / delete.
 // Shared by the admin CRUD tabs (currently CuisinesTab).
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Pencil, Trash2, Ban, CheckCircle, X } from 'lucide-react'
 
@@ -13,8 +13,6 @@ export function Pill({ item, onRename, onToggle, onDelete }) {
   const [name, setName] = useState(item.name)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => setName(item.name), [item.name])
 
   const save = async () => {
     setError('')
@@ -50,7 +48,11 @@ export function Pill({ item, onRename, onToggle, onDelete }) {
 
           <button
             type="button"
-            onClick={() => setEditing(true)}
+            onClick={() => {
+              // Start each edit from the current name (it may have changed since mount).
+              setName(item.name)
+              setEditing(true)
+            }}
             className="p-1 rounded-full text-gray-500 hover:text-gray-800 hover:bg-white/70 dark:hover:bg-white/10 transition cursor-pointer"
             title={t('pill.renameTooltip')}
           >

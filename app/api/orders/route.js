@@ -1,147 +1,122 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getAuthedUserId } from "@/lib/r2/auth";
 import { normalizeSaudiWhatsAppNumber } from "@/lib/whatsapp";
+import { clientIp, rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
+// Ordering is anonymous, so limit per network. Generous enough for a group
+// ordering on shared restaurant Wi-Fi; stops scripted floods of a kitchen's
+// live queue.
+const RATE_LIMIT = { limit: 10, windowMs: 10 * 60 * 1000 }; // 10 orders / 10 min / IP
+
+const MAX_NAME_LENGTH = 100;
+const MAX_TEXT_LENGTH = 500; // notes, delivery address
+
+// create_order() raises these keys (see supabase/migrations/*_create_order_function.sql).
+// It does every DB-dependent check -- restaurant published/not suspended,
+// channel enabled, table active, items on this menu and available,
+// quantities 1..99, no duplicates -- and inserts the order + its items in one
+// transaction, so a failure never leaves an item-less order behind.
+const RPC_ERRORS = {
+  invalid_channel: ["Invalid checkout request.", 400],
+  restaurant_unavailable: ["This restaurant is currently unavailable.", 404],
+  channel_unavailable: ["This ordering option is no longer available for this restaurant.", 400],
+  invalid_table: ["This table QR code is no longer active. Please scan it again.", 400],
+  invalid_cart: ["Your cart is empty or invalid.", 400],
+  invalid_quantity: ["One or more cart quantities are invalid.", 400],
+  duplicate_item: ["Duplicate cart items are not allowed.", 400],
+};
+
+function errorResponse(message, status = 400) {
+  return NextResponse.json({ error: message }, { status });
+}
+
+function rpcErrorResponse(error) {
+  const message = error?.message || "";
+
+  if (message.startsWith("item_unavailable")) {
+    const name = message.slice("item_unavailable:".length).trim();
+    return errorResponse(
+      name ? `${name} is currently unavailable.` : "An item in your cart is no longer on the menu."
+    );
+  }
+
+  const known = RPC_ERRORS[message];
+  if (known) return errorResponse(...known);
+
+  console.error("create_order failed:", error);
+  return errorResponse("Unable to place the order right now.", 500);
+}
+
+const cleanText = (value, max) => {
+  const text = typeof value === "string" ? value.trim() : "";
+  return text.length > max ? null : text;
+};
+
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const { restaurantSlug, channel, tableCode, items, customer, notes } = body;
-
-    // 1) Restaurant lookup
-    const { data: restaurant, error: rErr } = await supabaseAdmin
-      .from("restaurants")
-      .select("id, pickup_available, delivery_available")
-      .eq("slug", restaurantSlug)
-      .single();
-
-    if (rErr || !restaurant) {
-      return NextResponse.json({ error: "Restaurant not found" }, { status: 404 });
-    }
-
-    // 2) Channel validation
-    if (channel === "pickup" && !restaurant.pickup_available) {
-      return NextResponse.json({ error: "Pickup not available" }, { status: 400 });
-    }
-    if (channel === "delivery" && !restaurant.delivery_available) {
-      return NextResponse.json({ error: "Delivery not available" }, { status: 400 });
-    }
-
-    // 3) Resolve table for dine-in
-    let table_id = null;
-    let table_number = null;
-
-    if (channel === "dine_in") {
-      if (!tableCode) {
-        return NextResponse.json({ error: "Missing table code" }, { status: 400 });
-      }
-
-      const phoneDigits = normalizeSaudiWhatsAppNumber(customer?.phone);
-      if (phoneDigits.length < 9 || phoneDigits.length > 15) {
-        return NextResponse.json(
-          { error: "Valid WhatsApp number is required" },
-          { status: 400 }
-        );
-      }
-
-      const { data: table } = await supabaseAdmin
-        .from("restaurant_tables")
-        .select("id, table_number")
-        .eq("restaurant_id", restaurant.id)
-        .eq("code", tableCode)
-        .eq("is_active", true)
-        .single();
-
-      if (!table) {
-        return NextResponse.json({ error: "Invalid table code" }, { status: 400 });
-      }
-
-      table_id = table.id;
-      table_number = table.table_number;
-    }
-
-    // 4) Validate items + compute total (don’t trust client price)
-    const ids = (items || []).map((x) => x.id);
-    if (!ids.length) {
-      return NextResponse.json({ error: "Empty cart" }, { status: 400 });
-    }
-
-    const { data: menuItems } = await supabaseAdmin
-      .from("menu_items")
-      .select("id, restaurant_id, name, price, is_available, is_sold_out")
-      .in("id", ids);
-
-    const map = new Map((menuItems || []).map((m) => [m.id, m]));
-
-    let total = 0;
-    const orderItems = [];
-
-    for (const it of items) {
-      const m = map.get(it.id);
-      if (!m || m.restaurant_id !== restaurant.id) {
-        return NextResponse.json({ error: "Invalid item in cart" }, { status: 400 });
-      }
-      if (!m.is_available || m.is_sold_out) {
-        return NextResponse.json({ error: `${m.name} not available` }, { status: 400 });
-      }
-
-      const qty = Number(it.quantity || 1);
-      total += Number(m.price) * qty;
-
-      orderItems.push({
-        menu_item_id: m.id,
-        name: m.name,
-        price: m.price,
-        quantity: qty,
-      });
-    }
-
-    // 5) Optional user_id (if logged in)
-    let user_id = null;
-    const authHeader = req.headers.get("authorization") || "";
-    if (authHeader) {
-      const supabaseUser = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        { global: { headers: { Authorization: authHeader } } }
+    const limited = await rateLimit(`orders:ip:${clientIp(req)}`, RATE_LIMIT);
+    if (!limited.allowed) {
+      return NextResponse.json(
+        { error: "Too many orders from this network. Please wait a few minutes and try again." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limited.retryAfterMs / 1000)) } }
       );
-      const { data } = await supabaseUser.auth.getUser();
-      user_id = data?.user?.id || null;
     }
 
-    // 6) Insert order
-    const { data: order, error: oErr } = await supabaseAdmin
-      .from("orders")
-      .insert({
-        restaurant_id: restaurant.id,
-        channel,
-        table_id,
-        total,
-        customer_name: customer?.name || null,
-        customer_phone: customer?.phone || null,
-        delivery_address: channel === "delivery" ? (customer?.address || null) : null,
-        notes: notes || null,
-        user_id,
+    const body = await req.json().catch(() => null);
+    const { restaurantSlug, channel, tableCode, items, customer, notes } = body || {};
+
+    if (!restaurantSlug || typeof restaurantSlug !== "string") {
+      return errorResponse("Invalid checkout request.");
+    }
+    if (!Array.isArray(items) || items.length === 0 || items.length > 100) {
+      return errorResponse("Your cart is empty or too large.");
+    }
+
+    // Every channel needs a reachable WhatsApp number (mirrors the cart's
+    // validateBeforePlace); delivery also needs an address.
+    const phoneDigits = normalizeSaudiWhatsAppNumber(customer?.phone);
+    if (phoneDigits.length < 9 || phoneDigits.length > 15) {
+      return errorResponse("Valid WhatsApp number is required");
+    }
+
+    const name = cleanText(customer?.name, MAX_NAME_LENGTH);
+    const address = cleanText(customer?.address, MAX_TEXT_LENGTH);
+    const cleanNotes = cleanText(notes, MAX_TEXT_LENGTH);
+    if (name === null || address === null || cleanNotes === null) {
+      return errorResponse("Some order details are too long.");
+    }
+    if (channel === "delivery" && !address) {
+      return errorResponse("Delivery address is required.");
+    }
+
+    // Optional: attach the order to the signed-in customer.
+    let userId = null;
+    if (req.headers.get("authorization")) {
+      ({ userId } = await getAuthedUserId(req));
+    }
+
+    const { data, error } = await supabaseAdmin
+      .rpc("create_order", {
+        p_restaurant_slug: restaurantSlug,
+        p_channel: channel,
+        p_table_code: channel === "dine_in" ? tableCode || null : null,
+        p_items: items.map((item) => ({ id: item?.id, quantity: item?.quantity })),
+        p_customer_name: name,
+        p_customer_phone: String(customer.phone).trim(),
+        p_delivery_address: address,
+        p_notes: cleanNotes,
+        p_user_id: userId || null,
       })
-      .select("id")
       .single();
 
-    if (oErr || !order) {
-      return NextResponse.json({ error: oErr?.message || "Order insert failed" }, { status: 400 });
-    }
+    if (error || !data) return rpcErrorResponse(error);
 
-    // 7) Insert order_items
-    const rows = orderItems.map((x) => ({ ...x, order_id: order.id }));
-    const { error: oiErr } = await supabaseAdmin.from("order_items").insert(rows);
-
-    if (oiErr) {
-      return NextResponse.json({ error: oiErr.message }, { status: 400 });
-    }
-
-    return NextResponse.json({ ok: true, orderId: order.id, tableNumber: table_number });
+    return NextResponse.json({ ok: true, orderId: data.order_id, tableNumber: data.table_number });
   } catch (err) {
-    return NextResponse.json({ error: err?.message || "Server error" }, { status: 500 });
+    console.error("POST /api/orders failed:", err);
+    return errorResponse("Unable to place the order right now.", 500);
   }
 }

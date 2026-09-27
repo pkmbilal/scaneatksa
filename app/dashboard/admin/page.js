@@ -132,6 +132,22 @@ export default function AdminDashboard() {
     setLoading(false)
   }
 
+  // Emails live only in auth.users (never in a publicly readable table), so
+  // admins look them up through the admin-only admin_user_emails() RPC --
+  // one call per list. Returns Map(userId -> email); empty on failure so the
+  // dashboard still loads, just without emails.
+  async function loadUserEmails(ids) {
+    const uniqueIds = [...new Set(ids.filter(Boolean))]
+    if (!uniqueIds.length) return new Map()
+
+    const { data, error } = await supabase.rpc('admin_user_emails', { p_ids: uniqueIds })
+    if (error) {
+      console.error('Error loading user emails:', error)
+      return new Map()
+    }
+    return new Map((data || []).map((u) => [u.id, u.email]))
+  }
+
   async function loadRequests() {
     const { data: requests, error } = await supabase
       .from('restaurant_requests')
@@ -146,17 +162,24 @@ export default function AdminDashboard() {
     }
 
     if (requests) {
-      const requestsWithUsers = await Promise.all(
-        requests.map(async (request) => {
-          const { data: userProfile } = await supabase
-            .from('user_profiles')
-            .select('full_name, email')
-            .eq('id', request.user_id)
-            .single()
+      // One lookup for every requester's name and one for their emails (was
+      // one query per request).
+      const userIds = [...new Set(requests.map((r) => r.user_id).filter(Boolean))]
+      const [{ data: profiles }, emailById] = await Promise.all([
+        userIds.length
+          ? supabase.from('user_profiles').select('id, full_name').in('id', userIds)
+          : Promise.resolve({ data: [] }),
+        loadUserEmails(userIds),
+      ])
+      const nameById = new Map((profiles || []).map((p) => [p.id, p.full_name]))
 
-          return { ...request, user_profiles: userProfile }
-        })
-      )
+      const requestsWithUsers = requests.map((request) => ({
+        ...request,
+        user_profiles: {
+          full_name: nameById.get(request.user_id) || null,
+          email: emailById.get(request.user_id) || null,
+        },
+      }))
 
       setAllRequests(requestsWithUsers)
       setPendingRequests(requestsWithUsers.filter((req) => req.status === 'pending'))
@@ -174,10 +197,19 @@ export default function AdminDashboard() {
   }
 
   async function loadRestaurants() {
-    const { data } = await supabase.from('restaurants').select('*').order('created_at', {
-      ascending: false,
-    })
-    setAllRestaurants(data || [])
+    // menu_items(count) embeds each restaurant's item count in this one query
+    // (RestaurantsTab used to run a count query per card).
+    const { data } = await supabase
+      .from('restaurants')
+      .select('*, menu_items(count)')
+      .order('created_at', { ascending: false })
+
+    // owner_email is resolved here for display only (RestaurantsTab,
+    // SubscriptionsTab) -- it isn't stored on restaurants.
+    const emailById = await loadUserEmails((data || []).map((r) => r.owner_id))
+    setAllRestaurants(
+      (data || []).map((r) => ({ ...r, owner_email: emailById.get(r.owner_id) || null }))
+    )
   }
 
   async function loadSubscriptionEvents() {
@@ -230,6 +262,26 @@ export default function AdminDashboard() {
     })
   }
 
+  // Disable/delete go through /api/admin/users/[id]: they need the Auth admin
+  // API (ban / delete the login itself), not just a user_profiles write.
+  // Returns an error message, or null on success.
+  const callAdminUserApi = async (userId, method, body) => {
+    const { data: sess } = await supabase.auth.getSession()
+    const token = sess?.session?.access_token
+
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    })
+    if (res.ok) return null
+    const data = await res.json().catch(() => null)
+    return data?.error || t('dialogs.errorTitle')
+  }
+
   const handleToggleUserStatus = async (userId, currentStatus) => {
     const disabling = !!currentStatus
     setConfirmDialog({
@@ -237,13 +289,10 @@ export default function AdminDashboard() {
       title: disabling ? t('dialogs.disableUserTitle') : t('dialogs.enableUserTitle'),
       description: disabling ? t('dialogs.disableUserDescription') : t('dialogs.enableUserDescription'),
       action: async () => {
-        const { error } = await supabase
-          .from('user_profiles')
-          .update({ is_active: !currentStatus })
-          .eq('id', userId)
+        const error = await callAdminUserApi(userId, 'PATCH', { is_active: !currentStatus })
 
         if (error) {
-          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error, isError: true })
         } else {
           setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: disabling ? t('dialogs.userDisabled') : t('dialogs.userEnabled'), isError: false })
           loadUsers()
@@ -262,9 +311,9 @@ export default function AdminDashboard() {
       matchValue: userName || deleteKeyword,
       confirmText: t('dialogs.deleteUserConfirm'),
       action: async () => {
-        const { error } = await supabase.from('user_profiles').delete().eq('id', userId)
+        const error = await callAdminUserApi(userId, 'DELETE')
         if (error) {
-          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error, isError: true })
         } else {
           setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: t('dialogs.userDeleted'), isError: false })
           loadUsers()
@@ -298,7 +347,6 @@ export default function AdminDashboard() {
                 phone: request.phone,
                 address: request.address,
                 owner_id: request.user_id,
-                owner_email: request.user_profiles?.email,
                 is_active: true,
                 approved_at: nowIso,
                 // Every newly approved restaurant starts on a 30-day free trial.
@@ -454,27 +502,22 @@ export default function AdminDashboard() {
   }
 
   /* ---------------- Restaurant Actions ---------------- */
+  // Admin disable/enable is a suspension, not is_active: is_active is the
+  // owner's own open/closed toggle (the owner edit page writes it), so an
+  // admin block stored there could just be flipped back by the owner.
+  // subscription_status is guarded by the restaurants_guard trigger.
   const handleToggleRestaurant = async (restaurant) => {
-    const disabling = !!restaurant.is_active
+    const disabling = restaurant.subscription_status !== 'suspended'
     setConfirmDialog({
       open: true,
       title: disabling ? t('restaurantsTab.disableTitle') : t('restaurantsTab.enableTitle'),
       description: disabling
         ? t('restaurantsTab.disableDescription', { name: restaurant.name })
         : t('restaurantsTab.enableDescription', { name: restaurant.name }),
-      action: async () => {
-        const { error } = await supabase
-          .from('restaurants')
-          .update({ is_active: !restaurant.is_active })
-          .eq('id', restaurant.id)
-
-        if (error) {
-          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
-        } else {
-          setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: disabling ? t('restaurantsTab.disabledSuccess') : t('restaurantsTab.enabledSuccess'), isError: false })
-          loadRestaurants()
-        }
-      },
+      action: () =>
+        disabling
+          ? handleSubscriptionUpdate(restaurant, { subscription_status: 'suspended' }, 'suspended')
+          : handleSubscriptionUpdate(restaurant, { subscription_status: 'active' }, 'unsuspended'),
     })
   }
 

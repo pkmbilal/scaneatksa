@@ -69,7 +69,8 @@ export default function FavoriteButton({ restaurantId }) {
       let changed = false
 
       if (isFavorite) {
-        const { error } = await removeFromFavorites(user.id, restaurantId)
+        // Takes only the restaurant id -- the user comes from the session.
+        const { error } = await removeFromFavorites(restaurantId)
         if (error) {
           alert("Error removing favorite: " + error.message)
         } else {
@@ -77,7 +78,7 @@ export default function FavoriteButton({ restaurantId }) {
           changed = true
         }
       } else {
-        const { error } = await addToFavorites(user.id, restaurantId)
+        const { error } = await addToFavorites(restaurantId)
         if (error) {
           if (error.code === "23505") setIsFavorite(true)
           else alert("Error adding favorite: " + error.message)

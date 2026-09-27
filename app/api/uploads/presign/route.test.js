@@ -14,10 +14,14 @@ vi.mock("@/lib/r2/client", () => ({
 vi.mock("@aws-sdk/s3-request-presigner", () => ({
   getSignedUrl: vi.fn().mockResolvedValue("https://signed.example.com/upload"),
 }));
+vi.mock("@/lib/rateLimit", () => ({
+  rateLimit: vi.fn().mockResolvedValue({ allowed: true }),
+}));
 
 const { getAuthedUserId } = await import("@/lib/r2/auth");
 const { supabaseAdmin } = await import("@/lib/supabaseAdmin");
 const { getSignedUrl } = await import("@aws-sdk/s3-request-presigner");
+const { rateLimit } = await import("@/lib/rateLimit");
 const { POST } = await import("./route.js");
 
 // Chainable .from().select().eq().maybeSingle() mock matching how
@@ -134,15 +138,14 @@ describe("POST /api/uploads/presign", () => {
     expect(res.status).toBe(403);
   });
 
-  it("rate limits repeated requests from the same user", async () => {
+  it("rate limits per user (counter lives in lib/rateLimit)", async () => {
     getAuthedUserId.mockResolvedValue({ userId: "user-spammer", error: null });
+    rateLimit.mockResolvedValueOnce({ allowed: false, retryAfterMs: 30_000 });
 
-    let lastRes;
-    for (let i = 0; i < 21; i++) {
-      lastRes = await POST(makeRequest({ kind: "avatar", contentType: "image/jpeg", fileSize: 1000 }));
-    }
+    const res = await POST(makeRequest({ kind: "avatar", contentType: "image/jpeg", fileSize: 1000 }));
 
-    expect(lastRes.status).toBe(429);
-    expect(lastRes.headers.get("Retry-After")).toBeTruthy();
+    expect(res.status).toBe(429);
+    expect(res.headers.get("Retry-After")).toBe("30");
+    expect(rateLimit).toHaveBeenCalledWith("presign:user-spammer", { limit: 20, windowMs: 60_000 });
   });
 });

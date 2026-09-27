@@ -22,7 +22,8 @@
     "reviewsSection": {
       "title": "التقييمات",
       "empty": "لا توجد تقييمات بعد. كن أول من يطلب ويترك تقييمًا!",
-      "summary": "من {count} ضيف"
+      "summary": "من {count} ضيف",
+      "showingLatest": "عرض أحدث {shown} تقييمًا"
     }
   },
   "reviews": {

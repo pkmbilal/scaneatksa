@@ -114,32 +114,13 @@ export default function QRCodeClientPage({ restaurantSlug }) {
           return
         }
 
-        // Ownership check (admin bypass)
-        if (!isAdmin) {
-          const uid = user.id
-          const email = (user.email || '').toLowerCase().trim()
-          const ownerId = rest.owner_id
-          const ownerEmail = (rest.owner_email || '').toLowerCase().trim()
-
-          const ownerEmailMatch = ownerEmail && email && ownerEmail === email
-
-          if (!ownerId && ownerEmailMatch) {
-            const { error: claimErr } = await supabase
-              .from('restaurants')
-              .update({ owner_id: uid })
-              .eq('id', rest.id)
-
-            if (!claimErr) rest.owner_id = uid
-          }
-
-          const finalOwnerOk =
-            (rest.owner_id && rest.owner_id === uid) || ownerEmailMatch
-
-          if (!finalOwnerOk) {
-            toast.error(t('errors.notOwner'))
-            router.push('/dashboard/owner')
-            return
-          }
+        // Ownership check (admin bypass). owner_id is the only ownership
+        // signal -- the old claim-by-matching-email flow is gone (owners
+        // can't change owner_id; see restaurants_guard).
+        if (!isAdmin && rest.owner_id !== user.id) {
+          toast.error(t('errors.notOwner'))
+          router.push('/dashboard/owner')
+          return
         }
 
         if (mounted) setRestaurant(rest)
