@@ -16,6 +16,11 @@ export async function GET(req, context) {
   const { error: authError } = await requireAdmin(req);
   if (authError) return authError;
 
+  if (!R2_PRIVATE_BUCKET_NAME) {
+    console.error("R2_PRIVATE_BUCKET_NAME is not set");
+    return NextResponse.json({ error: "Private document storage is not configured" }, { status: 500 });
+  }
+
   const { id } = await context.params;
   if (!id) return NextResponse.json({ error: "Missing request id" }, { status: 400 });
 

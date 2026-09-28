@@ -86,6 +86,13 @@ export async function POST(req) {
   const { kind, contentType, fileSize } = body || {};
 
   const isPrivate = PRIVATE_KINDS.has(kind);
+  // Without this a URL gets signed with no bucket and R2 rejects the PUT
+  // with an opaque error (e.g. env var added but the server not restarted).
+  if (isPrivate && !R2_PRIVATE_BUCKET_NAME) {
+    console.error("R2_PRIVATE_BUCKET_NAME is not set");
+    return NextResponse.json({ error: "Private document storage is not configured" }, { status: 500 });
+  }
+
   const ext = (isPrivate ? DOC_TYPES : ALLOWED_TYPES)[contentType];
   if (!ext) {
     return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });

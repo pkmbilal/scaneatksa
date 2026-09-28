@@ -6,10 +6,14 @@ vi.mock("@/lib/r2/auth", () => ({
 vi.mock("@/lib/supabaseAdmin", () => ({
   supabaseAdmin: { from: vi.fn() },
 }));
+// Mutable so a test can simulate the env var being unset.
+const r2 = vi.hoisted(() => ({ privateBucket: "private-bucket" }));
 vi.mock("@/lib/r2/client", () => ({
   r2Client: {},
   R2_BUCKET_NAME: "test-bucket",
-  R2_PRIVATE_BUCKET_NAME: "private-bucket",
+  get R2_PRIVATE_BUCKET_NAME() {
+    return r2.privateBucket;
+  },
   R2_PUBLIC_URL: "https://pub.example.com",
 }));
 vi.mock("@aws-sdk/s3-request-presigner", () => ({
@@ -47,6 +51,7 @@ function makeRequest(body) {
 describe("POST /api/uploads/presign", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    r2.privateBucket = "private-bucket";
     getSignedUrl.mockResolvedValue("https://signed.example.com/upload");
   });
 
@@ -152,6 +157,20 @@ describe("POST /api/uploads/presign", () => {
     expect(json.publicUrl).toBeUndefined();
     const [, command] = getSignedUrl.mock.calls[0];
     expect(command.input.Bucket).toBe("private-bucket");
+  });
+
+  it("refuses to sign a private upload when the private bucket isn't configured", async () => {
+    getAuthedUserId.mockResolvedValue({ userId: "user-nobucket", error: null });
+    r2.privateBucket = undefined;
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const res = await POST(
+      makeRequest({ kind: "restaurant-request-doc", contentType: "application/pdf", fileSize: 1000 })
+    );
+
+    expect(res.status).toBe(500);
+    expect((await res.json()).error).toMatch(/not configured/i);
+    expect(getSignedUrl).not.toHaveBeenCalled();
   });
 
   it("rejects PDFs for public image kinds", async () => {

@@ -177,7 +177,15 @@ export default function RequestRestaurantPage() {
         if (uploadErr instanceof UploadValidationError) {
           return fail(uploadErr.message === "tooLarge" ? "docTooLarge" : "docInvalidType");
         }
-        return fail("uploadFailed");
+        console.error("CR upload failed:", uploadErr);
+        // Append the underlying reason (HTTP status, server message) unless
+        // it's just a bare internal code.
+        const detail = uploadErr?.message;
+        fail("uploadFailed");
+        if (detail && detail !== "uploadFailed" && detail !== "presignFailed") {
+          setError(`${t("requestRestaurantPage.errors.uploadFailed")} (${detail})`);
+        }
+        return;
       }
       setUploadProgress(null);
 

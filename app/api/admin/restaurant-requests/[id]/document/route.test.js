@@ -7,9 +7,13 @@ vi.mock("@/lib/auth/admin", () => ({
 vi.mock("@/lib/supabaseAdmin", () => ({
   supabaseAdmin: { from: vi.fn() },
 }));
+// Mutable so a test can simulate the env var being unset.
+const r2 = vi.hoisted(() => ({ privateBucket: "private-bucket" }));
 vi.mock("@/lib/r2/client", () => ({
   r2Client: {},
-  R2_PRIVATE_BUCKET_NAME: "private-bucket",
+  get R2_PRIVATE_BUCKET_NAME() {
+    return r2.privateBucket;
+  },
 }));
 vi.mock("@aws-sdk/s3-request-presigner", () => ({
   getSignedUrl: vi.fn().mockResolvedValue("https://signed.example.com/doc"),
@@ -33,6 +37,7 @@ function mockRequestLookup(result) {
 describe("GET /api/admin/restaurant-requests/[id]/document", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    r2.privateBucket = "private-bucket";
     requireAdmin.mockResolvedValue({ userId: "admin-1" });
     getSignedUrl.mockResolvedValue("https://signed.example.com/doc");
   });
@@ -43,6 +48,16 @@ describe("GET /api/admin/restaurant-requests/[id]/document", () => {
     const res = await GET(makeRequest(), ctx("req-1"));
 
     expect(res.status).toBe(403);
+    expect(getSignedUrl).not.toHaveBeenCalled();
+  });
+
+  it("500s when the private bucket isn't configured", async () => {
+    r2.privateBucket = undefined;
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const res = await GET(makeRequest(), ctx("req-1"));
+
+    expect(res.status).toBe(500);
     expect(getSignedUrl).not.toHaveBeenCalled();
   });
 
