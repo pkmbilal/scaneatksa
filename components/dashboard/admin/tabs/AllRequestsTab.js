@@ -27,6 +27,16 @@ export default function AllRequestsTab({ allRequests }) {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {request.user_profiles?.email} • {new Date(request.created_at).toLocaleDateString()}
               </p>
+              {request.cr_number && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <span>{t('allRequestsTab.crLabel', { cr: request.cr_number })}</span>
+                  {request.verified_at && (
+                    <span className="ms-2 font-semibold text-success-600 dark:text-success-400">
+                      ✓ {t('allRequestsTab.verifiedBadge')}
+                    </span>
+                  )}
+                </p>
+              )}
             </div>
 
             <span

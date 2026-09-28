@@ -125,17 +125,39 @@
       "addressHelp": "الموقع الفعلي الكامل لمطعمك.",
       "description": "الوصف",
       "descriptionPlaceholder": "نوع المطبخ، الفروع، سبب رغبتك في الانضمام…",
-      "descriptionHelp": "اختياري — يساعدنا على فهم عملك بشكل أفضل."
+      "descriptionHelp": "اختياري — يساعدنا على فهم عملك بشكل أفضل.",
+      "crNumber": "رقم السجل التجاري",
+      "crNumberPlaceholder": "1010123456",
+      "crNumberHelp": "الرقم المكوّن من 10 أرقام في شهادة السجل التجاري الصادرة من وزارة التجارة.",
+      "vatNumber": "الرقم الضريبي",
+      "vatNumberPlaceholder": "300000000000003",
+      "vatNumberHelp": "اختياري — رقم التسجيل في ضريبة القيمة المضافة لدى هيئة الزكاة والضريبة والجمارك (15 رقمًا).",
+      "mapsUrl": "رابط خرائط Google",
+      "mapsUrlPlaceholder": "https://maps.app.goo.gl/…",
+      "mapsUrlHelp": "افتح مطعمك في خرائط Google، واضغط مشاركة، ثم الصق الرابط هنا.",
+      "crDocument": "شهادة السجل التجاري",
+      "crDocumentHelp": "ملف PDF أو صورة واضحة (JPG أو PNG أو WEBP) بحد أقصى 5 ميجابايت. لا يطّلع عليها إلا فريق الإدارة."
     },
     "errors": {
       "invalidPhone": "يرجى إدخال رقم هاتف صحيح (مع رمز الدولة، بدون مسافات).",
       "genericTitle": "حدث خطأ ما",
-      "unexpected": "حدث خطأ ما: {message}"
+      "unexpected": "حدث خطأ ما: {message}",
+      "invalidCr": "يجب أن يتكون رقم السجل التجاري من 10 أرقام بالضبط.",
+      "invalidVat": "يجب أن يتكون الرقم الضريبي من 15 رقمًا يبدأ وينتهي بالرقم 3.",
+      "invalidMaps": "يرجى لصق رابط من خرائط Google (https://maps.app.goo.gl/… أو https://www.google.com/maps/…).",
+      "missingDocument": "يرجى إرفاق شهادة السجل التجاري.",
+      "docInvalidType": "يجب أن تكون الشهادة بصيغة PDF أو JPG أو PNG أو WEBP.",
+      "docTooLarge": "حجم ملف الشهادة كبير جدًا (الحد الأقصى 5 ميجابايت).",
+      "uploadFailed": "تعذّر رفع الشهادة. يرجى المحاولة مرة أخرى.",
+      "alreadyPending": "لديك طلب قيد المراجعة بالفعل.",
+      "crAlreadyUsed": "رقم السجل التجاري هذا مسجل بالفعل أو قيد المراجعة.",
+      "emailNotVerified": "يرجى تأكيد بريدك الإلكتروني قبل تقديم الطلب."
     },
     "submit": {
       "submitting": "جارٍ الإرسال…",
       "alreadyPending": "الطلب قيد المراجعة بالفعل",
-      "submit": "إرسال الطلب"
+      "submit": "إرسال الطلب",
+      "uploading": "جارٍ رفع الشهادة… {percent}%"
     },
     "sidebar": {
       "nextSteps": {
@@ -149,15 +171,19 @@
       "requirements": {
         "title": "المتطلبات",
         "subtitle": "الحد الأدنى للموافقة",
-        "item1": "اسم مطعم صحيح",
-        "item2": "رقم واتساب فعّال",
-        "item3": "موقع فعلي للمطعم",
-        "item4": "تحديث القائمة باستمرار"
+        "item1": "سجل تجاري ساري",
+        "item2": "شهادة السجل التجاري (PDF أو صورة)",
+        "item3": "موقع المطعم على خرائط Google",
+        "item4": "رقم واتساب فعّال"
       },
       "previousRequests": {
         "title": "طلباتك السابقة",
         "subtitle": "السجل والحالة"
       }
-    }
+    },
+    "verificationSection": "التحقق من النشاط التجاري",
+    "verificationSectionHelp": "نستخدم هذه المعلومات للتأكد من أنك تملك أو تدير مطعمًا حقيقيًا ومسجلًا.",
+    "emailNotVerifiedTitle": "أكّد بريدك الإلكتروني أولًا",
+    "emailNotVerifiedDescription": "يرجى تأكيد بريدك الإلكتروني عبر الرابط الذي أرسلناه إليك، ثم عد لتقديم طلبك."
   }
 }

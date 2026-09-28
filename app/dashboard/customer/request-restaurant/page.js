@@ -7,6 +7,15 @@ import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import { citiesForLocale, cityLabel } from "@/lib/saudiCities";
+import { uploadDocumentToR2, UploadValidationError } from "@/lib/r2/upload";
+import {
+  CR_RE,
+  VAT_RE,
+  MAPS_RE,
+  DOC_TYPES,
+  MAX_DOC_BYTES,
+  normalizeDigits,
+} from "@/lib/restaurantVerification";
 
 import {
   getCurrentUser,
@@ -46,7 +55,35 @@ import {
   ClipboardList,
   ShieldCheck,
   Loader2,
+  BadgeCheck,
+  Receipt,
+  Map as MapIcon,
+  FileUp,
+  MailWarning,
 } from "lucide-react";
+
+const EMPTY_FORM = {
+  restaurantName: "",
+  city: "",
+  phone: "",
+  address: "",
+  description: "",
+  crNumber: "",
+  vatNumber: "",
+  mapsUrl: "",
+};
+
+// Maps DB/guard-trigger errors from submitRestaurantRequest to message keys.
+function submitErrorKey(error) {
+  const text = `${error?.message || ""} ${error?.details || ""}`;
+  if (text.includes("email_not_verified")) return "emailNotVerified";
+  if (text.includes("restaurant_requests_one_pending_per_user")) return "alreadyPending";
+  if (text.includes("restaurant_requests_cr_number_active")) return "crAlreadyUsed";
+  if (text.includes("cr_number_format")) return "invalidCr";
+  if (text.includes("vat_number_format")) return "invalidVat";
+  if (text.includes("maps_url_format")) return "invalidMaps";
+  return null;
+}
 
 export default function RequestRestaurantPage() {
   const t = useTranslations("dashboard.customer");
@@ -54,13 +91,10 @@ export default function RequestRestaurantPage() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [existingRequests, setExistingRequests] = useState([]);
-  const [formData, setFormData] = useState({
-    restaurantName: "",
-    city: "",
-    phone: "",
-    address: "",
-    description: "",
-  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [crFile, setCrFile] = useState(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -101,6 +135,9 @@ export default function RequestRestaurantPage() {
     [existingRequests],
   );
 
+  const emailUnverified = !!user && !user.email_confirmed_at;
+  const formLocked = hasPendingRequest || emailUnverified;
+
   const statusBadge = (status) => {
     if (status === "pending") return <Badge variant="secondary">{t("requestStatus.pending")}</Badge>;
     if (status === "approved") return <Badge className="bg-emerald-600 hover:bg-emerald-600">{t("requestStatus.approved")}</Badge>;
@@ -110,37 +147,64 @@ export default function RequestRestaurantPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    const fail = (key) => {
+      setError(t(`requestRestaurantPage.errors.${key}`));
+      setSubmitting(false);
+      setUploadProgress(null);
+    };
+
+    const crNumber = normalizeDigits(formData.crNumber);
+    const vatNumber = normalizeDigits(formData.vatNumber);
+    const mapsUrl = formData.mapsUrl.trim();
+
+    if (formData.phone.trim().length < 10) return fail("invalidPhone");
+    if (!CR_RE.test(crNumber)) return fail("invalidCr");
+    if (vatNumber && !VAT_RE.test(vatNumber)) return fail("invalidVat");
+    if (!MAPS_RE.test(mapsUrl)) return fail("invalidMaps");
+    if (!crFile) return fail("missingDocument");
+    if (!DOC_TYPES.includes(crFile.type)) return fail("docInvalidType");
+    if (crFile.size > MAX_DOC_BYTES) return fail("docTooLarge");
+
     setSubmitting(true);
 
-    if (formData.phone.trim().length < 10) {
-      setError(t("requestRestaurantPage.errors.invalidPhone"));
-      setSubmitting(false);
-      return;
-    }
-
     try {
+      let crDocumentPath;
+      try {
+        setUploadProgress(0);
+        crDocumentPath = await uploadDocumentToR2(crFile, { onProgress: setUploadProgress });
+      } catch (uploadErr) {
+        if (uploadErr instanceof UploadValidationError) {
+          return fail(uploadErr.message === "tooLarge" ? "docTooLarge" : "docInvalidType");
+        }
+        return fail("uploadFailed");
+      }
+      setUploadProgress(null);
+
       const { error: submitError } = await submitRestaurantRequest(user.id, {
         name: formData.restaurantName,
         city: formData.city,
         phone: formData.phone,
         address: formData.address,
         description: formData.description,
+        crNumber,
+        vatNumber: vatNumber || null,
+        mapsUrl,
+        crDocumentPath,
       });
 
       if (submitError) {
+        const key = submitErrorKey(submitError);
+        if (key) return fail(key);
         setError(submitError.message);
         setSubmitting(false);
         return;
       }
 
       setSuccess(true);
-      setFormData({
-        restaurantName: "",
-        city: "",
-        phone: "",
-        address: "",
-        description: "",
-      });
+      setFormData(EMPTY_FORM);
+      setCrFile(null);
+      setFileInputKey((k) => k + 1);
 
       const { data: requests } = await getUserRequests(user.id);
       setExistingRequests(requests || []);
@@ -153,6 +217,7 @@ export default function RequestRestaurantPage() {
     } catch (err) {
       setError(t("requestRestaurantPage.errors.unexpected", { message: err.message }));
       setSubmitting(false);
+      setUploadProgress(null);
     }
   };
 
@@ -212,6 +277,16 @@ export default function RequestRestaurantPage() {
           </Alert>
         )}
 
+        {emailUnverified && !success && (
+          <Alert className="mb-6 border-amber-200 bg-amber-50 text-amber-950">
+            <MailWarning className="h-4 w-4" />
+            <AlertTitle>{t("requestRestaurantPage.emailNotVerifiedTitle")}</AlertTitle>
+            <AlertDescription>
+              {t("requestRestaurantPage.emailNotVerifiedDescription")}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {hasPendingRequest && !success && (
           <Alert className="mb-6 border-amber-200 bg-amber-50 text-amber-950">
             <AlertTriangle className="h-4 w-4" />
@@ -247,7 +322,7 @@ export default function RequestRestaurantPage() {
                     }
                     placeholder={t("requestRestaurantPage.fields.restaurantNamePlaceholder")}
                     required
-                    disabled={hasPendingRequest}
+                    disabled={formLocked}
                   />
                   <p className="text-xs text-muted-foreground">
                     {t("requestRestaurantPage.fields.restaurantNameHelp")}
@@ -264,7 +339,7 @@ export default function RequestRestaurantPage() {
                   <Select
                     value={formData.city}
                     onValueChange={(v) => setFormData({ ...formData, city: v })}
-                    disabled={hasPendingRequest}
+                    disabled={formLocked}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder={t("requestRestaurantPage.fields.cityPlaceholder")} />
@@ -295,7 +370,7 @@ export default function RequestRestaurantPage() {
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder={t("requestRestaurantPage.fields.whatsappPlaceholder")}
                     required
-                    disabled={hasPendingRequest}
+                    disabled={formLocked}
                     inputMode="numeric"
                   />
                   <p className="text-xs text-muted-foreground">
@@ -314,7 +389,7 @@ export default function RequestRestaurantPage() {
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     placeholder={t("requestRestaurantPage.fields.addressPlaceholder")}
                     required
-                    disabled={hasPendingRequest}
+                    disabled={formLocked}
                   />
                   <p className="text-xs text-muted-foreground">
                     {t("requestRestaurantPage.fields.addressHelp")}
@@ -334,10 +409,100 @@ export default function RequestRestaurantPage() {
                     }
                     placeholder={t("requestRestaurantPage.fields.descriptionPlaceholder")}
                     rows={4}
-                    disabled={hasPendingRequest}
+                    disabled={formLocked}
                   />
                   <p className="text-xs text-muted-foreground">
                     {t("requestRestaurantPage.fields.descriptionHelp")}
+                  </p>
+                </div>
+
+                {/* Business verification */}
+                <Separator />
+                <div className="space-y-1">
+                  <h3 className="flex items-center gap-2 text-base font-semibold">
+                    <BadgeCheck className="h-4 w-4 text-muted-foreground" />
+                    {t("requestRestaurantPage.verificationSection")}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {t("requestRestaurantPage.verificationSectionHelp")}
+                  </p>
+                </div>
+
+                {/* CR number */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <BadgeCheck className="h-4 w-4 text-muted-foreground" />
+                    {t("requestRestaurantPage.fields.crNumber")} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    value={formData.crNumber}
+                    onChange={(e) => setFormData({ ...formData, crNumber: e.target.value })}
+                    placeholder={t("requestRestaurantPage.fields.crNumberPlaceholder")}
+                    required
+                    disabled={formLocked}
+                    inputMode="numeric"
+                    dir="ltr"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t("requestRestaurantPage.fields.crNumberHelp")}
+                  </p>
+                </div>
+
+                {/* VAT number */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Receipt className="h-4 w-4 text-muted-foreground" />
+                    {t("requestRestaurantPage.fields.vatNumber")}
+                  </Label>
+                  <Input
+                    value={formData.vatNumber}
+                    onChange={(e) => setFormData({ ...formData, vatNumber: e.target.value })}
+                    placeholder={t("requestRestaurantPage.fields.vatNumberPlaceholder")}
+                    disabled={formLocked}
+                    inputMode="numeric"
+                    dir="ltr"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t("requestRestaurantPage.fields.vatNumberHelp")}
+                  </p>
+                </div>
+
+                {/* Google Maps link */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <MapIcon className="h-4 w-4 text-muted-foreground" />
+                    {t("requestRestaurantPage.fields.mapsUrl")} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    type="url"
+                    value={formData.mapsUrl}
+                    onChange={(e) => setFormData({ ...formData, mapsUrl: e.target.value })}
+                    placeholder={t("requestRestaurantPage.fields.mapsUrlPlaceholder")}
+                    required
+                    disabled={formLocked}
+                    dir="ltr"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t("requestRestaurantPage.fields.mapsUrlHelp")}
+                  </p>
+                </div>
+
+                {/* CR certificate */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <FileUp className="h-4 w-4 text-muted-foreground" />
+                    {t("requestRestaurantPage.fields.crDocument")} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    key={fileInputKey}
+                    type="file"
+                    accept={DOC_TYPES.join(",")}
+                    onChange={(e) => setCrFile(e.target.files?.[0] || null)}
+                    required
+                    disabled={formLocked}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t("requestRestaurantPage.fields.crDocumentHelp")}
                   </p>
                 </div>
 
@@ -354,13 +519,15 @@ export default function RequestRestaurantPage() {
                 {/* BIG FULL-WIDTH BUTTON */}
                 <Button
                   type="submit"
-                  disabled={submitting || hasPendingRequest}
+                  disabled={submitting || formLocked}
                   className="w-full h-12 text-base font-semibold"
                 >
                   {submitting ? (
                     <>
                       <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                      {t("requestRestaurantPage.submit.submitting")}
+                      {uploadProgress !== null
+                        ? t("requestRestaurantPage.submit.uploading", { percent: uploadProgress })
+                        : t("requestRestaurantPage.submit.submitting")}
                     </>
                   ) : hasPendingRequest ? (
                     <>

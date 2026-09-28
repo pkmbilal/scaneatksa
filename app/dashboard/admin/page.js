@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Inbox, ListChecks, Users as UsersIcon, Store, UtensilsCrossed, CreditCard, TriangleAlert, CheckCircle } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
-import { DUE_SOON_DAYS, freshTrialExpiry, latestSubscriptionAction, latestSubscriptionEvent } from '@/lib/subscription'
+import { DUE_SOON_DAYS, latestSubscriptionAction, latestSubscriptionEvent } from '@/lib/subscription'
 import LoadingScreen from '@/components/common/LoadingScreen'
 import { useSubscriptionEventsRealtime } from '@/components/dashboard/shared/hooks/useSubscriptionEventsRealtime'
 
@@ -323,70 +323,79 @@ export default function AdminDashboard() {
   }
 
   /* ---------------- Requests actions ---------------- */
+  // Maps admin RPC errors (raised in the restaurant_request_verification
+  // migration) to friendly messages.
+  const requestRpcError = (error) => {
+    if (error.message?.includes('request_not_verified')) return t('dialogs.requestNotVerified')
+    if (error.message?.includes('request_not_pending')) return t('dialogs.requestNotPending')
+    return error.message
+  }
+
   const handleApprove = async (request) => {
     setConfirmDialog({
       open: true,
       title: t('dialogs.approveRequestTitle'),
       description: t('dialogs.approveRequestDescription', { name: request.restaurant_name }),
       action: async () => {
-        try {
-          const slug = request.restaurant_name
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '')
+        // One transaction server-side: creates the restaurant on a 30-day
+        // trial, promotes the user to owner and marks the request approved.
+        // Refuses unless the request was marked verified first.
+        const { error } = await supabase.rpc('admin_approve_restaurant_request', {
+          p_request_id: request.id,
+        })
 
-          const nowIso = new Date().toISOString()
-          const trialEndsIso = freshTrialExpiry()
-
-          const { data: restaurant, error: restaurantError } = await supabase
-            .from('restaurants')
-            .insert([
-              {
-                name: request.restaurant_name,
-                slug,
-                phone: request.phone,
-                address: request.address,
-                owner_id: request.user_id,
-                is_active: true,
-                approved_at: nowIso,
-                // Every newly approved restaurant starts on a 30-day free trial.
-                subscription_status: 'trial',
-                subscription_started_at: nowIso,
-                subscription_expires_at: trialEndsIso,
-                trial_used: true,
-              },
-            ])
-            .select()
-            .single()
-
-          if (restaurantError) throw new Error(t('dialogs.errorCreatingRestaurant', { message: restaurantError.message }))
-          if (!restaurant) throw new Error(t('dialogs.errorCreatingRestaurantGeneric'))
-
-          const { error: roleError } = await supabase
-            .from('user_profiles')
-            .update({ role: 'owner' })
-            .eq('id', request.user_id)
-
-          if (roleError) throw new Error(t('dialogs.errorUpdatingRole', { message: roleError.message }))
-
-          const { error: requestError } = await supabase
-            .from('restaurant_requests')
-            .update({
-              status: 'approved',
-              reviewed_at: new Date().toISOString(),
-              reviewed_by: user.id,
-            })
-            .eq('id', request.id)
-
-          if (requestError) throw new Error(t('dialogs.errorUpdatingRequest', { message: requestError.message }))
-
+        if (error) {
+          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: requestRpcError(error), isError: true })
+        } else {
           setInfoDialog({ open: true, title: t('dialogs.successTitle'), description: t('dialogs.requestApproved'), isError: false })
           loadAdminData()
-        } catch (err) {
-          setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: err.message, isError: true })
         }
       },
     })
+  }
+
+  const handleVerify = async (request, verified) => {
+    const { error } = await supabase.rpc('admin_verify_restaurant_request', {
+      p_request_id: request.id,
+      p_verified: verified,
+    })
+
+    if (error) {
+      setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: requestRpcError(error), isError: true })
+    } else {
+      loadRequests()
+    }
+  }
+
+  // The CR certificate lives in the private R2 bucket; the API route hands
+  // back a 5-minute presigned URL. The tab is opened synchronously (before
+  // the await) so popup blockers treat it as user-initiated.
+  const handleViewDocument = async (request) => {
+    const win = window.open('', '_blank')
+    const { data: sess } = await supabase.auth.getSession()
+    const token = sess?.session?.access_token
+
+    const res = await fetch(`/api/admin/restaurant-requests/${request.id}/document`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+    const data = await res.json().catch(() => null)
+
+    if (res.ok && data?.url) {
+      if (win) {
+        win.opener = null
+        win.location.href = data.url
+      } else {
+        window.open(data.url, '_blank', 'noopener')
+      }
+    } else {
+      win?.close()
+      setInfoDialog({
+        open: true,
+        title: t('dialogs.errorTitle'),
+        description: t('dialogs.errorOpeningDocument', { message: data?.error || res.status }),
+        isError: true,
+      })
+    }
   }
 
   const handleReject = (request) => {
@@ -695,6 +704,8 @@ export default function AdminDashboard() {
                   pendingRequests={pendingRequests}
                   onApprove={handleApprove}
                   onReject={handleReject}
+                  onVerify={handleVerify}
+                  onViewDocument={handleViewDocument}
                 />
               )}
 

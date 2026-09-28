@@ -125,17 +125,39 @@
       "addressHelp": "Full physical location of your restaurant.",
       "description": "Description",
       "descriptionPlaceholder": "Cuisine type, branches, why you want to join…",
-      "descriptionHelp": "Optional — helps us understand your business better."
+      "descriptionHelp": "Optional — helps us understand your business better.",
+      "crNumber": "Commercial Registration (CR) Number",
+      "crNumberPlaceholder": "1010123456",
+      "crNumberHelp": "The 10-digit number on your Ministry of Commerce CR certificate.",
+      "vatNumber": "VAT Number",
+      "vatNumberPlaceholder": "300000000000003",
+      "vatNumberHelp": "Optional — your 15-digit ZATCA VAT registration number.",
+      "mapsUrl": "Google Maps Link",
+      "mapsUrlPlaceholder": "https://maps.app.goo.gl/…",
+      "mapsUrlHelp": "Open your restaurant in Google Maps, tap Share and paste the link here.",
+      "crDocument": "CR Certificate",
+      "crDocumentHelp": "PDF or a clear photo (JPG, PNG, WEBP), up to 5MB. Only the admin team can see it."
     },
     "errors": {
       "invalidPhone": "Please enter a valid phone number (include country code, no spaces).",
       "genericTitle": "Something went wrong",
-      "unexpected": "Something went wrong: {message}"
+      "unexpected": "Something went wrong: {message}",
+      "invalidCr": "The CR number must be exactly 10 digits.",
+      "invalidVat": "The VAT number must be 15 digits, starting and ending with 3.",
+      "invalidMaps": "Please paste a Google Maps link (https://maps.app.goo.gl/… or https://www.google.com/maps/…).",
+      "missingDocument": "Please attach your CR certificate.",
+      "docInvalidType": "The certificate must be a PDF, JPG, PNG or WEBP file.",
+      "docTooLarge": "The certificate file is too large (max 5MB).",
+      "uploadFailed": "Uploading the certificate failed. Please try again.",
+      "alreadyPending": "You already have a pending request.",
+      "crAlreadyUsed": "This CR number is already registered or under review.",
+      "emailNotVerified": "Please verify your email address before submitting a request."
     },
     "submit": {
       "submitting": "Submitting…",
       "alreadyPending": "Request Already Pending",
-      "submit": "Submit Request"
+      "submit": "Submit Request",
+      "uploading": "Uploading certificate… {percent}%"
     },
     "sidebar": {
       "nextSteps": {
@@ -149,15 +171,19 @@
       "requirements": {
         "title": "Requirements",
         "subtitle": "Minimum needed to approve",
-        "item1": "Valid restaurant name",
-        "item2": "Active WhatsApp number",
-        "item3": "Physical restaurant location",
-        "item4": "Keep menu updated"
+        "item1": "Valid Commercial Registration (CR)",
+        "item2": "CR certificate (PDF or photo)",
+        "item3": "Google Maps listing of the restaurant",
+        "item4": "Active WhatsApp number"
       },
       "previousRequests": {
         "title": "Your previous requests",
         "subtitle": "History & status"
       }
-    }
+    },
+    "verificationSection": "Business verification",
+    "verificationSectionHelp": "We use these to confirm that you own or manage a real, registered restaurant.",
+    "emailNotVerifiedTitle": "Verify your email first",
+    "emailNotVerifiedDescription": "Please confirm your email address using the link we sent you, then come back to submit your request."
   }
 }

@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/r2/client";
+import { r2Client, R2_BUCKET_NAME, R2_PRIVATE_BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/r2/client";
 import { getAuthedUserId } from "@/lib/r2/auth";
 import { rateLimit } from "@/lib/rateLimit";
 
@@ -20,6 +20,16 @@ const ALLOWED_TYPES = {
   "image/webp": "webp",
   "image/gif": "gif",
 };
+// Restaurant-request documents (CR certificate): PDFs or photos/scans, no GIF.
+// Keep in sync with DOC_TYPES in lib/restaurantVerification.js and the
+// extension list in the restaurant_requests_guard trigger.
+const DOC_TYPES = {
+  "application/pdf": "pdf",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+const PRIVATE_KINDS = new Set(["restaurant-request-doc"]);
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB. Client-declared, not server-enforced (see note below).
 
 // Every upload "kind" resolves to an object key namespaced by whatever it
@@ -30,6 +40,10 @@ async function resolveKey(kind, userId, ext) {
 
   if (kind === "avatar") {
     return { key: `avatars/${userId}/${uuid}.${ext}` };
+  }
+
+  if (kind === "restaurant-request-doc") {
+    return { key: `restaurant-requests/${userId}/${uuid}.${ext}` };
   }
 
   if (kind === "restaurant-logo" || kind === "menu-item") {
@@ -71,7 +85,8 @@ export async function POST(req) {
   const body = await req.json().catch(() => null);
   const { kind, contentType, fileSize } = body || {};
 
-  const ext = ALLOWED_TYPES[contentType];
+  const isPrivate = PRIVATE_KINDS.has(kind);
+  const ext = (isPrivate ? DOC_TYPES : ALLOWED_TYPES)[contentType];
   if (!ext) {
     return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
   }
@@ -89,7 +104,7 @@ export async function POST(req) {
   // without it a client could declare a small fileSize here and then PUT an
   // arbitrarily large body straight to the signed URL.
   const command = new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
+    Bucket: isPrivate ? R2_PRIVATE_BUCKET_NAME : R2_BUCKET_NAME,
     Key: key,
     ContentType: contentType,
     ContentLength: fileSize,
@@ -97,10 +112,11 @@ export async function POST(req) {
 
   const uploadUrl = await getSignedUrl(r2Client, command, { expiresIn: 60 });
 
+  // Private objects have no public URL -- callers store the key instead.
   return NextResponse.json({
     ok: true,
     uploadUrl,
-    publicUrl: `${R2_PUBLIC_URL}/${key}`,
+    ...(isPrivate ? {} : { publicUrl: `${R2_PUBLIC_URL}/${key}` }),
     key,
   });
 }
