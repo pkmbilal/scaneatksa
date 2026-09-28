@@ -149,7 +149,13 @@ export default function MobileTabBar() {
   ];
 
   const accountLinks = [
-    { href: "/dashboard/customer/edit-profile", label: t("userMenu.editProfile"), icon: UserRoundPen },
+    {
+      href: ["admin", "owner"].includes(profile?.role)
+        ? `/dashboard/${profile.role}/edit-profile`
+        : "/dashboard/customer/edit-profile",
+      label: t("userMenu.editProfile"),
+      icon: UserRoundPen,
+    },
     { href: "/dashboard/change-password", label: t("userMenu.changePassword"), icon: KeyRound },
     ...(profile?.role === "customer"
       ? [{ href: "/dashboard/customer/request-restaurant", label: t("userMenu.requestOwnerAccess"), icon: ShieldUser }]
