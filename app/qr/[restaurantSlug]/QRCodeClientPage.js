@@ -237,7 +237,6 @@ export default function QRCodeClientPage({ restaurantSlug }) {
       const dataUrl = await toPng(node, {
         cacheBust: true,
         pixelRatio: 4,
-        backgroundColor: '#ffffff',
       })
 
       const a = document.createElement('a')
