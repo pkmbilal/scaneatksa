@@ -1,14 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
+import { getCurrentUser, getUserProfile, getDashboardPath } from '@/lib/auth/client'
 import LoadingScreen from '@/components/common/LoadingScreen'
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard.common')
-  const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
@@ -31,25 +30,8 @@ export default function DashboardPage() {
         return
       }
 
-      // Redirect based on role
-      switch (profile.role) {
-        case 'admin':
-          router.push('/dashboard/admin')
-          break
-        case 'owner':
-          router.push('/dashboard/owner')
-          break
-        case 'kitchen':
-          router.push('/dashboard/kitchen')
-          break
-        case 'waiter':
-          router.push('/dashboard/waiter')
-          break
-        case 'customer':
-        default:
-          router.push('/dashboard/customer')
-          break
-      }
+      // Redirect based on role (replace so Back skips this hop)
+      router.replace(getDashboardPath(profile.role))
     }
 
     checkUserAndRedirect()

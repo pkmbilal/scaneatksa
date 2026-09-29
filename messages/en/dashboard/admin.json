@@ -83,15 +83,14 @@
     "approveRequestTitle": "Approve Request",
     "approveRequestDescription": "Approve {name}? This will create the restaurant and promote the user to Owner.",
     "requestApproved": "Request approved! Restaurant created.",
-    "errorCreatingRestaurant": "Error creating restaurant: {message}",
-    "errorCreatingRestaurantGeneric": "Failed to create restaurant",
-    "errorUpdatingRole": "Error updating user role: {message}",
-    "errorUpdatingRequest": "Error updating request: {message}",
     "requestRejected": "Request rejected.",
     "rejectRequestTitle": "Reject Request",
     "rejectRequestDescription": "Please provide a reason for rejecting this request.",
     "rejectReasonPlaceholder": "Reason for rejection...",
-    "rejectConfirm": "Reject"
+    "rejectConfirm": "Reject",
+    "errorOpeningDocument": "Couldn't open the certificate: {message}",
+    "requestNotVerified": "Mark the request as verified before approving it.",
+    "requestNotPending": "This request is no longer pending."
   },
   "cuisinesTab": {
     "addHeading": "Add Cuisine",
@@ -121,7 +120,9 @@
   },
   "allRequestsTab": {
     "emptyState": "No requests yet.",
-    "reasonLabel": "Reason: {reason}"
+    "reasonLabel": "Reason: {reason}",
+    "verifiedBadge": "Verified",
+    "crLabel": "CR: {cr}"
   },
   "pendingRequestsTab": {
     "emptyState": "No pending requests",
@@ -132,7 +133,21 @@
     "addressLabel": "Address:",
     "descriptionLabel": "Description:",
     "approveButton": "Approve",
-    "rejectButton": "Reject"
+    "rejectButton": "Reject",
+    "verificationTitle": "Verification",
+    "crLabel": "CR:",
+    "vatLabel": "VAT:",
+    "lookupCr": "Check on MoC",
+    "copy": "Copy",
+    "copied": "Copied",
+    "openMaps": "Open in Maps",
+    "viewDocument": "View CR certificate",
+    "noDocument": "No certificate",
+    "notProvided": "Not provided",
+    "markVerified": "Mark as verified",
+    "unverify": "Undo verification",
+    "verifiedLabel": "Verified",
+    "verifyFirstHint": "Check the CR, certificate and Maps listing, then mark the request verified to enable approval."
   },
   "restaurantsTab": {
     "emptyState": "No restaurants yet",

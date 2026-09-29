@@ -9,7 +9,9 @@
     "account": "حسابي",
     "more": "المزيد",
     "navigation": "التنقل",
-    "preferences": "التفضيلات"
+    "preferences": "التفضيلات",
+    "editRestaurant": "تعديل المطعم",
+    "editMenuItem": "تعديل الصنف"
   },
   "settings": {
     "language": "اللغة",

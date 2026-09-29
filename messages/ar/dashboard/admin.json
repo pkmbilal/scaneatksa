@@ -83,15 +83,14 @@
     "approveRequestTitle": "الموافقة على الطلب",
     "approveRequestDescription": "هل تريد الموافقة على {name}؟ سيؤدي هذا إلى إنشاء المطعم وترقية المستخدم إلى مالك.",
     "requestApproved": "تمت الموافقة على الطلب! تم إنشاء المطعم.",
-    "errorCreatingRestaurant": "خطأ في إنشاء المطعم: {message}",
-    "errorCreatingRestaurantGeneric": "فشل إنشاء المطعم",
-    "errorUpdatingRole": "خطأ في تحديث دور المستخدم: {message}",
-    "errorUpdatingRequest": "خطأ في تحديث الطلب: {message}",
     "requestRejected": "تم رفض الطلب.",
     "rejectRequestTitle": "رفض الطلب",
     "rejectRequestDescription": "يرجى تقديم سبب لرفض هذا الطلب.",
     "rejectReasonPlaceholder": "سبب الرفض...",
-    "rejectConfirm": "رفض"
+    "rejectConfirm": "رفض",
+    "errorOpeningDocument": "تعذّر فتح الشهادة: {message}",
+    "requestNotVerified": "يجب التحقق من الطلب قبل الموافقة عليه.",
+    "requestNotPending": "لم يعد هذا الطلب قيد المراجعة."
   },
   "cuisinesTab": {
     "addHeading": "إضافة مطبخ",
@@ -121,7 +120,9 @@
   },
   "allRequestsTab": {
     "emptyState": "لا توجد طلبات بعد.",
-    "reasonLabel": "السبب: {reason}"
+    "reasonLabel": "السبب: {reason}",
+    "verifiedBadge": "تم التحقق",
+    "crLabel": "السجل التجاري: {cr}"
   },
   "pendingRequestsTab": {
     "emptyState": "لا توجد طلبات معلقة",
@@ -132,7 +133,21 @@
     "addressLabel": "العنوان:",
     "descriptionLabel": "الوصف:",
     "approveButton": "موافقة",
-    "rejectButton": "رفض"
+    "rejectButton": "رفض",
+    "verificationTitle": "التحقق",
+    "crLabel": "السجل التجاري:",
+    "vatLabel": "الرقم الضريبي:",
+    "lookupCr": "التحقق عبر وزارة التجارة",
+    "copy": "نسخ",
+    "copied": "تم النسخ",
+    "openMaps": "فتح في الخرائط",
+    "viewDocument": "عرض شهادة السجل",
+    "noDocument": "لا توجد شهادة",
+    "notProvided": "غير مُدخل",
+    "markVerified": "تعيين كمُتحقَّق منه",
+    "unverify": "إلغاء التحقق",
+    "verifiedLabel": "تم التحقق",
+    "verifyFirstHint": "راجع السجل التجاري والشهادة وموقع الخرائط، ثم عيّن الطلب كمُتحقَّق منه لتفعيل الموافقة."
   },
   "restaurantsTab": {
     "emptyState": "لا توجد مطاعم بعد",

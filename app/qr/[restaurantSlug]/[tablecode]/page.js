@@ -1,13 +1,12 @@
 import { redirect } from 'next/navigation'
 
-export default async function Page(props) {
-  const p = await props
-  const params = await p.params
-
-  const restaurantSlug = params?.restaurantSlug
-  const tableCode = params?.tableCode
+// Legacy /qr/<slug>/<code> links -> the customer menu in dine-in mode, the
+// same URL the generated table QR codes point at.
+export default async function Page({ params }) {
+  const { restaurantSlug, tablecode } = await params
+  const slug = encodeURIComponent(restaurantSlug)
 
   redirect(
-    `/qr/${encodeURIComponent(restaurantSlug)}?code=${encodeURIComponent(tableCode)}`
+    tablecode ? `/menu/${slug}?t=${encodeURIComponent(tablecode)}` : `/menu/${slug}`
   )
 }

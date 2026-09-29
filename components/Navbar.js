@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "@/components/LocaleLink";
 import { useRouter, usePathname } from "next/navigation";
-import { stripLocalePrefix } from "@/lib/seo";
+import { stripLocalePrefix, isDashboardHome, isDashboardSubPage } from "@/lib/seo";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { getSessionUser, getUserProfile, signOut } from "@/lib/auth/client";
+import { getSessionUser, getUserProfile, signOut, getDashboardPath } from "@/lib/auth/client";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -46,6 +46,8 @@ import {
   ShoppingCart,
   KeyRound,
   ChevronRight,
+  Store,
+  SquarePen,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -66,22 +68,17 @@ export default function Navbar() {
   const isDark = resolvedTheme === "dark";
 
   // ✅ compute this early, but DON'T return yet (hooks must run first)
-  const hideNavbar =
-    pathname?.startsWith("/auth/") ||
-    pathname === "/dashboard" ||
-    pathname?.startsWith("/dashboard/admin") ||
-    pathname?.startsWith("/dashboard/owner") ||
-    pathname?.startsWith("/dashboard/customer") ||
-    pathname?.startsWith("/dashboard/kitchen") ||
-    pathname?.startsWith("/dashboard/waiter");
+  // Dashboard homes have their own DashboardHeader; dashboard sub-pages
+  // (edit-profile, restaurant/menu edit, ...) keep this bar on mobile.
+  const hideNavbar = pathname?.startsWith("/auth/") || isDashboardHome(pathname);
 
   // Only the home page gets a transparent header floating over its photo
   // hero; every other route keeps the normal solid sticky bar.
   const isHome = pathname === "/";
-  // Change-password is a dashboard-adjacent utility page: it gets this bar's
-  // logo+page-pill on mobile (matching every other page), but never on
-  // desktop, where it already has its own "Back to Dashboard" link.
-  const isChangePassword = pathname?.startsWith("/dashboard/change-password");
+  // Dashboard sub-pages (change-password, edit-profile, restaurant/menu
+  // edit, request-restaurant) get this bar's logo+page-pill on mobile, but
+  // never on desktop, where each already has its own "Back to Dashboard" link.
+  const isDashboardSub = isDashboardSubPage(pathname);
   // The QR menu page is the one exception to "no top nav on mobile" -- it's
   // the only route whose mobile hamburger (language/theme/account access)
   // still lives inside this header, so it must stay visible there.
@@ -153,11 +150,7 @@ export default function Navbar() {
     return user?.email?.[0]?.toUpperCase() || "U";
   };
 
-  const getDashboardLink = () => {
-    if (profile?.role === "admin") return "/dashboard/admin";
-    if (profile?.role === "owner") return "/dashboard/owner";
-    return "/dashboard/customer";
-  };
+  const getDashboardLink = () => getDashboardPath(profile?.role);
 
   const roleLabels = {
     admin: t("roleLabels.admin"),
@@ -202,14 +195,22 @@ export default function Navbar() {
             ? { label: t("nav.contact"), icon: Headset }
             : pathname === "/cart"
               ? { label: t("nav.cart"), icon: ShoppingCart }
-              : isChangePassword
+              : pathname?.startsWith("/dashboard/change-password")
                 ? { label: t("userMenu.changePassword"), icon: KeyRound }
-                : null;
+                : pathname?.endsWith("/edit-profile")
+                  ? { label: t("userMenu.editProfile"), icon: UserRoundPen }
+                  : pathname === "/dashboard/customer/request-restaurant"
+                    ? { label: t("userMenu.requestOwnerAccess"), icon: ShieldUser }
+                    : pathname === "/dashboard/owner/restaurant/edit"
+                      ? { label: t("nav.editRestaurant"), icon: Store }
+                      : pathname?.startsWith("/dashboard/owner/menu/")
+                        ? { label: t("nav.editMenuItem"), icon: SquarePen }
+                        : null;
 
   return (
     <header
       className={`relative z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${
-        isHome ? "hidden md:block" : isChangePassword ? "md:hidden" : ""
+        isHome ? "hidden md:block" : isDashboardSub ? "md:hidden" : ""
       } ${
         isHome ? `md:fixed md:inset-x-0 ${isTransparent ? "md:top-4" : "md:top-0"}` : "md:sticky md:top-0"
       } ${isTransparent ? "md:bg-transparent md:border-transparent md:backdrop-blur-none" : ""}`}
