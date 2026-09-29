@@ -8,7 +8,8 @@ import { signIn, getDashboardPath } from "@/lib/auth/client";
 import { mapAuthError } from "@/lib/auth/errors";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-import { Pizza, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
@@ -72,7 +73,7 @@ export default function LoginPage() {
         <div className="w-full min-h-screen p-8 flex flex-col justify-center">
           <div className="flex items-center justify-center flex-col mb-6">
             <div className="text-5xl mb-2">
-              <Pizza size={48} color="#00c951" />
+              <Image src="/scaneat-logo.png" alt="ScanEat" width={72} height={72} priority />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
               {t("login.welcomeBack")}
@@ -164,7 +165,7 @@ export default function LoginPage() {
         <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
           <div className="flex items-center justify-center flex-col mb-6">
             <div className="text-5xl mb-2">
-              <Pizza size={48} color="#00c951" />
+              <Image src="/scaneat-logo.png" alt="ScanEat" width={72} height={72} priority />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
               {t("login.welcomeBack")}
