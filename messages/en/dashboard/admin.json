@@ -147,7 +147,8 @@
     "markVerified": "Mark as verified",
     "unverify": "Undo verification",
     "verifiedLabel": "Verified",
-    "verifyFirstHint": "Check the CR, certificate and Maps listing, then mark the request verified to enable approval."
+    "verifyFirstHint": "Check the CR, certificate and Maps listing, then mark the request verified to enable approval.",
+    "crMissingHint": "CR number or certificate not provided. If approved, the owner has {days} days to upload them or the restaurant is suspended."
   },
   "restaurantsTab": {
     "emptyState": "No restaurants yet",
@@ -187,7 +188,8 @@
       "grace": "Grace period",
       "expired": "Expired",
       "suspended": "Suspended",
-      "requested": "Renewal requested"
+      "requested": "Renewal requested",
+      "crPending": "CR pending"
     },
     "state": {
       "trial": "Trial",
@@ -271,6 +273,20 @@
       "suspended": "{name} suspended — hidden from customers.",
       "unsuspended": "{name} reactivated.",
       "notesSaved": "Notes saved for {name}."
+    },
+    "cr": {
+      "label": "CR:",
+      "viewDocument": "View certificate",
+      "verify": "Verify",
+      "reject": "Reject",
+      "verifiedSuccess": "CR verified. The restaurant is no longer subject to the CR deadline.",
+      "rejectedSuccess": "CR rejected. The owner has been asked to upload it again.",
+      "state": {
+        "verified": "Verified",
+        "due": "Missing — {count, plural, one {# day} other {# days}} left",
+        "overdue": "Missing — deadline passed (suspended)",
+        "underReview": "Submitted — awaiting verification"
+      }
     }
   },
   "usersTab": {

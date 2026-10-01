@@ -8,7 +8,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { CR_LOOKUP_URL } from '@/lib/restaurantVerification'
+import { CR_LOOKUP_URL, CR_DEADLINE_DAYS } from '@/lib/restaurantVerification'
 
 export default function PendingRequestsTab({ pendingRequests, onApprove, onReject, onVerify, onViewDocument }) {
   const t = useTranslations('dashboard.admin')
@@ -39,6 +39,7 @@ export default function PendingRequestsTab({ pendingRequests, onApprove, onRejec
     <div className="space-y-4">
       {pendingRequests.map((request) => {
         const verified = !!request.verified_at
+        const crMissing = !request.cr_number || !request.cr_document_path
 
         return (
           <div
@@ -164,6 +165,12 @@ export default function PendingRequestsTab({ pendingRequests, onApprove, onRejec
                   <p className="text-xs text-gray-500 dark:text-gray-400">{t('pendingRequestsTab.verifyFirstHint')}</p>
                 )}
               </div>
+
+              {crMissing && (
+                <p className="mt-3 rounded-lg bg-warning-50 px-3 py-2 text-xs font-medium text-warning-700 dark:bg-warning-500/10 dark:text-warning-400">
+                  {t('pendingRequestsTab.crMissingHint', { days: CR_DEADLINE_DAYS })}
+                </p>
+              )}
             </div>
 
             <div className="flex gap-3">

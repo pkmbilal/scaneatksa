@@ -14,6 +14,7 @@ import {
   MAPS_RE,
   DOC_TYPES,
   MAX_DOC_BYTES,
+  CR_DEADLINE_DAYS,
   normalizeDigits,
 } from "@/lib/restaurantVerification";
 
@@ -97,6 +98,9 @@ export default function RequestRestaurantPage() {
   const [uploadProgress, setUploadProgress] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  // Submitted without CR number + certificate -> success alert repeats the
+  // CR_DEADLINE_DAYS deadline.
+  const [submittedWithoutCr, setSubmittedWithoutCr] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -159,35 +163,38 @@ export default function RequestRestaurantPage() {
     const mapsUrl = formData.mapsUrl.trim();
 
     if (formData.phone.trim().length < 10) return fail("invalidPhone");
-    if (!CR_RE.test(crNumber)) return fail("invalidCr");
+    // CR number + certificate are optional here; without them the owner gets
+    // CR_DEADLINE_DAYS after approval to submit them from the dashboard.
+    if (crNumber && !CR_RE.test(crNumber)) return fail("invalidCr");
     if (vatNumber && !VAT_RE.test(vatNumber)) return fail("invalidVat");
     if (!MAPS_RE.test(mapsUrl)) return fail("invalidMaps");
-    if (!crFile) return fail("missingDocument");
-    if (!DOC_TYPES.includes(crFile.type)) return fail("docInvalidType");
-    if (crFile.size > MAX_DOC_BYTES) return fail("docTooLarge");
+    if (crFile && !DOC_TYPES.includes(crFile.type)) return fail("docInvalidType");
+    if (crFile && crFile.size > MAX_DOC_BYTES) return fail("docTooLarge");
 
     setSubmitting(true);
 
     try {
-      let crDocumentPath;
-      try {
-        setUploadProgress(0);
-        crDocumentPath = await uploadDocumentToR2(crFile, { onProgress: setUploadProgress });
-      } catch (uploadErr) {
-        if (uploadErr instanceof UploadValidationError) {
-          return fail(uploadErr.message === "tooLarge" ? "docTooLarge" : "docInvalidType");
+      let crDocumentPath = null;
+      if (crFile) {
+        try {
+          setUploadProgress(0);
+          crDocumentPath = await uploadDocumentToR2(crFile, { onProgress: setUploadProgress });
+        } catch (uploadErr) {
+          if (uploadErr instanceof UploadValidationError) {
+            return fail(uploadErr.message === "tooLarge" ? "docTooLarge" : "docInvalidType");
+          }
+          console.error("CR upload failed:", uploadErr);
+          // Append the underlying reason (HTTP status, server message) unless
+          // it's just a bare internal code.
+          const detail = uploadErr?.message;
+          fail("uploadFailed");
+          if (detail && detail !== "uploadFailed" && detail !== "presignFailed") {
+            setError(`${t("requestRestaurantPage.errors.uploadFailed")} (${detail})`);
+          }
+          return;
         }
-        console.error("CR upload failed:", uploadErr);
-        // Append the underlying reason (HTTP status, server message) unless
-        // it's just a bare internal code.
-        const detail = uploadErr?.message;
-        fail("uploadFailed");
-        if (detail && detail !== "uploadFailed" && detail !== "presignFailed") {
-          setError(`${t("requestRestaurantPage.errors.uploadFailed")} (${detail})`);
-        }
-        return;
+        setUploadProgress(null);
       }
-      setUploadProgress(null);
 
       const { error: submitError } = await submitRestaurantRequest(user.id, {
         name: formData.restaurantName,
@@ -195,7 +202,7 @@ export default function RequestRestaurantPage() {
         phone: formData.phone,
         address: formData.address,
         description: formData.description,
-        crNumber,
+        crNumber: crNumber || null,
         vatNumber: vatNumber || null,
         mapsUrl,
         crDocumentPath,
@@ -209,6 +216,7 @@ export default function RequestRestaurantPage() {
         return;
       }
 
+      setSubmittedWithoutCr(!crNumber || !crDocumentPath);
       setSuccess(true);
       setFormData(EMPTY_FORM);
       setCrFile(null);
@@ -281,6 +289,11 @@ export default function RequestRestaurantPage() {
             <AlertTitle>{t("requestRestaurantPage.successTitle")}</AlertTitle>
             <AlertDescription>
               {t("requestRestaurantPage.successDescription")}
+              {submittedWithoutCr && (
+                <span className="mt-1 block font-medium">
+                  {t("requestRestaurantPage.crDeadlineNotice", { days: CR_DEADLINE_DAYS })}
+                </span>
+              )}
             </AlertDescription>
           </Alert>
         )}
@@ -436,17 +449,24 @@ export default function RequestRestaurantPage() {
                   </p>
                 </div>
 
+                <Alert className="border-amber-200 bg-amber-50 text-amber-950">
+                  <Clock className="h-4 w-4" />
+                  <AlertTitle>{t("requestRestaurantPage.crDeadlineNoticeTitle")}</AlertTitle>
+                  <AlertDescription>
+                    {t("requestRestaurantPage.crDeadlineNotice", { days: CR_DEADLINE_DAYS })}
+                  </AlertDescription>
+                </Alert>
+
                 {/* CR number */}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <BadgeCheck className="h-4 w-4 text-muted-foreground" />
-                    {t("requestRestaurantPage.fields.crNumber")} <span className="text-destructive">*</span>
+                    {t("requestRestaurantPage.fields.crNumber")}
                   </Label>
                   <Input
                     value={formData.crNumber}
                     onChange={(e) => setFormData({ ...formData, crNumber: e.target.value })}
                     placeholder={t("requestRestaurantPage.fields.crNumberPlaceholder")}
-                    required
                     disabled={formLocked}
                     inputMode="numeric"
                     dir="ltr"
@@ -499,14 +519,13 @@ export default function RequestRestaurantPage() {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <FileUp className="h-4 w-4 text-muted-foreground" />
-                    {t("requestRestaurantPage.fields.crDocument")} <span className="text-destructive">*</span>
+                    {t("requestRestaurantPage.fields.crDocument")}
                   </Label>
                   <Input
                     key={fileInputKey}
                     type="file"
                     accept={DOC_TYPES.join(",")}
                     onChange={(e) => setCrFile(e.target.files?.[0] || null)}
-                    required
                     disabled={formLocked}
                   />
                   <p className="text-xs text-muted-foreground">

@@ -409,5 +409,26 @@
     "save": "Save Changes",
     "saving": "Saving...",
     "cancel": "Cancel"
+  },
+  "crReminder": {
+    "title": "Commercial Registration (CR) required",
+    "due": "Upload your CR number and certificate within {count, plural, one {# day} other {# days}}, or your restaurant will be suspended until you do.",
+    "overdue": "Your restaurant is suspended: the 7-day CR deadline has passed. Upload your CR below — it goes live again once our team verifies it.",
+    "underReview": "Thanks! Your CR has been submitted and is waiting for verification by our team.",
+    "underReviewOverdue": "Your CR has been submitted. Your restaurant stays suspended until our team verifies it.",
+    "crNumber": "CR number",
+    "document": "CR certificate",
+    "documentHelp": "PDF or a clear photo (JPG, PNG, WEBP), up to 5MB. Only the admin team can see it.",
+    "submit": "Upload CR",
+    "submitting": "Submitting…",
+    "uploading": "Uploading… {percent}%",
+    "errors": {
+      "invalidCr": "The CR number must be exactly 10 digits.",
+      "missingDocument": "Please attach your CR certificate.",
+      "docInvalidType": "The certificate must be a PDF, JPG, PNG or WEBP file.",
+      "docTooLarge": "The certificate file is too large (max 5MB).",
+      "uploadFailed": "Uploading the certificate failed. Please try again.",
+      "crAlreadyUsed": "This CR number is already registered to another restaurant."
+    }
   }
 }

@@ -38,8 +38,9 @@ import {
   TRIAL_DAYS,
   DUE_SOON_DAYS,
 } from '@/lib/subscription'
+import { getCrState } from '@/lib/restaurantVerification'
 
-const FILTERS = ['all', 'trial', 'active', 'grace', 'expired', 'suspended', 'requested']
+const FILTERS = ['all', 'trial', 'active', 'grace', 'expired', 'suspended', 'requested', 'crPending']
 const PAYMENT_METHODS = ['bankTransfer', 'stcPay', 'cash', 'other']
 
 const BADGE_CLASS = {
@@ -62,12 +63,13 @@ function sortByExpiry(list) {
 function matchesFilter(restaurant, filter, pendingRenewalIds) {
   if (filter === 'all') return true
   if (filter === 'requested') return pendingRenewalIds.has(restaurant.id)
+  if (filter === 'crPending') return ['due', 'overdue', 'underReview'].includes(getCrState(restaurant).state)
   const state = getSubscriptionState(restaurant)
   if (filter === 'active') return state === 'active' || state === 'unlimited'
   return state === filter
 }
 
-export default function SubscriptionsTab({ restaurants, events, onUpdate }) {
+export default function SubscriptionsTab({ restaurants, events, onUpdate, onViewCr, onVerifyCr }) {
   const t = useTranslations('dashboard.admin')
   const [filter, setFilter] = useState('all')
   const [dateDialog, setDateDialog] = useState({ open: false, restaurant: null, value: '' })
@@ -187,6 +189,8 @@ export default function SubscriptionsTab({ restaurants, events, onUpdate }) {
             events={(events || []).filter((e) => e.restaurant_id === restaurant.id)}
             isPendingRenewal={pendingRenewalIds.has(restaurant.id)}
             onUpdate={onUpdate}
+            onViewCr={onViewCr}
+            onVerifyCr={onVerifyCr}
             onStartTrial={() => startTrial(restaurant)}
             onOpenPayment={() =>
               setPaymentDialog({
@@ -395,6 +399,8 @@ function SubscriptionCard({
   events,
   isPendingRenewal,
   onUpdate,
+  onViewCr,
+  onVerifyCr,
   onStartTrial,
   onOpenPayment,
   onOpenDate,
@@ -467,6 +473,7 @@ function SubscriptionCard({
         {restaurant.trial_used && (
           <p className="text-xs">{t('subscriptionsTab.trialUsedHint')}</p>
         )}
+        <CrStatus restaurant={restaurant} onViewCr={onViewCr} onVerifyCr={onVerifyCr} />
         {restaurant.subscription_notes && (
           <p className="text-xs italic">
             <span className="font-semibold not-italic text-gray-700 dark:text-gray-300">
@@ -547,6 +554,52 @@ function SubscriptionCard({
             </ul>
           )}
         </div>
+      )}
+    </div>
+  )
+}
+
+// CR deadline for restaurants approved without a CR (see getCrState). Verify /
+// reject only applies once the owner has submitted one from their dashboard.
+function CrStatus({ restaurant, onViewCr, onVerifyCr }) {
+  const t = useTranslations('dashboard.admin')
+  const cr = getCrState(restaurant)
+  if (cr.state === 'none') return null
+
+  const tone =
+    cr.state === 'verified'
+      ? 'text-success-600 dark:text-success-400'
+      : cr.state === 'overdue' || cr.overdue
+        ? 'text-error-600 dark:text-error-400'
+        : 'text-warning-600 dark:text-warning-400'
+
+  const linkClass = 'text-brand-500 hover:text-brand-600 hover:underline dark:text-brand-400'
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <span className="font-semibold text-gray-700 dark:text-gray-300">{t('subscriptionsTab.cr.label')}</span>
+      <span className={tone}>{t(`subscriptionsTab.cr.state.${cr.state}`, { count: cr.daysLeft ?? 0 })}</span>
+      {restaurant.cr_number && (
+        <span dir="ltr" className="font-mono text-xs text-gray-700 dark:text-gray-300">
+          {restaurant.cr_number}
+        </span>
+      )}
+      {cr.state === 'underReview' && (
+        <>
+          <button type="button" onClick={() => onViewCr(restaurant)} className={linkClass}>
+            {t('subscriptionsTab.cr.viewDocument')} ↗
+          </button>
+          <button type="button" onClick={() => onVerifyCr(restaurant, true)} className={linkClass}>
+            {t('subscriptionsTab.cr.verify')}
+          </button>
+          <button
+            type="button"
+            onClick={() => onVerifyCr(restaurant, false)}
+            className="text-error-600 hover:underline dark:text-error-400"
+          >
+            {t('subscriptionsTab.cr.reject')}
+          </button>
+        </>
       )}
     </div>
   )
