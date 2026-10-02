@@ -35,9 +35,12 @@
     "tip": "Tip: Choose <b>Food</b> to find restaurants that have that item in their menu."
   },
   "card": {
-    "noAddress": "No address provided",
-    "cityNotSet": "City not set",
-    "noRating": "New"
+    "new": "New",
+    "verified": "Verified restaurant",
+    "vegOptions": "Veg options",
+    "pickup": "Pickup",
+    "delivery": "Delivery",
+    "reviews": "Rated {rating} out of 5 from {count, plural, one {# review} other {# reviews}}"
   },
   "pagination": {
     "label": "Restaurant pages",

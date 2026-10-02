@@ -67,6 +67,7 @@ const ORDER_COLUMNS = `
 const ORDERS_LIST = { compare: byCreatedDesc, limit: 200 };
 
 import SubscriptionBanner from "@/components/dashboard/owner/SubscriptionBanner";
+import CrReminderBanner from "@/components/dashboard/owner/CrReminderBanner";
 import OverviewTab from "@/components/dashboard/owner/tabs/OverviewTab";
 import MenuItemsTab from "@/components/dashboard/owner/tabs/MenuItemsTab";
 import CategoriesTab from "@/components/dashboard/owner/tabs/CategoriesTab";
@@ -675,6 +676,13 @@ export default function OwnerDashboardPage() {
           )}
 
           <SubscriptionBanner restaurant={restaurant} />
+          <CrReminderBanner
+            restaurant={restaurant}
+            onSubmitted={async () => {
+              const { data } = await getUserRestaurant(user.id);
+              if (data) setRestaurant(data);
+            }}
+          />
 
           <TabSectionHeader
             title={tabTitles[activeTab]}

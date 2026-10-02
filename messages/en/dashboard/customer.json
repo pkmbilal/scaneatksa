@@ -128,7 +128,7 @@
       "descriptionHelp": "Optional — helps us understand your business better.",
       "crNumber": "Commercial Registration (CR) Number",
       "crNumberPlaceholder": "1010123456",
-      "crNumberHelp": "The 10-digit number on your Ministry of Commerce CR certificate.",
+      "crNumberHelp": "Optional now — the 10-digit number on your Ministry of Commerce CR certificate.",
       "vatNumber": "VAT Number",
       "vatNumberPlaceholder": "300000000000003",
       "vatNumberHelp": "Optional — your 15-digit ZATCA VAT registration number.",
@@ -136,7 +136,7 @@
       "mapsUrlPlaceholder": "https://maps.app.goo.gl/…",
       "mapsUrlHelp": "Open your restaurant in Google Maps, tap Share and paste the link here.",
       "crDocument": "CR Certificate",
-      "crDocumentHelp": "PDF or a clear photo (JPG, PNG, WEBP), up to 5MB. Only the admin team can see it."
+      "crDocumentHelp": "Optional now — PDF or a clear photo (JPG, PNG, WEBP), up to 5MB. Only the admin team can see it."
     },
     "errors": {
       "invalidPhone": "Please enter a valid phone number (include country code, no spaces).",
@@ -171,8 +171,8 @@
       "requirements": {
         "title": "Requirements",
         "subtitle": "Minimum needed to approve",
-        "item1": "Valid Commercial Registration (CR)",
-        "item2": "CR certificate (PDF or photo)",
+        "item1": "Commercial Registration (CR) — can be added within 7 days of approval",
+        "item2": "CR certificate (PDF or photo) — can be uploaded within 7 days of approval",
         "item3": "Google Maps listing of the restaurant",
         "item4": "Active WhatsApp number"
       },
@@ -184,6 +184,8 @@
     "verificationSection": "Business verification",
     "verificationSectionHelp": "We use these to confirm that you own or manage a real, registered restaurant.",
     "emailNotVerifiedTitle": "Verify your email first",
-    "emailNotVerifiedDescription": "Please confirm your email address using the link we sent you, then come back to submit your request."
+    "emailNotVerifiedDescription": "Please confirm your email address using the link we sent you, then come back to submit your request.",
+    "crDeadlineNoticeTitle": "CR is optional for now",
+    "crDeadlineNotice": "You can submit without your CR number and certificate, but you must upload them within {days} days after your account is approved. Otherwise your restaurant will be suspended until you upload them."
   }
 }

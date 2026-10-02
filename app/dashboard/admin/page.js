@@ -370,12 +370,12 @@ export default function AdminDashboard() {
   // The CR certificate lives in the private R2 bucket; the API route hands
   // back a 5-minute presigned URL. The tab is opened synchronously (before
   // the await) so popup blockers treat it as user-initiated.
-  const handleViewDocument = async (request) => {
+  const openPrivateDocument = async (apiPath) => {
     const win = window.open('', '_blank')
     const { data: sess } = await supabase.auth.getSession()
     const token = sess?.session?.access_token
 
-    const res = await fetch(`/api/admin/restaurant-requests/${request.id}/document`, {
+    const res = await fetch(apiPath, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     const data = await res.json().catch(() => null)
@@ -395,6 +395,32 @@ export default function AdminDashboard() {
         description: t('dialogs.errorOpeningDocument', { message: data?.error || res.status }),
         isError: true,
       })
+    }
+  }
+
+  const handleViewDocument = (request) =>
+    openPrivateDocument(`/api/admin/restaurant-requests/${request.id}/document`)
+
+  // CR submitted by an owner after approval (restaurants.cr_document_path).
+  const handleViewRestaurantCr = (restaurant) =>
+    openPrivateDocument(`/api/admin/restaurants/${restaurant.id}/cr-document`)
+
+  const handleVerifyRestaurantCr = async (restaurant, verified) => {
+    const { error } = await supabase.rpc('admin_verify_restaurant_cr', {
+      p_restaurant_id: restaurant.id,
+      p_verified: verified,
+    })
+
+    if (error) {
+      setInfoDialog({ open: true, title: t('dialogs.errorTitle'), description: error.message, isError: true })
+    } else {
+      setInfoDialog({
+        open: true,
+        title: t('dialogs.successTitle'),
+        description: t(verified ? 'subscriptionsTab.cr.verifiedSuccess' : 'subscriptionsTab.cr.rejectedSuccess'),
+        isError: false,
+      })
+      loadRestaurants()
     }
   }
 
@@ -734,6 +760,8 @@ export default function AdminDashboard() {
                   restaurants={allRestaurants}
                   events={subscriptionEvents}
                   onUpdate={handleSubscriptionUpdate}
+                  onViewCr={handleViewRestaurantCr}
+                  onVerifyCr={handleVerifyRestaurantCr}
                 />
               )}
 

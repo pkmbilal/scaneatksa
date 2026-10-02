@@ -4,8 +4,13 @@ import FavoriteButton from "@/components/FavoriteButton"
 import { cityLabel } from "@/lib/saudiCities"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { UtensilsCrossed, MapPin, Star, Clock } from "lucide-react"
+import { UtensilsCrossed, MapPin, Star, BadgeCheck, Leaf, ShoppingBag, Bike } from "lucide-react"
 
+const MAX_CUISINES = 2
+
+// Every detail below renders only when its data exists -- no "not set"
+// placeholders. Extras (rating, cuisines, veg, is_new) are merged on by
+// enrichRestaurantsForCards in lib/restaurantCardData.js.
 // `headingLevel` keeps the page outline valid: 2 when the card sits directly
 // under the page H1 (the /restaurants listing), 3 inside a titled section.
 export default async function RestaurantCard({ restaurant, headingLevel = 3 }) {
@@ -14,12 +19,19 @@ export default async function RestaurantCard({ restaurant, headingLevel = 3 }) {
   const { id, slug, name, address, image_url } = restaurant
   const cityName = cityLabel(restaurant?.city, await getLocale())
 
-  // avg_rating/review_count come from the batched restaurant_rating_summary
-  // view (merged onto the restaurant row in app/restaurants/page.js) --
-  // there is no rating column on restaurants itself, it's always aggregated
-  // from reviews. null/undefined means no reviews yet.
-  const avgRating = restaurant?.avg_rating ?? null
-  const eta = restaurant?.delivery_time ?? "20–35 min"
+  // No rating column on restaurants -- it's aggregated from reviews by the
+  // restaurant_rating_summary view.
+  const reviewCount = restaurant?.review_count ?? 0
+  const avgRating = reviewCount > 0 ? restaurant?.avg_rating ?? null : null
+
+  const cuisines = restaurant?.cuisines ?? []
+  const shownCuisines = cuisines.slice(0, MAX_CUISINES)
+  const extraCuisines = cuisines.length - shownCuisines.length
+
+  const hasChips = !!cityName || cuisines.length > 0 || restaurant?.has_veg_available
+  const hasServices = restaurant?.pickup_available || restaurant?.delivery_available
+
+  const chip = "inline-flex items-center gap-1 rounded-full border bg-gray-50 px-2 py-0.5 text-[11px] font-semibold text-gray-700"
 
   return (
     <div className="relative group">
@@ -28,8 +40,8 @@ export default async function RestaurantCard({ restaurant, headingLevel = 3 }) {
         <FavoriteButton restaurantId={id} />
       </div>
 
-      <Link href={`/menu/${slug}`} className="block">
-        <Card className="overflow-hidden border bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 !py-2 !px-1 md:!p-0">
+      <Link href={`/menu/${slug}`} className="block h-full">
+        <Card className="h-full overflow-hidden border bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 !py-2 !px-1 md:!p-0">
           <div className="flex items-stretch sm:flex-col">
             {/* LEFT (mobile): image with tight vertical padding */}
             <div className="px-2 py-1 sm:p-0">
@@ -47,59 +59,82 @@ export default async function RestaurantCard({ restaurant, headingLevel = 3 }) {
                   </div>
                 )}
 
-                {/* Desktop overlay only */}
-                <div className="absolute inset-0 hidden sm:block bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-
-                {/* Desktop-only rating/eta pills */}
-                {/* <div className="hidden sm:flex absolute bottom-3 left-3 right-3 items-center justify-between">
-                  <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-gray-900 shadow">
-                    <Star className="h-4 w-4" />
-                    {avgRating != null ? avgRating.toFixed(1) : t('card.noRating')}
-                  </div>
-                  <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-gray-900 shadow">
-                    <Clock className="h-4 w-4" />
-                    {eta}
-                  </div>
-                </div> */}
+                {restaurant?.is_new && (
+                  <span className="absolute top-2 start-2 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide text-gray-900 shadow">
+                    {t('card.new')}
+                  </span>
+                )}
               </div>
             </div>
 
             {/* RIGHT (mobile): tight vertical padding */}
-            <CardContent className="flex-1 p-0 sm:p-4">
-              <div className="px-2 py-1 sm:p-0">
-                <div className="min-w-0">
+            <CardContent className="flex-1 min-w-0 p-0 sm:p-4">
+              <div className="px-2 py-1 sm:p-0 space-y-1.5">
+                <div className="flex items-center gap-1 min-w-0">
                   <Heading className="text-[15px] sm:text-lg font-extrabold tracking-tight leading-tight text-gray-900 truncate">
                     {name}
                   </Heading>
-
-                  {/* Mobile rating/eta (plain text) */}
-                  <div className="sm:hidden mt-0.5 flex items-center gap-2 text-xs text-gray-600">
-                    <span className="inline-flex items-center gap-1">
-                      <Star className="h-3.5 w-3.5 text-gray-700" />
-                      {avgRating != null ? avgRating.toFixed(1) : t('card.noRating')}
-                    </span>
-                    <span className="text-gray-300">•</span>
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 text-gray-700" />
-                      {eta}
-                    </span>
-                  </div>
-
-                  {/* Address (tight spacing) */}
-                  <div className="mt-1 flex items-start gap-2 text-sm text-gray-600">
-                    <MapPin className="h-4 w-4 mt-0.5 text-emerald-600 shrink-0" />
-                    <span className="line-clamp-1 sm:line-clamp-2 leading-snug">
-                      {address || t('card.noAddress')}
-                    </span>
-                  </div>
-
-                  {/* City pill (tight) */}
-                  <div className="mt-1">
-                    <span className="inline-flex items-center rounded-full border bg-gray-50 px-2.5 py-0.5 text-xs font-semibold text-gray-700">
-                      {cityName || t('card.cityNotSet')}
-                    </span>
-                  </div>
+                  {restaurant?.cr_verified_at && (
+                    <BadgeCheck
+                      className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-emerald-600"
+                      aria-label={t('card.verified')}
+                      role="img"
+                    >
+                      <title>{t('card.verified')}</title>
+                    </BadgeCheck>
+                  )}
                 </div>
+
+                {avgRating != null && (
+                  <div
+                    className="flex items-center gap-1 text-xs sm:text-sm text-gray-700"
+                    aria-label={t('card.reviews', { rating: Number(avgRating).toFixed(1), count: reviewCount })}
+                  >
+                    <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
+                    <span className="font-semibold">{Number(avgRating).toFixed(1)}</span>
+                    <span className="text-gray-500">({reviewCount})</span>
+                  </div>
+                )}
+
+                {address && (
+                  <div className="flex items-start gap-2 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4 mt-0.5 text-emerald-600 shrink-0" aria-hidden="true" />
+                    <span className="line-clamp-1 sm:line-clamp-2 leading-snug">{address}</span>
+                  </div>
+                )}
+
+                {hasChips && (
+                  <div className="flex flex-wrap gap-1">
+                    {cityName && <span className={chip}>{cityName}</span>}
+                    {shownCuisines.map((c) => (
+                      <span key={c} className={chip}>{c}</span>
+                    ))}
+                    {extraCuisines > 0 && <span className={chip}>+{extraCuisines}</span>}
+                    {restaurant?.has_veg_available && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                        <Leaf className="h-3 w-3" aria-hidden="true" />
+                        {t('card.vegOptions')}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {hasServices && (
+                  <div className="flex flex-wrap gap-3 text-xs text-gray-600">
+                    {restaurant?.pickup_available && (
+                      <span className="inline-flex items-center gap-1">
+                        <ShoppingBag className="h-3.5 w-3.5" aria-hidden="true" />
+                        {t('card.pickup')}
+                      </span>
+                    )}
+                    {restaurant?.delivery_available && (
+                      <span className="inline-flex items-center gap-1">
+                        <Bike className="h-3.5 w-3.5" aria-hidden="true" />
+                        {t('card.delivery')}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
           </div>

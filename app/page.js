@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { RESTAURANT_CARD_COLUMNS, enrichRestaurantsForCards } from "@/lib/restaurantCardData";
 import { getTranslations, getLocale } from "next-intl/server";
 import {
   SITE_URL,
@@ -98,12 +99,13 @@ export async function generateMetadata() {
 export default async function HomePage() {
   const supabase = supabaseServer();
 
-  const { data: restaurants } = await supabase
+  const { data: restaurantRows } = await supabase
     .from("restaurants")
-    .select("*")
+    .select(RESTAURANT_CARD_COLUMNS)
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(6);
+  const restaurants = await enrichRestaurantsForCards(supabase, restaurantRows);
 
   const restaurantCount = restaurants?.length || 0;
 

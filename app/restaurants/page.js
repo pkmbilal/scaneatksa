@@ -11,6 +11,7 @@ import {
 } from "@/lib/seo";
 import { supabaseServer } from "@/lib/supabase/server";
 import { pageQuery, pageRange, parsePage, totalPages } from "@/lib/pagination";
+import { RESTAURANT_CARD_COLUMNS, enrichRestaurantsForCards } from "@/lib/restaurantCardData";
 import Link from "next/link";
 import RestaurantCard from '@/components/restaurant/RestaurantCard'
 import RestaurantsFilters from '@/components/restaurant/RestaurantsFilters'
@@ -137,18 +138,7 @@ export default async function RestaurantsPage({ searchParams }) {
   // Build restaurants query
   let restaurantsQuery = supabase
     .from('restaurants')
-    .select(
-      `
-      id,
-      slug,
-      name,
-      address,
-      image_url,
-      is_active,
-      city
-    `,
-      { count: 'exact' }
-    )
+    .select(RESTAURANT_CARD_COLUMNS, { count: 'exact' })
     .eq('is_active', true)
     .order('created_at', { ascending: false })
 
@@ -167,26 +157,8 @@ export default async function RestaurantsPage({ searchParams }) {
   if (error) console.log('Restaurants fetch error:', error)
   const pages = totalPages(count, PAGE_SIZE)
 
-  // Batched average-rating/review-count lookup (restaurant_rating_summary is
-  // a view over reviews, mirrors the restaurant_menu_flags batching above)
-  // -- one .in(restaurant_id, ids) query instead of one per card.
-  let restaurantsWithRatings = restaurants || []
-  if (restaurantsWithRatings.length > 0) {
-    const { data: ratingSummaries } = await supabase
-      .from('restaurant_rating_summary')
-      .select('restaurant_id, avg_rating, review_count')
-      .in(
-        'restaurant_id',
-        restaurantsWithRatings.map((r) => r.id)
-      )
-
-    const ratingsById = new Map((ratingSummaries || []).map((r) => [r.restaurant_id, r]))
-    restaurantsWithRatings = restaurantsWithRatings.map((r) => ({
-      ...r,
-      avg_rating: ratingsById.get(r.id)?.avg_rating ?? null,
-      review_count: ratingsById.get(r.id)?.review_count ?? 0,
-    }))
-  }
+  // Batched rating / cuisines / veg lookups for the cards.
+  const restaurantsWithRatings = await enrichRestaurantsForCards(supabase, restaurants)
 
   // Mirrors generateMetadata: only the bare listing and single-city views are
   // indexable, so only those get an ItemList (and a city-specific H1).
