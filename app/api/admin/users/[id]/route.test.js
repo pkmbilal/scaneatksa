@@ -4,12 +4,13 @@ import { NextResponse } from "next/server";
 vi.mock("@/lib/auth/admin", () => ({
   requireAdmin: vi.fn(),
   setUserDisabled: vi.fn(),
+  logAdminAction: vi.fn(),
 }));
 vi.mock("@/lib/supabaseAdmin", () => ({
-  supabaseAdmin: { from: vi.fn(), auth: { admin: { deleteUser: vi.fn() } } },
+  supabaseAdmin: { from: vi.fn(), auth: { admin: { deleteUser: vi.fn(), getUserById: vi.fn() } } },
 }));
 
-const { requireAdmin, setUserDisabled } = await import("@/lib/auth/admin");
+const { requireAdmin, setUserDisabled, logAdminAction } = await import("@/lib/auth/admin");
 const { supabaseAdmin } = await import("@/lib/supabaseAdmin");
 const { PATCH, DELETE } = await import("./route.js");
 
@@ -58,6 +59,8 @@ describe("/api/admin/users/[id]", () => {
 
     expect((await PATCH(makeRequest("PATCH", { is_active: true }), ctx("user-2"))).status).toBe(200);
     expect(setUserDisabled).toHaveBeenLastCalledWith("user-2", false);
+    expect(logAdminAction).toHaveBeenCalledWith("admin-1", "disable_user", "user_profiles", "user-2");
+    expect(logAdminAction).toHaveBeenCalledWith("admin-1", "enable_user", "user_profiles", "user-2");
   });
 
   it("rejects a non-boolean is_active", async () => {
@@ -76,11 +79,15 @@ describe("/api/admin/users/[id]", () => {
 
   it("deletes the auth user (profile cascades)", async () => {
     mockOwnedRestaurant(null);
+    supabaseAdmin.auth.admin.getUserById.mockResolvedValue({ data: { user: { email: "x@y.z" } } });
     supabaseAdmin.auth.admin.deleteUser.mockResolvedValue({ error: null });
 
     const res = await DELETE(makeRequest("DELETE"), ctx("user-2"));
 
     expect(res.status).toBe(200);
     expect(supabaseAdmin.auth.admin.deleteUser).toHaveBeenCalledWith("user-2");
+    expect(logAdminAction).toHaveBeenCalledWith("admin-1", "delete_user", "user_profiles", "user-2", {
+      email: "x@y.z",
+    });
   });
 });

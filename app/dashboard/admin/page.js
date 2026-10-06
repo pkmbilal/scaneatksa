@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Inbox, ListChecks, Users as UsersIcon, Store, UtensilsCrossed, CreditCard, TriangleAlert, CheckCircle } from 'lucide-react'
-import { getCurrentUser, getUserProfile } from '@/lib/auth/client'
+import { getCurrentUser, getUserProfile, needsMfa } from '@/lib/auth/client'
 import { DUE_SOON_DAYS, latestSubscriptionAction, latestSubscriptionEvent } from '@/lib/subscription'
 import LoadingScreen from '@/components/common/LoadingScreen'
 import { useSubscriptionEventsRealtime } from '@/components/dashboard/shared/hooks/useSubscriptionEventsRealtime'
@@ -118,6 +118,13 @@ export default function AdminDashboard() {
 
     if (userProfile && userProfile.role !== 'admin') {
       router.push('/dashboard')
+      return
+    }
+
+    // Without TOTP (aal2) is_admin() is false in the database, so every
+    // admin read/write below would fail -- finish MFA first.
+    if (await needsMfa()) {
+      router.replace('/auth/mfa')
       return
     }
 
