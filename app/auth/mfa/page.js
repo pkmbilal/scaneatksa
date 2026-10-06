@@ -11,6 +11,13 @@ import { ShieldCheck } from "lucide-react";
 import { getCurrentUser, getUserProfile, getDashboardPath, needsMfa, signOut } from "@/lib/auth/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
+// Supabase returns the QR as a raw, unescaped "data:image/svg+xml;utf-8,<svg…>\n"
+// string, which next/image rejects (trailing newline, raw markup). Re-encode it.
+function svgDataUri(qrCode) {
+  const svg = qrCode.replace(/^data:image\/svg\+xml;[^,]*,/, "").trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
 // Second sign-in step for admins: TOTP from an authenticator app. On first
 // visit (no verified factor yet) the admin scans a QR code to enroll; after
 // that they just enter the 6-digit code. Passing it upgrades the session to
@@ -93,7 +100,7 @@ export default function MfaPage() {
     }
 
     setFactorId(enrolled.id);
-    setQrCode(enrolled.totp.qr_code);
+    setQrCode(svgDataUri(enrolled.totp.qr_code));
     setSecret(enrolled.totp.secret);
     setMode("enroll");
   }
