@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { requireAdmin, setUserDisabled } from "@/lib/auth/admin";
+import { requireAdmin, setUserDisabled, logAdminAction } from "@/lib/auth/admin";
 
 export const runtime = "nodejs";
 
@@ -19,13 +19,13 @@ async function resolveTarget(req, context) {
     return { error: NextResponse.json({ error: "You can't do this to your own account" }, { status: 400 }) };
   }
 
-  return { id };
+  return { id, actorId: userId };
 }
 
 // Enable/disable a user: { is_active: boolean }
 export async function PATCH(req, context) {
   try {
-    const { id, error } = await resolveTarget(req, context);
+    const { id, actorId, error } = await resolveTarget(req, context);
     if (error) return error;
 
     const body = await req.json().catch(() => null);
@@ -39,6 +39,8 @@ export async function PATCH(req, context) {
       return NextResponse.json({ error: "Could not update this account" }, { status: 400 });
     }
 
+    await logAdminAction(actorId, body.is_active ? "enable_user" : "disable_user", "user_profiles", id);
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("PATCH /api/admin/users/[id] failed:", err);
@@ -50,7 +52,7 @@ export async function PATCH(req, context) {
 // restaurant requests) cascade, orders keep their history with user_id nulled.
 export async function DELETE(req, context) {
   try {
-    const { id, error } = await resolveTarget(req, context);
+    const { id, actorId, error } = await resolveTarget(req, context);
     if (error) return error;
 
     // restaurants.owner_id is ON DELETE SET NULL -- deleting an owner would
@@ -69,11 +71,16 @@ export async function DELETE(req, context) {
       );
     }
 
+    // Snapshot who is being deleted -- the profile row cascades away.
+    const { data: target } = await supabaseAdmin.auth.admin.getUserById(id);
+
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(id);
     if (deleteError) {
       console.error("Failed to delete user:", deleteError);
       return NextResponse.json({ error: "Could not delete this account" }, { status: 400 });
     }
+
+    await logAdminAction(actorId, "delete_user", "user_profiles", id, { email: target?.user?.email ?? null });
 
     return NextResponse.json({ ok: true });
   } catch (err) {

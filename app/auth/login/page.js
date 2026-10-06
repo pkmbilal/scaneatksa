@@ -55,6 +55,13 @@ export default function LoginPage() {
         return;
       }
 
+      // Admins finish signing in with their authenticator code (or set one
+      // up on first sign-in) before reaching the dashboard.
+      if (role === "admin") {
+        router.replace("/auth/mfa");
+        return;
+      }
+
       // Go straight to the role dashboard; /dashboard would show its own
       // loader before redirecting, stacking two loading screens.
       router.replace(getDashboardPath(role));
