@@ -92,6 +92,8 @@ export default function MfaPage() {
     const { data: enrolled, error: enrollError } = await supabase.auth.mfa.enroll({
       factorType: "totp",
       friendlyName: "ScanEat admin",
+      // Without this Supabase uses the Site URL host, so the label would change per environment.
+      issuer: "ScanEat",
     });
     if (enrollError || !enrolled) {
       setError(t("mfa.loadError"));
